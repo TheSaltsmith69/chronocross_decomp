@@ -42,6 +42,10 @@ void func_8003CCB0(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CCF8);
 
+INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_800635E4);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_800635F4);
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CD38);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D070);

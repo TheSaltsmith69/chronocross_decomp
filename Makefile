@@ -22,6 +22,9 @@ CC_DIR     := tools/gcc-$(CC_VERSION)-psx
 CPP        := $(CC_DIR)/cpp
 CC1        := $(CC_DIR)/cc1
 MASPSX     := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div
+# gcc 2.8.1 aligns jump tables to 8 (.align 3); the original's tables are
+# only word-aligned, so cap rodata alignment at 4.
+FIXALIGN   := sed 's/^\t\.align\t3$$/\t.align\t2/'
 
 CPPFLAGS  := -undef -lang-c -nostdinc -Iinclude -Isrc -D_LANGUAGE_C -DUSE_INCLUDE_ASM
 CFLAGS    := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char
@@ -57,7 +60,10 @@ $(BUILD)/%.o: %.s
 # C: preprocess -> PS1 gcc cc1 -> maspsx (ASPSX emulation) -> GNU as
 $(BUILD)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CPP) $(CPPFLAGS) $< | $(CC1) $(CFLAGS) | $(MASPSX) | $(AS) $(ASFLAGS) -o $@
+	$(CPP) $(CPPFLAGS) $< | $(CC1) $(CFLAGS) | $(FIXALIGN) | $(MASPSX) | $(AS) $(ASFLAGS) -o $@
+
+# No per-file dependency tracking: rebuild every C object when a header changes
+$(C_FILES:%.c=$(BUILD)/%.o): $(wildcard include/*.h)
 
 $(BUILD)/%.o: %.bin
 	@mkdir -p $(dir $@)

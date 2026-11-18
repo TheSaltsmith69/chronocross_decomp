@@ -234,6 +234,12 @@ s32 func_8001B848(void) {
     return 0;
 }
 
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_800623EC);
+
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_800623F8);
+
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_80062400);
+
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001B8B0);
 
 extern s32 D_80076688;
@@ -332,6 +338,10 @@ INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C31C);
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C388);
 
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_80062444);
+
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_80062468);
+
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C4A0);
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C918);
@@ -345,6 +355,8 @@ INCLUDE_ASM("asm/nonmatchings/game/main", func_8001DCC4);
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001E55C);
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001EA4C);
+
+INCLUDE_RODATA("asm/nonmatchings/game/main", D_800624F0);
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001EFA8);
 

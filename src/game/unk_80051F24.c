@@ -125,7 +125,7 @@ void func_8005434C(Unk80051F24 *arg0) {
     arg0->unk9C = 0;
     arg0->unk10C |= 3;
     arg0->unk9E = 0;
-    arg0->unk5C = v << 23;
+    *(s32 *)&arg0->unk5C = v << 23;
 }
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_8005437C);

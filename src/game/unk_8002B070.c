@@ -53,9 +53,44 @@ void func_8002B070(SVECTOR_8002B070 *v, s32 n, SVECTOR_8002B070 *center, SVECTOR
     center->vz = (max->vz + min->vz) / 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B1CC);
+s32 func_80025044(s32);
+s32 func_80025114(s32);
+
+s32 func_8002B1CC(s32 a, s32 mode) {
+    s32 v;
+    if ((a >> 12) & 1) {
+        a = 0x1000 - (a & 0xFFF);
+    } else {
+        a &= 0xFFF;
+    }
+    switch (mode) {
+    case 1:
+        v = func_80025044(a / 4);
+        break;
+    case 2:
+        v = 0x1000 - func_80025114(a / 4);
+        break;
+    case 3:
+        if (a > 0x800) {
+            v = 0x1000 - (func_80025044(a / 2) >> 1);
+        } else {
+            v = func_80025044(a / 2) >> 1;
+        }
+        break;
+    case 4:
+        v = 0x800 - func_80025114(a / 2) / 2;
+        break;
+    case 0:
+    default:
+        v = a;
+        break;
+    }
+    return v;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B2D0);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_8002B070", D_80062B04);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B34C);
 

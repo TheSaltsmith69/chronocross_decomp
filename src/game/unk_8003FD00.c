@@ -124,7 +124,44 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8004227C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800422E8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042364);
+typedef struct {
+    void *next;
+    s32 tag;
+    u32 flags;
+} Node80042364;
+extern Node80042364 D_80086FD0[5];
+extern Unk8006B490 *D_8006B4B0;
+void func_8003F884(void *, s32);
+
+void func_80042364(void) {
+    s32 i;
+    Node80042364 *p = D_80086FD0;
+    D_8006B490 = NULL;
+    D_8006B4B0 = NULL;
+    for (i = 0; i != 5; i++, p++) {
+        func_8003F884(p, 12);
+        p->flags = (p->flags & ~0x3F) | 0xF;
+        switch (i) {
+        case 0:
+            p->tag = 0x656E696C;
+            break;
+        case 1:
+            p->tag = 0x74616C66;
+            break;
+        case 2:
+            p->tag = 0x306E7573;
+            break;
+        case 3:
+            p->tag = 0x7467696C;
+            p->flags = (p->flags & ~0x3F) | 0x11;
+            break;
+        case 4:
+            p->tag = 0x6F726373;
+            break;
+        }
+        func_80041EB4((Unk8006B490 *)p, NULL);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8004247C);
 

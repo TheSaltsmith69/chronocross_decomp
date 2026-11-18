@@ -367,3 +367,15 @@ SpuSetReverbModeType = 0x800516C4; // type:func
 _spu_setReverbAttr = 0x80051894; // type:func
 SpuClearReverbWorkArea = 0x80051D64; // type:func
 SpuSetIRQAddr = 0x80056440; // type:func
+
+// ---- rodata used by already-matched C functions: keep it out of the
+// function .s files so the C file can pull it in with INCLUDE_RODATA ----
+D_8005783C = 0x8005783C; // force_not_migration:True
+D_80062314 = 0x80062314; // force_not_migration:True
+D_800623EC = 0x800623EC; // force_not_migration:True
+D_800623F8 = 0x800623F8; // force_not_migration:True
+D_80062400 = 0x80062400; // force_not_migration:True
+D_80062444 = 0x80062444; // force_not_migration:True
+D_80062468 = 0x80062468; // force_not_migration:True
+D_80062E40 = 0x80062E40; // force_not_migration:True
+D_800635E4 = 0x800635E4; // force_not_migration:True

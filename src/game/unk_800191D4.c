@@ -192,6 +192,10 @@ void func_8001A0E0(s32 arg0, s32 arg1, u32 arg2) {
     p->unk8 = arg2;
 }
 
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_8005783C);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_800622E8);
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A14C);
 
 typedef struct {
@@ -229,6 +233,8 @@ void func_8001A350(void) {
     func_8001C164();
     func_8003D92C(0x80120000, 0xDF000);
 }
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062314);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A448);
 

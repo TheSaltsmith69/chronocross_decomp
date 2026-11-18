@@ -25,7 +25,7 @@ options:
   o_as_suffix: True
   use_legacy_include_asm: False
 
-  section_order: [".rodata", ".text", ".data", ".bss"]
+  section_order: [".text", ".rodata", ".data", ".bss"]
 
   symbol_addrs_path:
     - symbol_addrs.txt
@@ -309,7 +309,22 @@ segments:
       - [0x42724, c, game/unk_80051F24]  # 80051F24
       - [0x46C40, asm, lib/libspu/s_sia]  # 80056440
       - [0x46C80, asm, lib/libgte/cmb_07]  # 80056480
-      - [0x46D30, data, main_data]   # 0x80056530-0x8006CE28
+      # ---- rodata (0x80056530-0x80063CA0), same object order as text ----
+      # Game C files own their slice (.rodata = pulled from the C object,
+      # rodata migrated into the function .s files); lib slices stay asm.
+      - [0x46D30, rodata, rodata_80056530]
+      - [0x4803C, .rodata, game/unk_800191D4]  # 8005783C
+      - [0x52BAC, .rodata, game/main]  # 800623AC
+      - [0x52D1C, rodata, rodata_8006251C]
+      - [0x532F0, .rodata, game/unk_8002B070]  # 80062AF0
+      - [0x53544, .rodata, game/unk_8002FE30]  # 80062D44
+      - [0x53DE4, .rodata, game/unk_8003CB78]  # 800635E4
+      - [0x53EB4, .rodata, game/unk_8003DD74]  # 800636B4
+      - [0x53FD0, .rodata, game/unk_8003FD00]  # 800637D0
+      - [0x54350, rodata, rodata_80063B50]
+      - [0x543A0, .rodata, game/unk_80051F24]  # 80063BA0
+      # ---- data (0x80063CA0-0x8006CE28) ----
+      - [0x544A0, data, main_data]
       - { start: 0x5D628, type: bss, vram: 0x8006CE28, name: main_bss }
 
   # Second module baked into the EXE right after main's BSS.
