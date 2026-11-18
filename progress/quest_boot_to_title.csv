@@ -225,8 +225,8 @@ order,seconds,addr,name,category,file,bytes,matched
 224,16.41,80045E78,func_80045E78,game,game/unk_80043F90,156,1
 225,16.42,80045CCC,func_80045CCC,game,game/unk_80043F90,428,1
 226,16.43,80024EB4,CdIntToPos,lib,lib/libcd/s_002,260,0
-227,16.44,8004600C,func_8004600C,game,game/unk_80043F90,892,0
-228,16.81,800468AC,func_800468AC,game,game/unk_80043F90,792,0
+227,16.44,8004600C,func_8004600C,game,game/unk_80043F90,892,1
+228,16.81,800468AC,func_800468AC,game,game/unk_80043F90,792,1
 229,16.82,800236BC,CdGetSector,lib,lib/libcd/sys,32,0
 230,16.83,80024BDC,CD_getsector,lib,lib/libcd/bios,256,0
 231,16.84,80024FB8,CdPosToInt,lib,lib/libcd/s_002,140,0
@@ -238,10 +238,10 @@ order,seconds,addr,name,category,file,bytes,matched
 237,18.61,80044924,func_80044924,game,game/unk_80043F90,228,1
 238,18.62,80044630,func_80044630,game,game/unk_80043F90,664,1
 239,18.63,80046698,func_80046698,game,game/unk_80043F90,532,1
-240,18.64,80046388,func_80046388,game,game/unk_80043F90,784,0
+240,18.64,80046388,func_80046388,game,game/unk_80043F90,784,1
 241,18.66,800448C8,func_800448C8,game,game/unk_80043F90,92,1
 242,18.67,80044484,func_80044484,game,game/unk_80043F90,428,1
-243,22.17,80046FB4,func_80046FB4,game,game/unk_80043F90,1556,0
+243,22.17,80046FB4,func_80046FB4,game,game/unk_80043F90,1556,1
 244,22.18,80047724,func_80047724,game,game/unk_80043F90,60,1
 245,23.81,80019A00,func_80019A00,game,game/unk_800191D4,724,0
 246,23.82,80010414,memmove,lib,lib/libc2/memmove,112,0
@@ -523,8 +523,8 @@ order,seconds,addr,name,category,file,bytes,matched
 522,100.04,80047760,func_80047760,game,game/unk_80043F90,228,1
 523,100.06,80047844,func_80047844,game,game/unk_80043F90,360,1
 524,100.25,8001B848,func_8001B848,game,game/main,104,0
-525,100.26,800479AC,func_800479AC,game,game/unk_80043F90,1132,0
-526,100.48,80046BC4,func_80046BC4,game,game/unk_80043F90,1008,0
+525,100.26,800479AC,func_800479AC,game,game/unk_80043F90,1132,1
+526,100.48,80046BC4,func_80046BC4,game,game/unk_80043F90,1008,1
 527,100.49,800475C8,func_800475C8,game,game/unk_80043F90,348,1
 528,100.66,8004ACA0,func_8004ACA0,game,game/unk_80049F90,544,0
 529,100.67,80051F44,func_80051F44,game,game/unk_80051F24,128,0

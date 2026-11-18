@@ -47,7 +47,7 @@ s32 func_80044484(s32);
 char *func_80044A88(s32);
 s32 PCopen(char *, s32, s32);
 s32 PClseek(s32, s32, s32);
-void func_80028614(s32);
+s32 func_80028614(s32);
 s32 func_80044630(s32);
 CdlLOC *CdIntToPos(s32, CdlLOC *);
 extern s32 D_80087898;
@@ -74,7 +74,7 @@ extern s32 D_800878E8;
 void func_800452E4(s32);
 s32 func_80046388(Unk80045CCC *);
 void func_80045ACC(s32);
-void func_80046FB4(void);
+void func_80046FB4(u8, u8 *);
 void func_80047724(u8, s32);
 s32 func_80045E78(s32, s32, s32, s32);
 void func_80044B0C(s32);
@@ -111,7 +111,7 @@ extern Unk80045CCC *D_800878FC;
 extern s32 D_80087930;
 extern s32 D_80087904;
 extern CdlLOC D_80087920;
-extern s32 D_80087944;
+extern u32 D_80087944;
 
 
 typedef struct {
@@ -486,9 +486,106 @@ s32 func_80045F14(s32 arg0, s32 arg1, s32 arg2) {
     return func_8004600C(arg0, arg1, arg2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_8004600C);
+extern s16 D_80087924;
+void func_800459D0(s32, s32, s32, s32);
+s32 *func_80047760(s32 *);
+s32 func_80047844(void);
+void func_800475C8(u8, s32);
+void func_80046BC4(u8, u8 *);
+void func_800468AC(u8, u8 *);
+s32 func_8004600C(s32 arg0, s32 arg1, s32 arg2) {
+    s32 i;
+    D_800878E8 = arg2;
+    D_80087930 = arg0;
+    D_800878F0 = 1;
+    if (arg2 & 0x100) {
+        func_80047760((s32 *)arg1);
+        func_80047844();
+        if (D_80087958 != 0) {
+            for (i = 0; i < 4; i++) {
+                D_8006B4CC = PCopen(func_80044A88(arg0), 0, 0);
+                if (D_8006B4CC != -1) {
+                    break;
+                }
+                func_800459D0(i, 0xFF, 0, 0);
+            }
+            return 0;
+        }
+        CdDataCallback(func_800475C8);
+        CdReadyCallback(func_80046BC4);
+        func_80044F6C(&D_80087830, 2);
+        func_80044FCC(&D_80087830, 2, (u8 *)&D_80087920, 0);
+        func_80044FCC(&D_80087830, 6, 0, 1);
+        func_800450F8(&D_80087830);
+        return 0;
+    }
+    if (arg2 & 0x200) {
+        D_800878E8 = (arg2 & 0xFDFF) | 0xA0;
+        D_80087924 = 0;
+        func_80047760((s32 *)arg1);
+        func_80047844();
+        if (D_80087958 != 0) {
+            for (i = 0; i < 4; i++) {
+                D_8006B4CC = PCopen(func_80044A88(arg0), 0, 0);
+                if (D_8006B4CC != -1) {
+                    break;
+                }
+                func_800459D0(i, 0xFF, 0, 0);
+            }
+            return 0;
+        }
+        return 0;
+    }
+    if (D_80087958 != 0) {
+        func_80045ACC(arg0);
+        return 0;
+    }
+    CdDataCallback(0);
+    CdReadyCallback(func_800468AC);
+    func_80044F6C(&D_80087830, 2);
+    func_80044FCC(&D_80087830, 2, (u8 *)&D_80087920, 0);
+    func_80044FCC(&D_80087830, 6, 0, 1);
+    func_800450F8(&D_80087830);
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_80046388);
+s32 func_80046388(Unk80045CCC *arg0) {
+    s32 i;
+    s32 j;
+    s32 min;
+    s32 n;
+    u32 minval;
+    u8 *tmp;
+    if (arg0 == 0) {
+        return 0;
+    }
+    n = 0;
+    while (arg0[n].unk4 != 0) {
+        n++;
+    }
+    if (n == 0) {
+        return 0;
+    }
+    i = 0;
+    while (i < n - 1) {
+        minval = arg0[i].unk0;
+        min = i;
+        for (j = i + 1; j < n; j++) {
+            if (arg0[j].unk0 < minval) {
+                min = j;
+                minval = arg0[j].unk0;
+            }
+        }
+        minval = arg0[i].unk0;
+        tmp = arg0[i].unk4;
+        arg0[i].unk0 = arg0[min].unk0;
+        arg0[i].unk4 = arg0[min].unk4;
+        arg0[min].unk0 = minval;
+        arg0[min].unk4 = tmp;
+        i++;
+    }
+    return n;
+}
 
 s32 func_80046698(Unk80045CCC *arg0, s32 arg1) {
     s32 n;
@@ -522,11 +619,210 @@ s32 func_80046698(Unk80045CCC *arg0, s32 arg1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_800468AC);
+extern s32 D_8006B4C0;
+extern s32 D_8006B4C4;
+extern s32 D_8006B4C8;
+extern u8 D_80087010[];
+void CdGetSector(void *, s32);
+s32 CdPosToInt(CdlLOC *);
+void func_80044CD0(s32);
+void func_800468AC(u8 arg0, u8 *arg1) {
+    D_8006B4C0++;
+    if (arg0 == 1) {
+        if (D_80087928 != 0) {
+            goto done;
+        }
+        if (D_800878F4 >= 0x800) {
+            CdGetSector(D_80087810, 3);
+            CdGetSector(D_8008792C, 0x200);
+        } else if (D_800878F4 > 0) {
+            CdGetSector(D_80087810, 3);
+            CdGetSector(D_8008792C, (D_800878F4 + 3) / 4);
+            CdGetSector(D_80087010, 0x200 - (D_800878F4 + 3) / 4);
+        }
+        if (CdPosToInt((CdlLOC *)D_80087810) != D_80087904) {
+            D_8006B4C8++;
+            goto retry;
+        }
+        D_8006B4C4++;
+        D_8008792C += 0x800;
+        D_800878F4 -= 0x800;
+        D_80087904++;
+        if (D_800878F4 <= 0) {
+        done:
+            CdReadyCallback(0);
+            D_800878F4 = 0;
+            func_80044CD0(0);
+            D_800878F0 = 0;
+            return;
+        }
+    } else {
+    retry:
+        D_80087944++;
+        D_80087978->unk0 = 1;
+        CdIntToPos(D_80087904, &D_80087920);
+        D_80087978->cmds[0].param = *(s32 *)&D_80087920;
+        CdSyncCallback(func_800455E4);
+        if (D_80087944 < 4) {
+            func_800452E4(D_80087978->unk1);
+        } else {
+            D_80087948 = 0x1E;
+            D_80087944 = 0;
+            func_800452E4(3);
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_80046BC4);
+void func_80046BC4(u8 arg0, u8 *arg1) {
+    s32 i;
+    u16 *ent;
+    s32 idx;
+    D_8006B4C0++;
+    if (arg0 == 1) {
+        if (D_80087928 != 0) {
+            CdReadyCallback(0);
+            CdDataCallback(0);
+            D_800878F4 = 0;
+            func_80044CD0(0);
+            D_800878F0 = 0;
+            return;
+        }
+        if (D_800878F4 > 0) {
+            for (i = 0; i < (u32)D_80087940; i++) {
+                ent = (u16 *)(D_80087880 + D_800878EC * 2);
+                idx = D_800878EC;
+                D_800878EC++;
+                if (D_800878EC >= (u32)D_80087940) {
+                    D_800878EC = 0;
+                }
+                if (ent[0] == 0) {
+                    break;
+                }
+            }
+            if (ent[0] == 0) {
+                CdGetSector(D_80087810, 3);
+                if (CdPosToInt((CdlLOC *)D_80087810) != D_80087904) {
+                    D_8006B4C8++;
+                    CdGetSector(D_80087010, 0x200);
+                    goto retry;
+                }
+                D_800878F4 -= 0x800;
+                ent[1] = D_80087938;
+                ent[0] = 1;
+                D_80087938++;
+                CdGetSector(D_8008792C + idx * 0x800, 0x200);
+                D_8006B4C4++;
+                D_80087904++;
+            } else {
+                goto retry;
+            }
+        }
+        if (D_800878F4 <= 0) {
+            CdReadyCallback(0);
+            D_800878F4 = 0;
+            func_80044CD0(0);
+            return;
+        }
+    } else {
+        D_80087944++;
+    retry:
+        D_80087978->unk0 = 1;
+        CdIntToPos(D_80087904, &D_80087920);
+        D_80087978->cmds[0].param = *(s32 *)&D_80087920;
+        CdSyncCallback(func_800455E4);
+        if (D_80087944 < 4) {
+            func_800452E4(D_80087978->unk1);
+        } else {
+            D_80087948 = 0x1E;
+            D_80087944 = 0;
+            func_800452E4(3);
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_80046FB4);
+void func_80046FB4(u8 arg0, u8 *arg1) {
+    s32 pos;
+    u32 start;
+    D_8006B4C0++;
+    if (arg0 == 1) {
+        if (D_80087928 != 0) {
+            CdReadyCallback(0);
+            CdDataCallback(0);
+            D_800878F4 = 0;
+            func_80044CD0(0);
+            D_8008791C = 0;
+            D_800878F0 = 0;
+            return;
+        }
+        if (D_80087910 == 0) {
+            if (D_800878F4 >= 0x800) {
+                CdGetSector(D_80087810, 3);
+                CdGetSector(D_8008792C, 0x200);
+            } else if (D_800878F4 > 0) {
+                CdGetSector(D_80087810, 3);
+                CdGetSector(D_8008792C, (D_800878F4 + 3) / 4);
+                CdGetSector(D_80087010, 0x200 - (D_800878F4 + 3) / 4);
+            }
+            if (CdPosToInt((CdlLOC *)D_80087810) != D_80087904) {
+                D_8006B4C8++;
+                goto retry;
+            }
+        }
+        D_8006B4C4++;
+        D_8008792C += 0x800;
+        D_800878F4 -= 0x800;
+        D_80087904++;
+        if (D_800878F4 <= 0) {
+            D_800878EC++;
+            pos = D_800878FC[D_800878EC].unk0;
+            D_8008792C = D_800878FC[D_800878EC].unk4;
+            if (pos >= 0 && D_8008792C != 0) {
+                start = func_80044484(D_800878F8 + pos);
+                D_800878F4 = func_80044630(D_800878F8 + pos);
+                if (start > D_80087904 && D_80087904 + D_80087884 >= start) {
+                    D_80087910 = 1;
+                    D_800878F4 = (D_80087904 - start) * 0x800;
+                    D_800878EC--;
+                } else if (start == D_80087904) {
+                    D_80087910 = 0;
+                    D_8008791C--;
+                } else {
+                    D_80087910 = 0;
+                    D_80087904 = start;
+                    CdIntToPos(D_80087904, &D_80087920);
+                    D_8008781C = CdReadyCallback(0);
+                    CdSyncCallback(func_800455E4);
+                    func_80044F6C(&D_80087830, 2);
+                    func_80044FCC(&D_80087830, 9, 0, 5);
+                    func_80044FCC(&D_80087830, 2, (u8 *)&D_80087920, 0);
+                    func_80044FCC(&D_80087830, 6, 0, 1);
+                    func_800450F8(&D_80087830);
+                    D_8008791C--;
+                }
+            } else {
+                D_800878F4 = 0;
+                CdReadyCallback(0);
+                func_80044CD0(0);
+                D_8008791C = 0;
+                D_800878F0 = 0;
+            }
+        }
+    } else {
+    retry:
+        D_80087944++;
+        D_80087978->unk0 = 1;
+        CdIntToPos(D_80087904, &D_80087920);
+        D_80087978->cmds[0].param = *(s32 *)&D_80087920;
+        CdSyncCallback(func_800455E4);
+        if (D_80087944 < 4) {
+            func_800452E4(D_80087978->unk1);
+        } else {
+            D_80087948 = 0x1E;
+            D_80087944 = 0;
+            func_800452E4(3);
+        }
+    }
+}
 
 void func_800475C8(u8 arg0, s32 arg1) {
     s16 i;
@@ -593,7 +889,78 @@ s32 func_80047844(void) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80043F90", func_800479AC);
+s32 PCread(s32, u8 *, s32);
+u8 *func_800479AC(void) {
+    s32 i;
+    s32 ret;
+    s32 n;
+    s32 *p;
+    u8 *data;
+    u16 *ent;
+    s32 idx;
+    if (D_80087828 == 0) {
+        return 0;
+    }
+    p = D_80087828;
+    n = *p;
+    data = (u8 *)p + n * 8 + 0x24;
+    ent = (u16 *)(p + 1);
+    if (D_80087958 != 0) {
+        if (D_8006B4CC != -1 && D_800878F0 > 0) {
+            for (i = 0; i < (u32)D_80087940; i++) {
+                ent = (u16 *)(D_80087880 + D_800878EC * 2);
+                idx = D_800878EC;
+                D_800878EC++;
+                if (D_800878EC >= (u32)D_80087940) {
+                    D_800878EC = 0;
+                }
+                if (ent[0] == 0) {
+                    break;
+                }
+            }
+            if (ent[0] != 0) {
+                return 0;
+            }
+            ent[0] = 3;
+            data += idx * 0x800;
+            for (i = 0; i < 4; i++) {
+                ret = PCread(D_8006B4CC, data, 0x800);
+                if (ret != 0) {
+                    break;
+                }
+                func_800459D0(i, 0, 0xFF, 0);
+            }
+            D_800878F4 -= 0x800;
+            if (D_800878F4 <= 0) {
+                D_800878F4 = 0;
+                for (i = 0; i < 4; i++) {
+                    ret = func_80028614(D_8006B4CC);
+                    if (ret == 0) {
+                        break;
+                    }
+                    func_800459D0(i, 0, 0, 0xFF);
+                }
+                D_8006B4CC = -1;
+                D_800878F0 = 0;
+            }
+            return data;
+        } else {
+            return 0;
+        }
+    } else {
+        for (i = 0; i < n; i++) {
+            if (ent[0] == 3 && ent[1] == D_8008789C) {
+                break;
+            }
+            ent += 4;
+        }
+        if (i == n) {
+            return 0;
+        }
+    }
+    D_8008789C++;
+    return data + i * 0x800;
+}
 
 u16 func_80047E18(u8 *arg0) {
     u32 idx;
