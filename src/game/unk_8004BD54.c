@@ -73,7 +73,64 @@ void func_8004BF5C(s32 voice, s32 arg1, u32 arg2) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004BF8C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004C038);
+typedef struct {
+    s32 unk0;
+    u32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u16 unk10;
+    u16 unk12;
+    u16 unk14;
+    u16 unk16;
+    s16 unk18;
+    s16 unk1A;
+} Attr8004C038;
+
+void func_8004C038(s32 voice, Attr8004C038 *a) {
+    u32 m = a->unk4;
+    if (m == 0) {
+        return;
+    }
+    a->unk4 = 0;
+    if (m & 0x10) {
+        m &= ~0x10;
+        func_8004BE28(voice, a->unk10);
+        if (m == 0) {
+            return;
+        }
+    }
+    if (m & 3) {
+        m &= ~3;
+        func_8004BDE0(voice, a->unk18, a->unk1A, a->unk16);
+        if (m == 0) {
+            return;
+        }
+    }
+    if (m & 0x80) {
+        m &= ~0x80;
+        func_8004BE40(voice, a->unk8);
+        if (m == 0) {
+            return;
+        }
+    }
+    if (m & 0x10000) {
+        m &= ~0x10000;
+        func_8004BE5C(voice, a->unkC);
+        if (m == 0) {
+            return;
+        }
+    }
+    if (m & 0x6600) {
+        m &= ~0x6600;
+        func_8004BE90(voice, a->unk14);
+        if (m == 0) {
+            return;
+        }
+    }
+    if (m & 0x9900) {
+        func_8004BE78(voice, a->unk12);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004C154);
 

@@ -222,7 +222,37 @@ void func_80051154(s32 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800511D0);
+extern s32 D_80089E08[];
+extern Unk80051F24 D_80089E40[];
+extern s32 D_8008BEB0[];
+
+void func_800511D0(s32 *arg0) {
+    u32 mask;
+    s32 active;
+    u32 i;
+    Unk80051F24 *ch;
+    s32 *p;
+    s16 n;
+    D_8008E398[0] &= ~0x10000;
+    if (D_8008BEB0[4] != 0) {
+        D_8008E398[0] &= ~0x10000;
+        func_80050FB0(arg0);
+        mask = 0x1000;
+        ch = D_80089E40;
+        n = 1;
+        active = D_8008BEB0[0];
+        if (arg0[0] != 0) {
+            n = arg0[0];
+        }
+        for (i = 0; i < 12; i++, ch++, mask <<= 1) {
+            if ((active & mask) && !(ch->unk28 & 0x2000000)) {
+                ch->unkF2 = (s16)((D_80089E08[i] << 8) + 0x80) / n;
+                ch->unkF0 = 0;
+                ch->unkA0 = n;
+            }
+        }
+    }
+}
 
 void func_800512F4(void) {
 }

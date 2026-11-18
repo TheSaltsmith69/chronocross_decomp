@@ -12,7 +12,41 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003EE10);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F2A8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F414);
+typedef struct Task8003F414 {
+    void (*fn)(struct Task8003F414 *);
+    struct Task8003F414 *next;
+} Task8003F414;
+extern u8 D_8006B394;
+extern s32 D_8006B488;
+extern u8 D_8006B3F4;
+extern u8 D_8007EAA8[];
+extern u8 D_8006B458;
+extern u8 D_8007E9FD;
+extern u16 D_8007EE08;
+extern u16 D_8007EAAA;
+extern s32 *D_8006B48C;
+
+void func_8003F414(void) {
+    Task8003F414 *t;
+    if (D_8006B394 == 0) {
+        D_8006B488++;
+        func_8003F2A8();
+        for (t = (Task8003F414 *)D_8006B48C; t != NULL; t = t->next) {
+            t->fn(t);
+        }
+        if (D_8006B3F4 != 0 && D_8007EAA8[0x24] == 0 && (D_8007EAA8[0x25] >> 4) == 1) {
+            func_80029B8C(&D_8007EAA8[0x24]);
+        }
+    }
+    if (D_8006B458 != 0) {
+        if (PadGetState(0) < 2) {
+            D_8007E9FD = 0;
+            D_8007EE08 = 0;
+        } else {
+            D_8007EE08 |= ~((D_8007EAAA >> 8) | ((D_8007EAAA & 0xFF) << 8));
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F528);
 

@@ -1,5 +1,13 @@
 #include "common.h"
 
+typedef struct Unk8006B490 {
+    struct Unk8006B490 *next;
+    s32 unk4;
+    u32 unk8;
+    s32 unkC;
+} Unk8006B490;
+extern Unk8006B490 *D_8006B490;
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8003FD00);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800404F4);
@@ -22,13 +30,6 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041E2C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041EAC);
 
-typedef struct Unk8006B490 {
-    struct Unk8006B490 *next;
-    s32 unk4;
-    u32 unk8;
-    s32 unkC;
-} Unk8006B490;
-extern Unk8006B490 *D_8006B490;
 void func_80041EB4(Unk8006B490 *arg0, Unk8006B490 *arg1) {
     Unk8006B490 *head = D_8006B490;
     u32 flags = arg0->unk8;
