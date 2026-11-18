@@ -87,7 +87,35 @@ void func_8001ABA4(void) {
     func_8001A0E0(D_80062400, D_800AAA20, 10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001ABF0);
+extern u8 D_8007E7B8;
+extern s16 D_8007E6A0;
+extern s16 D_8007E6A8;
+extern s32 D_8007E6E8;
+extern s32 D_800724E8;
+extern s32 D_8007E698;
+extern s32 D_8007E6B0;
+extern s32 D_8007E6F0[];
+
+void func_8001ABF0(void) {
+    if (D_8007E7B8 == 0) {
+        func_8004582C(5);
+        D_8007E6A0 = -1;
+        D_8007E6A8 = D_8007E6E8;
+        D_800724E8 = func_8003D8F4(func_80044924(D_8007E6E8 * 3 + 0x85), 1, 2);
+        D_8007E698 = func_8003D8F4(func_80044924(D_8007E6E8 * 3 + 0x83), 1, 2);
+        D_8007E6B0 = func_8003D8F4(func_80044924(D_8007E6E8 * 3 + 0x84), 1, 2);
+        D_8007E6F0[3] = D_8007E6B0;
+        D_8007E6F0[6] = 0;
+        D_8007E6F0[7] = 0;
+        D_8007E6F0[0] = D_8007E6E8 * 3 + 0x83;
+        D_8007E6F0[1] = D_8007E698;
+        D_8007E6F0[2] = D_8007E6E8 * 3 + 0x84;
+        D_8007E6F0[4] = D_8007E6E8 * 3 + 0x85;
+        D_8007E6F0[5] = D_800724E8;
+        func_80046698(D_8007E6F0, 0);
+        D_8007E7B8 = 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001AD30);
 
@@ -447,7 +475,46 @@ u32 func_80022238(s32 port, s32 idx) {
     return (map >> (idx * 4)) & 0xF;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8002232C);
+extern s32 D_800641C8[];
+
+void func_8002232C(u16 *pad) {
+    s32 port;
+    u16 out;
+    s32 i;
+    if (D_8006B479 == 0 || D_8006B479 == 2) {
+        port = 0;
+    } else {
+        port = 2;
+    }
+    out = *pad & 0xF000;
+    if (*pad & 0x800) {
+        out = (*pad & 0xF000) | 0x800;
+    }
+    if (*pad & 0x100) {
+        out |= 0x100;
+    }
+    if (func_80022238(port | 1, 2) == 2) {
+        if (*pad & 0x200) {
+            out |= 0x200;
+        }
+        if (*pad & 0x400) {
+            out |= 0x400;
+        }
+    } else {
+        if (*pad & 0x200) {
+            out |= 0x400;
+        }
+        if (*pad & 0x400) {
+            out |= 0x200;
+        }
+    }
+    for (i = 0; i < 8; i++) {
+        if (*pad & D_800641C8[func_80022238(port, i)]) {
+            out |= (u16)D_800641C8[i];
+        }
+    }
+    *pad = out;
+}
 
 extern s32 D_800641C0;
 

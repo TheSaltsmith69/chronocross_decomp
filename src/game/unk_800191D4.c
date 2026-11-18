@@ -1,5 +1,15 @@
 #include "common.h"
 
+typedef struct {
+    u8 pad0[0x2DE7];
+    u8 unk2DE7;
+    u8 pad2DE8[0x30AC - 0x2DE8];
+    s16 unk30AC;
+    s16 unk30AE;
+    s32 unk30B0;
+} Unk8006EBC8;
+extern Unk8006EBC8 D_8006EBC8;
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800191D4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800192E8);
@@ -63,7 +73,60 @@ u32 func_80019CD4(s32 arg0) {
     return t / 1000000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019DA0);
+typedef struct {
+    u8 pad0[0x16];
+    s16 unk16;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+    u8 unk1B;
+    u8 unk1C;
+    u8 unk1D;
+    u8 pad1E[0xBC - 0x1E];
+    u16 unkBC;
+    u16 unkBE;
+    u8 unkC0;
+    u8 unkC1;
+    u8 unkC2;
+    u8 unkC3;
+    u8 unkC4;
+    u8 unkC5;
+    u8 unkC6;
+    u8 unkC7;
+    u8 unkC8;
+    u8 unkC9;
+    u8 unkCA;
+    u8 unkCB;
+} Char80019DA0;
+extern u32 D_8006EB58;
+extern s32 D_8006EB4C;
+
+void func_80019DA0(void) {
+    s32 i;
+    Char80019DA0 *c;
+    u8 *g;
+    i = 0;
+    c = (Char80019DA0 *)&D_8006EBC8;
+    D_8006EB58 = 0x65 - D_8006EBC8.unk30AC;
+    for (; i < 44; i++) {
+        c = &((Char80019DA0 *)&D_8006EBC8)[i];
+        g = (u8 *)D_8006EB4C + i * 8;
+        c->unkBC = c->unk16;
+        c->unkC0 = c->unk18;
+        c->unkC2 = c->unk1A;
+        c->unkC4 = c->unk19;
+        c->unkC6 = c->unk1B;
+        c->unkC8 = c->unk1C;
+        c->unkCA = c->unk1D;
+        c->unkBE = func_80019CD4(*(u16 *)g - c->unk16) + 2;
+        c->unkC1 = func_80019CD4(g[2] - c->unk18);
+        c->unkC3 = func_80019CD4(g[4] - c->unk1A);
+        c->unkC5 = func_80019CD4(g[3] - c->unk19);
+        c->unkC7 = func_80019CD4(g[5] - c->unk1B);
+        c->unkC9 = func_80019CD4(g[6] - c->unk1C);
+        c->unkCB = func_80019CD4(g[7] - c->unk1D);
+    }
+}
 
 extern s32 D_8006EB20[];
 extern s32 D_8006EB48;
@@ -91,15 +154,6 @@ void func_80019ED8(u16 id) {
     func_80044EE0(0);
 }
 
-typedef struct {
-    u8 pad0[0x2DE7];
-    u8 unk2DE7;
-    u8 pad2DE8[0x30AC - 0x2DE8];
-    s16 unk30AC;
-    s16 unk30AE;
-    s32 unk30B0;
-} Unk8006EBC8;
-extern Unk8006EBC8 D_8006EBC8;
 extern s32 D_8006EB4C;
 extern s32 D_8006EB50;
 extern s32 D_8006EB54;

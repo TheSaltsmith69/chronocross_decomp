@@ -20,7 +20,38 @@ typedef struct {
     u8 unk1D;
 } Unk8002BC2C;
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B070);
+typedef struct {
+    s16 vx, vy, vz, pad;
+} SVECTOR_8002B070;
+
+void func_8002B070(SVECTOR_8002B070 *v, s32 n, SVECTOR_8002B070 *center, SVECTOR_8002B070 *max, SVECTOR_8002B070 *min) {
+    s32 i;
+    max->vx = max->vy = max->vz = -0x7FFF;
+    min->vx = min->vy = min->vz = 0x7FFF;
+    for (i = 0; i != n; i++) {
+        if (max->vx < v[i].vx) {
+            max->vx = v[i].vx;
+        }
+        if (max->vy < v[i].vy) {
+            max->vy = v[i].vy;
+        }
+        if (max->vz < v[i].vz) {
+            max->vz = v[i].vz;
+        }
+        if (min->vx > v[i].vx) {
+            min->vx = v[i].vx;
+        }
+        if (min->vy > v[i].vy) {
+            min->vy = v[i].vy;
+        }
+        if (min->vz > v[i].vz) {
+            min->vz = v[i].vz;
+        }
+    }
+    center->vx = (max->vx + min->vx) / 2;
+    center->vy = (max->vy + min->vy) / 2;
+    center->vz = (max->vz + min->vz) / 2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B1CC);
 
