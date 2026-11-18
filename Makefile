@@ -32,7 +32,7 @@ C_FILES   := $(shell find src -name '*.c' 2>/dev/null)
 BIN_FILES := $(shell find assets -name '*.bin' 2>/dev/null)
 O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES:%.bin=$(BUILD)/%.o)
 
-.PHONY: all split check clean
+.PHONY: all split check clean progress
 .DELETE_ON_ERROR:
 
 all: check
@@ -65,3 +65,7 @@ check: $(EXE)
 
 clean:
 	rm -rf $(BUILD)
+
+# Refresh progress/files.csv and add this commit to progress/history.csv
+progress: check
+	$(PYTHON) tools/progress.py --files-csv progress/files.csv --history progress/history.csv
