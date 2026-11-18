@@ -280,6 +280,7 @@ segments:
       - [0x2E574, c, game/unk_8003DD74]  # 8003DD74
       - [0x304F0, asm, lib/libapi/a13]  # 8003FCF0
       - [0x30500, c, game/unk_8003FD00]  # 8003FD00
+      - [0x34790, c, game/unk_80043F90]  # 80043F90  compiled at -O0 (frame-pointer code)
       - [0x3A3F0, asm, lib/libcd/event]  # 80049BF0
       - [0x3A540, asm, lib/libgte/mtx_04]  # 80049D40
       - [0x3A650, asm, lib/libgte/fgo_00]  # 80049E50

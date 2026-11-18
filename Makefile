@@ -26,6 +26,11 @@ MASPSX     := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div
 CPPFLAGS  := -undef -lang-c -nostdinc -Iinclude -Isrc -D_LANGUAGE_C -DUSE_INCLUDE_ASM
 CFLAGS    := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char
 
+# Source files the original build compiled without optimisation
+# (frame-pointer prologues, every variable kept on the stack).
+O0_SRCS   := src/game/unk_80043F90.c
+$(O0_SRCS:%.c=$(BUILD)/%.o): CFLAGS := -quiet -O0 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char
+
 ASFLAGS   := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_scripts/undefined_funcs_auto.txt \
              -T linker_scripts/undefined_syms_auto.txt -T $(LD_SCRIPT) -Map $(BUILD)/$(BASENAME).map
