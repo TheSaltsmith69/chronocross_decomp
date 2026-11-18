@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sound.h"
 
 void func_8004BD54(u32 arg0) {
     *(u16 *)0x1F801D88 = arg0;
@@ -86,7 +87,24 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D01C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D084);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D2D4);
+extern s32 D_8008ABF8;
+extern Unk80051F24 *D_8008ABF4;
+void func_8004D2D4(Unk80051F24 *ch, u32 arg1) {
+    u32 i;
+    for (i = 0; i < 32; i++, ch++) {
+        if (arg1 == ch->unk108) {
+            ch->unk108 = 24;
+        }
+    }
+    if (D_8008ABF8 != 0) {
+        ch = D_8008ABF4;
+        for (i = 0; i < 32; i++, ch++) {
+            if (arg1 == ch->unk108) {
+                ch->unk108 = 24;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D354);
 
@@ -96,7 +114,20 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D484);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D494);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D9D8);
+void func_8004D9D8(Unk80051F24 *ch, u32 *out, u32 mask, u32 keep) {
+    u32 bit = 1;
+    do {
+        if (mask & bit) {
+            if (ch->unk108 < 0x18) {
+                *out |= 1 << ch->unk108;
+            }
+        }
+        mask &= ~bit;
+        ch++;
+        bit <<= 1;
+    } while (mask != 0);
+    *out &= keep;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004DA38);
 

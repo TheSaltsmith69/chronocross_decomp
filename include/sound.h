@@ -19,14 +19,21 @@ typedef struct {
     /* 0x004 */ u8 *unk4[4];      /* script return stack, indexed by unkE4 */
     /* 0x014 */ u8 pad14[0x10];
     /* 0x024 */ s32 unk24;
-    /* 0x028 */ u8 pad28[0x24];
+    /* 0x028 */ u8 pad28[4];
+    /* 0x02C */ s32 unk2C;
+    /* 0x030 */ u8 pad30[0xC];
+    /* 0x03C */ s32 unk3C;
+    /* 0x040 */ u8 pad40[4];
+    /* 0x044 */ s32 unk44;
+    /* 0x048 */ u8 pad48[4];
     /* 0x04C */ s32 unk4C;
     /* 0x050 */ u8 pad50[0xC];
     /* 0x05C */ s32 unk5C;
     /* 0x060 */ u8 pad60[0xA];
     /* 0x06A */ s16 unk6A;
     /* 0x06C */ s16 unk6C;
-    /* 0x06E */ u8 pad6E[6];
+    /* 0x06E */ u16 unk6E;
+    /* 0x070 */ u8 pad70[4];
     /* 0x074 */ s16 unk74;
     /* 0x076 */ s16 unk76;
     /* 0x078 */ s16 unk78;
@@ -48,7 +55,12 @@ typedef struct {
     /* 0x0A8 */ u16 unkA8;
     /* 0x0AA */ u8 padAA[0x3A];
     /* 0x0E4 */ u16 unkE4;
-    /* 0x0E6 */ u8 padE6[0x26];
+    /* 0x0E6 */ u8 padE6[0xA];
+    /* 0x0F0 */ u16 unkF0;
+    /* 0x0F2 */ u8 padF2[6];
+    /* 0x0F8 */ s16 unkF8;
+    /* 0x0FA */ u8 padFA[0xE];
+    /* 0x108 */ u32 unk108;
     /* 0x10C */ s32 unk10C;
     /* 0x110 */ s32 unk110;
     /* 0x114 */ s32 unk114;

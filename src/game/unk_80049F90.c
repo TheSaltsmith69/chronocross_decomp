@@ -47,7 +47,29 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A2D4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A33C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A3A8);
+extern s32 D_8008BEB0[];
+s32 func_8004A3A8(s32 arg0) {
+    u32 v = D_8008BEB0[11] & ~0xF;
+    D_8008BEB0[11] = v;
+    switch (arg0) {
+    case -2:
+        D_8008BEB0[11] = v | 1;
+        break;
+    case -1:
+        D_8008BEB0[11] = v | 2;
+        break;
+    case 1:
+        D_8008BEB0[11] = v | 4;
+        break;
+    case 2:
+        D_8008BEB0[11] = v | 8;
+        break;
+    default:
+        arg0 = 0;
+        break;
+    }
+    return arg0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A428);
 
@@ -132,7 +154,18 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004ABC0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004ABE0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AC00);
+s32 func_8004B3A0(s32, s32);
+void func_8004A2A8(s32);
+s32 func_8004AC00(s32 arg0, s32 arg1) {
+    s32 r;
+    do {
+        r = func_8004B3A0(arg0, arg1);
+    } while (r == 1);
+    if (r == -1) {
+        func_8004A2A8(0x18);
+    }
+    return r;
+}
 
 extern s32 D_8008BE20;
 s32 func_8004AC70(void) {
@@ -170,7 +203,25 @@ void func_8004AFC4(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AFFC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004B048);
+extern u8 D_8006B4FC[];
+void func_8005134C(s32);
+void SpuSetTransferMode(s32);
+u32 SpuSetTransferStartAddr(u32);
+void func_8004B2E8(u8 *, s32);
+void func_8004B374(void);
+s32 func_8004B048(s32 arg0, s32 arg1) {
+    if (arg1 == 0) {
+        return -1;
+    }
+    (&D_8008BEE0)[0] = arg0;
+    (&D_8008BEE0)[1] = arg1;
+    func_8005134C(0xE8);
+    SpuSetTransferMode(0);
+    SpuSetTransferStartAddr(0xF0C0);
+    func_8004B2E8(D_8006B4FC, 0x40);
+    func_8004B374();
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004B0B4);
 

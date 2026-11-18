@@ -1,10 +1,50 @@
 #include "common.h"
 #include "sound.h"
 
+/* sound system state */
+typedef struct {
+    u8 pad0[8];
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    u8 pad14[0xC];
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    u32 unk3C;
+    s32 unk40;
+    s32 unk44;
+    s32 unk48;
+} Unk8008E3A8;
+extern Unk8008E3A8 D_8008E3A8;
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80051F24);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80051F44);
+void func_80051F44(u32 *src, u32 *dst, u32 n) {
+    u32 a, b, c, d;
+    n >>= 2;
+    while (n >> 2) {
+        a = src[0];
+        b = src[1];
+        c = src[2];
+        d = src[3];
+        dst[0] = a;
+        dst[1] = b;
+        dst[2] = c;
+        dst[3] = d;
+        src += 4;
+        dst += 4;
+        n -= 4;
+    }
+    while (n != 0) {
+        *dst++ = *src++;
+        n--;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80051FC4);
 
@@ -133,7 +173,19 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054820);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054858);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054860);
+void func_80054860(Unk80051F24 *ch) {
+    u32 t;
+    s32 v;
+    ch->unkF8 = (s8)*ch->unk0++;
+    t = ch->unk2C * (u8)ch->unkF8;
+    if (ch->unkF8 < 0) {
+        v = (t >> 8) - ch->unk2C;
+    } else {
+        v = t >> 7;
+    }
+    *(s32 *)&ch->pad60[8] = v;
+    ch->unk10C |= 0x10;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800548C0);
 
@@ -175,7 +227,15 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054F90);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055004);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_8005506C);
+extern s32 D_8008BEB0[];
+void func_8005506C(Unk80051F24 *ch, s32 arg1) {
+    if ((u16)ch->unk78 == 0) {
+        D_8008BE50->unk44 |= arg1;
+    } else {
+        D_8008BEB0[8] |= arg1;
+    }
+    D_8008E398[2] |= 0x100;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800550CC);
 
@@ -298,17 +358,28 @@ void func_80055DBC(void) {
     func_80055AD0();
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055DDC);
+void func_8004BDE0(s32, s16, s16, s32);
+void func_80055DDC(s32 *arg0) {
+    s32 v = *arg0;
+    D_8008E3A8.unk48 = 0;
+    D_8008E3A8.unk40 = v;
+    if (D_8008E3A8.unkC != 0) {
+        func_8004BDE0(D_8008E3A8.unk10, (s16)(v >> 1), 0, 0);
+        func_8004BDE0(D_8008E3A8.unk10 + 1, 0, (s16)(D_8008E3A8.unk40 >> 1), 0);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055E4C);
+void func_80055E4C(s32 *arg0) {
+    s16 d;
+    if (arg0[0] == 0) {
+        d = 1;
+    } else {
+        d = arg0[0];
+    }
+    D_8008E3A8.unk44 = (s16)((s16)(arg0[1] - D_8008E3A8.unk40) / d);
+    D_8008E3A8.unk48 = d;
+}
 
-typedef struct {
-    u8 pad0[0x28];
-    s32 unk28;
-    u8 pad2C[0x10];
-    u32 unk3C;
-} Unk8008E3A8;
-extern Unk8008E3A8 D_8008E3A8;
 u32 func_80055ECC(u32 *arg0) {
     D_8008E3A8.unk28++;
     (*arg0)++;
@@ -322,7 +393,14 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055F20);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800560D0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80056198);
+void func_80055C00(s32, s32, s32, s32);
+void func_800560D0(s32, s32, void (*)());
+void func_80056364();
+void func_80056198(void) {
+    func_80055C00(D_8008E3A8.unk10, 1, 0xF100, 0x10100);
+    func_80055C00(D_8008E3A8.unk10 + 1, 2, 0xF900, 0x10900);
+    func_800560D0(0x2000, 0x10100, func_80056364);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80056208);
 

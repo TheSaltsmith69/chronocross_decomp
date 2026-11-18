@@ -34,7 +34,23 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019FE4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A06C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A0E0);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s16 unk8;
+} Unk80072418;
+extern Unk80072418 D_80072418[];
+void func_80029D9C(void);
+void func_8001A0E0(s32 arg0, s32 arg1, u32 arg2) {
+    Unk80072418 *p;
+    if (arg2 >= 16) {
+        func_80029D9C();
+    }
+    p = &D_80072418[arg2];
+    p->unk0 = arg0;
+    p->unk4 = arg1;
+    p->unk8 = arg2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A14C);
 
