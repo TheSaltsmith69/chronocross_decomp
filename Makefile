@@ -11,15 +11,29 @@ LD        := $(CROSS)ld
 OBJCOPY   := $(CROSS)objcopy
 PYTHON    := .venv/bin/python3
 
-ASFLAGS   := -EL -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
+# ---- C toolchain (run `bash tools/setup_tools.sh` once to download) ----
+CC_VERSION ?= 2.8.1
+CC_DIR     := tools/gcc-$(CC_VERSION)-psx
+CPP        := $(CC_DIR)/cpp
+CC1        := $(CC_DIR)/cc1
+MASPSX     := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div
+
+CPPFLAGS  := -undef -lang-c -nostdinc -Iinclude -Isrc -D_LANGUAGE_C -DUSE_INCLUDE_ASM
+CFLAGS    := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char
+
+ASFLAGS   := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_scripts/undefined_funcs_auto.txt \
              -T linker_scripts/undefined_syms_auto.txt -T $(LD_SCRIPT) -Map $(BUILD)/$(BASENAME).map
 
-S_FILES   := $(shell find asm -name '*.s' 2>/dev/null)
+# Only the asm that the linker script actually uses (not asm/nonmatchings,
+# which is pulled into C files through INCLUDE_ASM).
+S_FILES   := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' 2>/dev/null)
+C_FILES   := $(shell find src -name '*.c' 2>/dev/null)
 BIN_FILES := $(shell find assets -name '*.bin' 2>/dev/null)
-O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(BIN_FILES:%.bin=$(BUILD)/%.o)
+O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES:%.bin=$(BUILD)/%.o)
 
 .PHONY: all split check clean
+.DELETE_ON_ERROR:
 
 all: check
 
@@ -29,6 +43,11 @@ split:
 $(BUILD)/%.o: %.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -o $@ $<
+
+# C: preprocess -> PS1 gcc cc1 -> maspsx (ASPSX emulation) -> GNU as
+$(BUILD)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CPP) $(CPPFLAGS) $< | $(CC1) $(CFLAGS) | $(MASPSX) | $(AS) $(ASFLAGS) -o $@
 
 $(BUILD)/%.o: %.bin
 	@mkdir -p $(dir $@)

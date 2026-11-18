@@ -13,3 +13,6 @@ undefined_*_auto.txt
 # Python
 .venv/
 __pycache__/
+# Downloaded toolchain (bash tools/setup_tools.sh)
+tools/gcc-*/
+tools/maspsx/

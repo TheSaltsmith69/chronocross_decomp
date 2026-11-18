@@ -18,12 +18,31 @@ python3 -m venv .venv
 .venv/bin/pip install "splat64[mips]"
 ```
 
+Download the PS1 compilers (gcc 2.7.2/2.8.0/2.8.1 from decompals/old-gcc) and maspsx:
+
+```bash
+bash tools/setup_tools.sh
+```
+
 Copy `SLUS_010.41` from your disc into `iso/`, then:
 
 ```bash
 make split   # disassemble with splat
 make         # rebuild and compare against the original
 ```
+
+## Compiler
+
+Game code is built with **GCC 2.8.1 (PsyQ)** at `-O2 -G0`, piped through
+[maspsx](https://github.com/mkst/maspsx) and GNU `as`. Small functions in
+`src/game/main.c` match with both 2.8.0 and 2.8.1; 2.7.2 does not match.
+Override with `make CC_VERSION=2.8.0`.
+
+## Contributing a function
+
+1. Find it in `src/<file>.c` as `INCLUDE_ASM(...)`.
+2. Replace that line with equivalent C.
+3. `make` must still print `OK`.
 
 ## Layout
 
@@ -34,5 +53,7 @@ make         # rebuild and compare against the original
 
 ## Status
 
-- Main executable round-trips byte-for-byte from disassembly.
+- Main executable round-trips byte-for-byte.
+- Main text is split into one file per PsyQ library object; `src/game/main.c` is compiled C.
+- 5 functions decompiled to matching C.
 - The module at `0x8008E488` is still an undisassembled binary blob.

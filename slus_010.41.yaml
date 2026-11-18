@@ -163,7 +163,7 @@ segments:
       - [0x9854, asm, lib/libcard/init]  # 80019054
       - [0x9954, asm, lib/libcard/end]  # 80019154
       - [0x99D4, asm, game/unk_800191D4]  # 800191D4
-      - [0xAEB0, asm, game/main]  # 8001A6B0
+      - [0xAEB0, c, game/main]  # 8001A6B0
       - [0x130D4, asm, lib/libapi/c57]  # 800228D4
       - [0x130E4, asm, lib/libapi/c68]  # 800228E4
       - [0x130F4, asm, lib/libapi/c73]  # 800228F4
