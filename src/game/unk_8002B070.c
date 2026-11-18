@@ -81,7 +81,50 @@ void func_8002B4C8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B5C0);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Unk803D2A68;
+extern u8 D_8006B3F4;
+extern u8 D_8007EAA8[];
+extern u8 D_8007E9E8[];
+extern u32 D_8006B3E8;
+extern u8 D_8006AF44[];
+extern s16 D_8007EE08[];
+extern Unk803D2A68 D_803D2A68[];
+extern s16 D_803D2A58[];
+extern s32 D_803D2A5C;
+
+void func_8002B5C0(void) {
+    s32 i;
+    if (D_8006B3F4 != 0) {
+        func_803153EC(D_8007EAA8, D_8007EAA8 + 0x24);
+    } else {
+        PadInitDirect(D_8007EAA8, D_8007EAA8 + 0x24);
+    }
+    D_8006B3E8 = 0;
+    D_8007EAA8[0] = 0xFF;
+    D_8007EAA8[0x24] = 0xFF;
+    D_8007E9E8[0x15] = 0;
+    D_8007E9E8[0x35] = 0;
+    PadSetAct(0, D_8007E9E8 + 0x1A, 2);
+    PadStartCom();
+    PadSetActAlign(0, D_8006AF44);
+    D_8007EE08[0] = 0;
+    D_8007EE08[1] = 0;
+    if (D_8006B3F4 != 0) {
+        for (i = 0; i < 16; i++) {
+            D_803D2A68[i].unk0 = -1;
+            D_803D2A68[i].unk4 = 0;
+            D_803D2A68[i].unk8 = 0;
+        }
+        D_803D2A58[1] = 0;
+        D_803D2A58[0] = 0;
+        D_803D2A5C = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B6C0);
 
