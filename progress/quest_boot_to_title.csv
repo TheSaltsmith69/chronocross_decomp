@@ -247,7 +247,7 @@ order,seconds,addr,name,category,file,bytes,matched
 246,23.82,80010414,memmove,lib,lib/libc2/memmove,112,0
 247,23.84,80019794,func_80019794,game,game/unk_800191D4,44,1
 248,23.88,8003D504,func_8003D504,game,game/unk_8003CB78,512,0
-249,23.90,80019DA0,func_80019DA0,game,game/unk_800191D4,312,0
+249,23.90,80019DA0,func_80019DA0,game,game/unk_800191D4,312,1
 250,23.91,80019CD4,func_80019CD4,game,game/unk_800191D4,204,1
 251,23.92,80019690,func_80019690,game,game/unk_800191D4,260,1
 252,23.93,80010774,rand,lib,lib/libc2/rand,48,0
@@ -314,8 +314,8 @@ order,seconds,addr,name,category,file,bytes,matched
 313,42.84,80042214,func_80042214,game,game/unk_8003FD00,104,1
 314,42.85,800413F8,func_800413F8,game,game/unk_8003FD00,1064,0
 315,42.86,800420FC,func_800420FC,game,game/unk_8003FD00,236,0
-316,42.87,8002B070,func_8002B070,game,game/unk_8002B070,348,0
-317,42.90,8001ABF0,func_8001ABF0,game,game/main,320,0
+316,42.87,8002B070,func_8002B070,game,game/unk_8002B070,348,1
+317,42.90,8001ABF0,func_8001ABF0,game,game/main,320,1
 318,55.21,800308F8,func_800308F8,game,game/unk_8002FE30,12,1
 319,55.22,80030904,func_80030904,game,game/unk_8002FE30,12,1
 320,55.24,800308E0,func_800308E0,game,game/unk_8002FE30,12,1
@@ -372,7 +372,7 @@ order,seconds,addr,name,category,file,bytes,matched
 371,61.47,8002B8C0,func_8002B8C0,game,game/unk_8002B070,604,0
 372,61.48,80022510,func_80022510,game,game/main,148,1
 373,61.49,80022474,func_80022474,game,game/main,148,1
-374,61.50,8002232C,func_8002232C,game,game/main,328,0
+374,61.50,8002232C,func_8002232C,game,game/main,328,1
 375,61.51,80022238,func_80022238,game,game/main,244,1
 376,61.52,8002BB7C,func_8002BB7C,game,game/unk_8002B070,176,0
 377,61.54,8002BC2C,func_8002BC2C,game,game/unk_8002B070,64,1
