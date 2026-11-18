@@ -91,7 +91,41 @@ void func_8001A0E0(s32 arg0, s32 arg1, u32 arg2) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A14C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A350);
+typedef struct {
+    s16 x, y, w, h;
+} RECT_8001A350;
+typedef struct {
+    s16 v[4];
+} Unk80062314;
+extern s32 D_80042AE4;
+extern Unk80062314 D_80062314;
+
+void func_8001A350(void) {
+    RECT_8001A350 r;
+    Unk80062314 buf;
+    ResetGraph(0);
+    VSync(0);
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x400;
+    r.h = 0x200;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    SetDispMask(0);
+    VSync(0);
+    if (D_80042AE4 == 0) {
+        SsUtReverbOff();
+    }
+    func_80049F90();
+    InitGeom();
+    func_8001C12C();
+    func_8002B5C0();
+    buf = D_80062314;
+    func_80029C3C(&buf);
+    func_8001C164();
+    func_8003D92C(0x80120000, 0xDF000);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A448);
 

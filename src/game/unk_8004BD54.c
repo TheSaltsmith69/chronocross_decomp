@@ -106,7 +106,42 @@ void func_8004D2D4(Unk80051F24 *ch, u32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D354);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Unk8004D354;
+typedef struct {
+    s32 unk0;
+    s16 unk4;
+    s16 unk6;
+} Env8004D354;
+extern Env8004D354 D_8008AC00[];
+extern u8 D_80087980[];
+
+void func_8004D354(u32 arg0) {
+    Unk8004D354 *s = (Unk8004D354 *)D_8008BE50;
+    Unk8004D354 *t;
+    u32 mask = (s->unk4 & s->unkC) | arg0;
+    u32 i;
+    Env8004D354 *e;
+    t = (Unk8004D354 *)D_8008ABF8;
+    if (t != NULL) {
+        mask |= t->unk4 & t->unkC;
+    }
+    e = D_8008AC00;
+    for (i = 0; i < 24; i++, e++) {
+        if (mask & (1 << i)) {
+            e->unk4 = 0x7FFF;
+        } else {
+            SpuGetVoiceEnvelope(i, &e->unk4);
+            if (e->unk4 == 0) {
+                func_8004D2D4(D_80087980, i);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D434);
 

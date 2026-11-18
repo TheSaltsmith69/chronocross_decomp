@@ -368,7 +368,42 @@ void func_800221E0(void) {
     D_8006B488 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_80022238);
+extern s32 D_800641A4;
+extern s32 D_800641A8;
+extern s32 D_800641AC;
+extern s32 D_800641B0;
+
+u32 func_80022238(s32 port, s32 idx) {
+    u32 map;
+    if (D_800641C4 == 0) {
+        switch (port) {
+            case 0:
+                map = D_800641A4;
+                break;
+            case 1:
+                map = D_800641AC;
+                break;
+            case 2:
+                map = D_800641A8;
+                break;
+            case 3:
+                map = D_800641B0;
+                break;
+        }
+    } else {
+        switch (port) {
+            case 0:
+            case 2:
+                map = 0x76543201;
+                break;
+            case 1:
+            case 3:
+                map = 0x3210;
+                break;
+        }
+    }
+    return (map >> (idx * 4)) & 0xF;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8002232C);
 
