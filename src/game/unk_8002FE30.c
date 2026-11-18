@@ -15,7 +15,16 @@ void func_80030680(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800306AC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003073C);
+extern s32 D_8007EC1C;
+void func_800307CC(u8 arg0);
+void func_8003073C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    D_8007EC1C = 0x80808080;
+    D_8007EC20[0] = arg0;
+    D_8007EC20[1] = arg1;
+    D_8007EC20[2] = arg2;
+    D_8007EC20[3] = arg3;
+    func_800307CC(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030784);
 
@@ -41,7 +50,22 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030804);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030814);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800308A4);
+extern s32 D_8006B208;
+extern s32 D_8006B204;
+extern s32 D_8006B1FC;
+extern s32 D_8006B1F8;
+extern s32 D_8006B1F4;
+extern s32 D_8006B20C;
+extern s32 D_8006B200;
+void func_800308A4(void) {
+    D_8006B208 = 0;
+    D_8006B204 = 0;
+    D_8006B1FC = 0;
+    D_8006B1F8 = 0;
+    D_8006B1F4 = 0;
+    D_8006B20C = 0;
+    D_8006B200 = 0;
+}
 
 extern s32 D_8006B1F4;
 void func_800308E0(s32 arg0) {
@@ -105,7 +129,17 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003276C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800328F0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800329B8);
+s32 func_80041F0C(s32, s32);
+void *func_80041F6C(void *);
+void func_80031074(void *, s32);
+extern s32 D_8006B23C;
+void func_800329B8(s32 arg0) {
+    s32 v = func_80041F0C(0xC, arg0);
+    if (v != 0) {
+        func_80031074(func_80041F6C((void *)v), arg0);
+        D_8006B23C = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032A08);
 
@@ -326,6 +360,13 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C8CC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C930);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C988);
+void SetFogNearFar(s32, s32, s32);
+extern s16 D_8007EDE8;
+extern s16 D_8007EDE2;
+void func_8003C988(s32 arg0, s32 arg1, s32 arg2) {
+    SetFogNearFar(arg0, arg1, arg2);
+    D_8007EDE8 = arg0;
+    D_8007EDE2 = arg1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C9C8);

@@ -1,3 +1,8 @@
+# Fail a recipe if any command in a pipeline fails (cc1 errors must not be
+# hidden by the assembler at the end of the C pipeline).
+SHELL       := /bin/bash
+.SHELLFLAGS := -eo pipefail -c
+
 BASENAME  := slus_010.41
 TARGET    := iso/SLUS_010.41
 BUILD     := build

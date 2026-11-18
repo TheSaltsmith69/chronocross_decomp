@@ -4,7 +4,17 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CB78);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CC2C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CCB0);
+extern s32 D_8007EE20[];
+extern s32 D_1F80000C;
+extern s32 D_1F800014;
+void func_8003D504(s32);
+void func_8003CCB0(void) {
+    func_8003D504(D_8007EE20[0]);
+    D_8007EE20[0] = 0;
+    D_8007EE20[1] = 0;
+    D_1F80000C = 0;
+    D_1F800014 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CCF8);
 

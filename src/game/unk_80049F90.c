@@ -35,7 +35,11 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A18C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A1DC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A26C);
+void func_8004A26C(s32 arg0, s32 arg1) {
+    (&D_8008BEE0)[0] = arg0;
+    (&D_8008BEE0)[1] = arg1 & 0xFFFFFF;
+    func_8005134C(0x21);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A2A8);
 
@@ -88,7 +92,13 @@ void func_8004A87C(s32 arg0, s32 arg1, s32 arg2) {
     func_8005134C(0xC1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A8B4);
+void func_8004A8B4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    (&D_8008BEE0)[0] = arg0;
+    (&D_8008BEE0)[1] = arg1;
+    (&D_8008BEE0)[2] = arg2 & 0x7F;
+    (&D_8008BEE0)[3] = arg3 & 0x7F;
+    func_8005134C(0xC2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A8F4);
 

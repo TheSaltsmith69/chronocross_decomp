@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sound.h"
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004DE10);
 
@@ -26,7 +27,22 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004EA90);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004EC88);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004ED00);
+void func_8004ED00(s32 *arg0, Unk80051F24 *ch) {
+    u32 mask;
+    s32 bit;
+    if (arg0[1] != 0) {
+        mask = arg0[1];
+        bit = 1;
+        do {
+            if (mask & bit) {
+                ch->unk10C |= 3;
+                mask ^= bit;
+            }
+            ch++;
+            bit <<= 1;
+        } while (mask != 0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004ED48);
 
@@ -142,6 +158,17 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800511D0);
 void func_800512F4(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800512FC);
+void func_80051F14(s32 *);
+void SpuSetReverb(s32);
+void SpuSetReverbModeType(s32);
+void func_800512FC(s32 arg0) {
+    s32 mode;
+    func_80051F14(&mode);
+    if (mode != arg0) {
+        SpuSetReverb(0);
+        SpuSetReverbModeType(arg0 | 0x100);
+        SpuSetReverb(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8005134C);

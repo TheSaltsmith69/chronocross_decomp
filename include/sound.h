@@ -1,0 +1,64 @@
+#ifndef SOUND_H
+#define SOUND_H
+
+#include "common.h"
+
+/* Instrument / sample table entry (D_8008ADD0, 16 bytes each). */
+typedef struct {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+    /* 0x8 */ s32 unk8;
+    /* 0xC */ u16 unkC;
+    /* 0xE */ u16 unkE;
+} Unk8008ADD0;
+
+/* Sound sequence channel. Channels sit in arrays with a 0x124-byte stride;
+ * unk0 is the channel's script read pointer. */
+typedef struct {
+    /* 0x000 */ u8 *unk0;
+    /* 0x004 */ u8 *unk4[4];      /* script return stack, indexed by unkE4 */
+    /* 0x014 */ u8 pad14[0x10];
+    /* 0x024 */ s32 unk24;
+    /* 0x028 */ u8 pad28[0x24];
+    /* 0x04C */ s32 unk4C;
+    /* 0x050 */ u8 pad50[0xC];
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ u8 pad60[0xA];
+    /* 0x06A */ s16 unk6A;
+    /* 0x06C */ s16 unk6C;
+    /* 0x06E */ u8 pad6E[6];
+    /* 0x074 */ s16 unk74;
+    /* 0x076 */ s16 unk76;
+    /* 0x078 */ s16 unk78;
+    /* 0x07A */ s16 unk7A;
+    /* 0x07C */ s16 unk7C;
+    /* 0x07E */ s16 unk7E;
+    /* 0x080 */ u8 pad80[4];
+    /* 0x084 */ s16 unk84;
+    /* 0x086 */ s16 unk86[4];
+    /* 0x08E */ s16 unk8E[4];
+    /* 0x096 */ s16 unk96;
+    /* 0x098 */ u8 pad98[4];
+    /* 0x09C */ s16 unk9C;
+    /* 0x09E */ s16 unk9E;
+    /* 0x0A0 */ s16 unkA0;
+    /* 0x0A2 */ s16 unkA2;
+    /* 0x0A4 */ s16 unkA4;
+    /* 0x0A6 */ s16 unkA6;
+    /* 0x0A8 */ u16 unkA8;
+    /* 0x0AA */ u8 padAA[0x3A];
+    /* 0x0E4 */ u16 unkE4;
+    /* 0x0E6 */ u8 padE6[0x26];
+    /* 0x10C */ s32 unk10C;
+    /* 0x110 */ s32 unk110;
+    /* 0x114 */ s32 unk114;
+    /* 0x118 */ s16 unk118;
+    /* 0x11A */ s16 unk11A;
+    /* 0x11C */ s16 unk11C;
+    /* 0x11E */ u8 pad11E[6];
+} Unk80051F24; /* size 0x124 */
+
+extern Unk80051F24 *D_8008BE50; /* channel currently being processed */
+extern s32 D_8008E398[];
+
+#endif /* SOUND_H */
