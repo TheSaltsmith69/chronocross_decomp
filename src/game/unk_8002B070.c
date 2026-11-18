@@ -199,7 +199,36 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002EE4C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002EEA0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002EF9C);
+typedef struct {
+    s32 vx, vy, vz, pad;
+} VEC_8002EF9C;
+typedef struct {
+    s16 vx, vy, vz, pad;
+} SVEC_8002EF9C;
+
+void func_8002EF9C(VEC_8002EF9C *a, VEC_8002EF9C *b, s32 *cnt) {
+    SVEC_8002EF9C *dst = (SVEC_8002EF9C *)((u8 *)cnt + (*cnt * 8 + 0x14));
+    s32 i;
+    if (*cnt == 0) {
+        dst->vx = a->vx;
+        dst->vy = a->vy;
+        dst->vz = a->vz;
+        dst++;
+        dst->vx = b->vx;
+        dst->vy = b->vy;
+        dst->vz = b->vz;
+        (*cnt)++;
+    } else {
+        for (i = 0; i != 2; i++) {
+            (*cnt)++;
+            dst++;
+            dst->vx = a->vx;
+            dst->vy = a->vy;
+            dst->vz = a->vz;
+            a = b;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002F05C);
 

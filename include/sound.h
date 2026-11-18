@@ -17,11 +17,15 @@ typedef struct {
 typedef struct {
     /* 0x000 */ u8 *unk0;
     /* 0x004 */ u8 *unk4[4];      /* script return stack, indexed by unkE4 */
-    /* 0x014 */ u8 pad14[0x10];
+    /* 0x014 */ u8 pad14[4];
+    /* 0x018 */ u8 *unk18;
+    /* 0x01C */ u8 pad1C[8];
     /* 0x024 */ s32 unk24;
-    /* 0x028 */ u8 pad28[4];
+    /* 0x028 */ s32 unk28;
     /* 0x02C */ s32 unk2C;
-    /* 0x030 */ u8 pad30[0xC];
+    /* 0x030 */ u8 pad30[4];
+    /* 0x034 */ s32 unk34;
+    /* 0x038 */ u8 pad38[4];
     /* 0x03C */ s32 unk3C;
     /* 0x040 */ u8 pad40[4];
     /* 0x044 */ s32 unk44;
@@ -57,9 +61,11 @@ typedef struct {
     /* 0x0E4 */ u16 unkE4;
     /* 0x0E6 */ u8 padE6[0xA];
     /* 0x0F0 */ u16 unkF0;
-    /* 0x0F2 */ u8 padF2[6];
+    /* 0x0F2 */ s16 unkF2;
+    /* 0x0F4 */ u8 padF4[4];
     /* 0x0F8 */ s16 unkF8;
-    /* 0x0FA */ u8 padFA[0xE];
+    /* 0x0FA */ s16 unkFA;
+    /* 0x0FC */ u8 padFC[0xC];
     /* 0x108 */ u32 unk108;
     /* 0x10C */ s32 unk10C;
     /* 0x110 */ s32 unk110;
@@ -67,7 +73,8 @@ typedef struct {
     /* 0x118 */ s16 unk118;
     /* 0x11A */ s16 unk11A;
     /* 0x11C */ s16 unk11C;
-    /* 0x11E */ u8 pad11E[6];
+    /* 0x11E */ s16 unk11E;
+    /* 0x120 */ u8 pad120[4];
 } Unk80051F24; /* size 0x124 */
 
 extern Unk80051F24 *D_8008BE50; /* channel currently being processed */

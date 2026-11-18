@@ -18,7 +18,36 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F528);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", .L8003F63C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F7D4);
+extern u8 D_8007E9FD;
+extern s32 D_8006B480;
+extern u8 D_8006B455;
+extern u8 D_8006B47E;
+extern u8 D_8006B47B;
+extern u8 D_8006B47C;
+extern s16 D_8006B476;
+extern u8 D_8006B3F4;
+
+void func_8003F7D4(void) {
+    D_8007E9FD = 0;
+    D_8006B480 = 0;
+    D_8006B455 = 0;
+    D_8006B47E = 0;
+    D_8006B47B = 0;
+    D_8006B47C = 0;
+    D_8006B476 = 0;
+    func_8003F934();
+    func_8003B420();
+    func_80042364();
+    if (D_8006B3F4 != 0) {
+        func_80336CD8();
+        func_803356C8();
+    }
+    func_800328F0();
+    func_80029F04();
+    func_8002B400();
+    func_8002BE30();
+    func_800308A4();
+}
 
 void func_8003F884(u8 *arg0, u32 arg1) {
     while (arg1 > 4) {

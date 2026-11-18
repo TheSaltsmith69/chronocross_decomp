@@ -1,6 +1,30 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CB78);
+extern s32 D_8007EE20[];
+extern s32 D_1F80000C;
+extern s32 D_1F800014;
+extern s32 D_8007EE1C;
+extern u8 D_800635E4[];
+extern s32 D_8007EE40[];
+extern u8 D_805F5F78[];
+extern u8 D_806097F8[];
+extern s32 D_8007EE38;
+extern s32 D_8006B3FC;
+
+void func_8003CB78(s32 size, s32 arg1) {
+    s32 p;
+    D_8007EE1C = size;
+    func_8003DB78(D_800635E4);
+    p = func_8003D8F4(size * 2, arg1, 1);
+    D_8007EE20[0] = p;
+    D_8007EE20[1] = p + size;
+    D_8007EE40[0] = (s32)D_805F5F78;
+    D_8007EE40[1] = (s32)D_806097F8;
+    D_1F800014 = p;
+    D_8007EE38 = p;
+    D_8006B3FC = 0;
+    D_1F80000C = p + D_8007EE1C;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CC2C);
 

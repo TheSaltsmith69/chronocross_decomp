@@ -223,7 +223,35 @@ s32 func_8004B048(s32 arg0, s32 arg1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004B0B4);
+typedef struct {
+    u8 pad0[8];
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    u8 pad14[0xC];
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    u32 unk38;
+    u32 unk3C;
+} Unk8008E3A8;
+extern Unk8008E3A8 D_8008E3A8;
+extern s32 D_8008E3DC;
+
+s32 func_8004B0B4(void) {
+    D_8008E3A8.unk24++;
+    D_8008E3A8.unk38++;
+    if (D_8008E3A8.unk3C - 1 < D_8008E3A8.unk38) {
+        D_8008E3A8.unk38 = 0;
+    }
+    if ((D_8008E3A8.unk8 & 0x1000000) && D_8008E3A8.unk38 >= 2) {
+        func_80055F20();
+    }
+    return D_8008E3DC;
+}
 
 s32 func_8004B138(s32 arg0) {
     D_8008BEE0 = arg0;

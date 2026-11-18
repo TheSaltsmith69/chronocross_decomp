@@ -24,13 +24,50 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800197C0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019A00);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019CD4);
+extern u32 D_8006EB58;
+
+u32 func_80019CD4(s32 arg0) {
+    u32 t = (u16)func_80019690(1, 999);
+    u32 m = arg0 * 1000;
+    t *= m;
+    t /= D_8006EB58;
+    t *= 2;
+    if (t % 1000000 > 499999) {
+        t += 1000000;
+    }
+    return t / 1000000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019DA0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019ED8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019FE4);
+typedef struct {
+    u8 pad0[0x2DE7];
+    u8 unk2DE7;
+    u8 pad2DE8[0x30AC - 0x2DE8];
+    s16 unk30AC;
+    s16 unk30AE;
+    s32 unk30B0;
+} Unk8006EBC8;
+extern Unk8006EBC8 D_8006EBC8;
+extern s32 D_8006EB4C;
+extern s32 D_8006EB50;
+extern s32 D_8006EB54;
+
+void func_80019FE4(void) {
+    func_80019ED8(0x79);
+    func_80019A00(1);
+    D_8006EBC8.unk30B0 = 2;
+    D_8006EBC8.unk30AE = 20;
+    D_8006EBC8.unk30AC = 20;
+    D_8006EBC8.unk2DE7 = 0xFF;
+    func_80019DA0();
+    func_800197C0(0);
+    func_8003D504(D_8006EB4C);
+    func_8003D504(D_8006EB50);
+    func_8003D504(D_8006EB54);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A06C);
 
