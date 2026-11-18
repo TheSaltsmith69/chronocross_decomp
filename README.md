@@ -38,6 +38,20 @@ Game code is built with **GCC 2.8.1 (PsyQ)** at `-O2 -G0`, piped through
 `src/game/main.c` match with both 2.8.0 and 2.8.1; 2.7.2 does not match.
 Override with `make CC_VERSION=2.8.0`.
 
+## Booting and tracing
+
+- `tools/patch_disc.py` writes `build/SLUS_010.41` into a copy of your disc BIN
+  (MODE2/2352) and fixes EDC/ECC; with a matching build the output is identical
+  to the original disc.
+- `tools/ds_trace.py` connects to DuckStation's GDB server (enable it, and
+  StartPaused, in DuckStation's settings), breaks on every main-EXE function and
+  logs the first time each one runs. `tools/trace_funcs.py` makes its function list.
+- `tools/quest.py <trace>` turns `progress/traces/<trace>.csv` into
+  `progress/quest_<trace>.csv` with each function's file, size and matched status.
+
+First quest: `progress/traces/boot_to_title.csv`, everything the main EXE runs
+from power-on to the title screen (opening movie skipped with START).
+
 ## Contributing a function
 
 1. Find it in `src/<file>.c` as `INCLUDE_ASM(...)`.
