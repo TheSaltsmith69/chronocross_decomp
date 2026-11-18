@@ -153,7 +153,14 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032C5C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032D40);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032D78);
+s32 func_8004208C(s32, s32, s32);
+void func_80032C5C(s32);
+void func_80032D78(s32 arg0) {
+    s32 p = 0;
+    while ((p = func_8004208C(p, 0xC, arg0)) != 0) {
+        func_80032C5C(p);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032DD0);
 
@@ -179,7 +186,20 @@ void func_80033324(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003332C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033530);
+typedef struct {
+    s16 x, y, w, h;
+} RECT_8003;
+void LoadImage(void *, void *);
+void func_80033530(s32 *tim) {
+    RECT_8003 unused;
+    s32 *p = tim + 2;
+    if (tim[1] & 8) {
+        p = (s32 *)((u8 *)p + tim[2]);
+        LoadImage(tim + 3, tim + 5);
+    }
+    tim = p;
+    LoadImage(tim + 1, tim + 3);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033588);
 
@@ -276,7 +296,21 @@ void func_8003B238(Unk8003B238 *arg0) {
     arg0->unkC = arg0->unkA;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B258);
+void func_8003B258(Unk8003B238 *arg0) {
+    Unk8003B238 *prev = NULL;
+    Unk8003B238 *n;
+    for (n = D_8006B248; n != NULL; n = n->next) {
+        if (n == arg0) {
+            if (prev != NULL) {
+                prev->next = n->next;
+            } else {
+                D_8006B248 = n->next;
+            }
+            return;
+        }
+        prev = n;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B2B0);
 

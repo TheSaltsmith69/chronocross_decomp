@@ -302,7 +302,21 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055DDC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055E4C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055ECC);
+typedef struct {
+    u8 pad0[0x28];
+    s32 unk28;
+    u8 pad2C[0x10];
+    u32 unk3C;
+} Unk8008E3A8;
+extern Unk8008E3A8 D_8008E3A8;
+u32 func_80055ECC(u32 *arg0) {
+    D_8008E3A8.unk28++;
+    (*arg0)++;
+    if (D_8008E3A8.unk3C - 1 < *arg0) {
+        *arg0 = 0;
+    }
+    return *arg0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055F20);
 

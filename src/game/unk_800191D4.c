@@ -42,4 +42,20 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A350);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A448);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A654);
+typedef struct {
+    s16 x, y, w, h;
+} RECT_8001;
+void func_8003F7D4(void);
+void func_800306AC(s32, s32);
+void func_8003073C(s32, s32, s32, s32, s32, s32);
+void VSyncCallback(void (*)());
+void func_8003F414();
+extern u8 D_8006B394;
+void func_8001A654(void) {
+    RECT_8001 unused;
+    func_8003F7D4();
+    func_800306AC(0x3C0, 0x1F7);
+    func_8003073C(0x10, 0x10, 0x140, 0xF0, 0, 0x200);
+    VSyncCallback(func_8003F414);
+    D_8006B394 = 0;
+}

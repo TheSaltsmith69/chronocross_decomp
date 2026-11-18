@@ -33,7 +33,21 @@ void func_8003F884(u8 *arg0, u32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F8C4);
+extern s32 *D_8006B48C;
+void func_8003F8C4(s32 *arg0) {
+    s32 *prev = NULL;
+    s32 *n;
+    for (n = D_8006B48C; n != NULL; n = (s32 *)n[1]) {
+        if (n == arg0) {
+            if (prev != NULL) {
+                prev[1] = n[1];
+            } else {
+                D_8006B48C = (s32 *)n[1];
+            }
+        }
+        prev = n;
+    }
+}
 
 extern s32 *D_8006B48C;
 void func_8003F920(s32 *arg0) {

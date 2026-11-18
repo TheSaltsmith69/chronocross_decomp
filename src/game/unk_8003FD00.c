@@ -22,9 +22,35 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041E2C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041EAC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041EB4);
+typedef struct Unk8006B490 {
+    struct Unk8006B490 *next;
+    s32 unk4;
+    u32 unk8;
+} Unk8006B490;
+extern Unk8006B490 *D_8006B490;
+void func_80041EB4(Unk8006B490 *arg0, Unk8006B490 *arg1) {
+    Unk8006B490 *head = D_8006B490;
+    u32 flags = arg0->unk8;
+    D_8006B490 = arg0;
+    arg0->next = head;
+    if (((flags >> 8) & 0x3F) == 0) {
+        if (arg1 != NULL) {
+            arg0->unk8 = (flags & ~0x3F00) | ((arg1->unk8 & 0x3F) << 8);
+        } else {
+            arg0->unk8 = flags & ~0x3F00;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041F0C);
+Unk8006B490 *func_80041F0C(u32 arg0, s32 arg1) {
+    Unk8006B490 *n;
+    for (n = D_8006B490; n != NULL; n = n->next) {
+        if ((n->unk8 & 0x3F) == arg0 && (arg1 == 0 || n->unk4 == arg1)) {
+            return n;
+        }
+    }
+    return NULL;
+}
 
 typedef struct {
     u8 pad0[8];

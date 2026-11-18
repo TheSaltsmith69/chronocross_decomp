@@ -6,6 +6,7 @@
  */
 /* Scratchpad RAM (0x1F800000-0x1F8003FF) variables the game addresses by symbol. */
 D_1F80000C = 0x1F80000C;
+D_1F800010 = 0x1F800010;
 D_1F800014 = 0x1F800014;
 
 func_8031A7C8 = 0x8031A7C8;

@@ -1,5 +1,25 @@
 #include "common.h"
 
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 unk17;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+    u8 unk1B;
+    u8 unk1C;
+    u8 unk1D;
+} Unk8002BC2C;
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B070);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B1CC);
@@ -35,31 +55,29 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B6C0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B8C0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002BB1C);
+extern u8 D_8006B43D;
+extern s16 D_1F800010;
+void func_8002BB1C(Unk8002BC2C *arg0, s32 arg1, s32 arg2) {
+    s32 a = arg0->unk1C;
+    s32 b = arg0->unk1D;
+    if (D_8006B43D != 0 && D_1F800010 != 0) {
+        a += arg1;
+        if (a != 0) {
+            a = 1;
+        }
+        b += arg2;
+        arg0->unk1C = a;
+        if ((u32)b > 0xFF) {
+            b = 0xFF;
+        }
+        arg0->unk1D = b;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002BB70);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002BB7C);
 
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
-    u8 unk14;
-    u8 unk15;
-    u8 unk16;
-    u8 unk17;
-    u8 unk18;
-    u8 unk19;
-    u8 unk1A;
-    u8 unk1B;
-    u8 unk1C;
-    u8 unk1D;
-} Unk8002BC2C;
 void func_8002BC2C(Unk8002BC2C *arg0) {
     arg0->unk1C = 0;
     arg0->unk1D = 0;
