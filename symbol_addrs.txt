@@ -1,0 +1,5 @@
+// Known symbols. Format: name = 0xADDRESS; // type:func etc.
+__main = 0x80010000; // type:func
+start = 0x80010008; // type:func
+InitHeap = 0x800228D4; // type:func
+main = 0x8001A6B0; // type:func

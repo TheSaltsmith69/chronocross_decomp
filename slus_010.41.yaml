@@ -1,0 +1,74 @@
+name: SLUS_010.41
+sha1: 9ac369fbda85651d13e1d2ebdd619becee068ad2
+options:
+  basename: slus_010.41
+  target_path: iso/SLUS_010.41
+  elf_path: build/slus_010.41.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm
+  src_path: src
+  build_path: build
+
+  ld_script_path: linker_scripts/slus_010.41.ld
+  ld_dependencies: True
+  # main's BSS ends at 0x8008E488 (8-aligned) and the blob starts right
+  # there, so don't pad segment/section ends to 16 bytes.
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - symbol_addrs.txt
+  reloc_addrs_path:
+    - reloc_addrs.txt
+
+  undefined_funcs_auto_path: linker_scripts/undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/undefined_syms_auto.txt
+
+  extensions_path: tools/splat_ext
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  # Main executable: PsyQ libs + resident game code.
+  # start() clears BSS 0x8006CE28-0x8008E488 (size 0x21660).
+  - name: main
+    type: code
+    start: 0x800
+    vram: 0x80010000
+    bss_size: 0x21660
+    align: 4    # file offset after main is 0x7EC88, not 16-aligned
+    subsegments:
+      - [0x800, asm, main]           # text 0x80010000-0x80056530
+      - [0x46D30, data, main_data]   # 0x80056530-0x8006CE28
+      - { start: 0x5D628, type: bss, vram: 0x8006CE28, name: main_bss }
+
+  # Second module baked into the EXE right after main's BSS.
+  # Has its own code + data and references addresses up to ~0x800B5450
+  # (its own BSS). Kept as a binary blob until we understand it.
+  - name: blob_8008E488
+    type: code
+    start: 0x7EC88
+    vram: 0x8008E488
+    subsegments:
+      - [0x7EC88, bin, blob_8008E488]
+  - [0x94000]

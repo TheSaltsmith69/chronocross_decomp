@@ -1,0 +1,15 @@
+# Copyrighted game data - never commit
+iso/
+*.bin
+*.cue
+# Generated
+asm/
+assets/
+build/
+linker_scripts/
+undefined_*_auto.txt
+*.ld
+.splache
+# Python
+.venv/
+__pycache__/
