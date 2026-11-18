@@ -189,7 +189,7 @@ order,seconds,addr,name,category,file,bytes,matched
 188,11.45,800171EC,func_800171EC,lib,lib/libpad/padportd,244,0
 189,11.46,80017A2C,func_80017A2C,lib,lib/libpad/padseqd,224,0
 190,11.47,800172E0,func_800172E0,lib,lib/libpad/padportd,16,0
-191,11.48,8003F414,func_8003F414,game,game/unk_8003DD74,276,0
+191,11.48,8003F414,func_8003F414,game,game/unk_8003DD74,276,1
 192,11.49,8003F2A8,func_8003F2A8,game,game/unk_8003DD74,364,0
 193,11.50,80015810,PadGetState,lib,lib/libpad/padentry,204,0
 194,11.61,800177C8,func_800177C8,lib,lib/libpad/padseqd,612,0
@@ -486,7 +486,7 @@ order,seconds,addr,name,category,file,bytes,matched
 485,94.71,80012548,DrawPrim,lib,lib/libgpu/sys,92,0
 486,94.72,80013C6C,func_80013C6C,lib,lib/libgpu/sys,64,0
 487,96.25,8004B16C,func_8004B16C,game,game/unk_80049F90,52,1
-488,96.27,800511D0,func_800511D0,game,game/unk_8004DE10,292,0
+488,96.27,800511D0,func_800511D0,game,game/unk_8004DE10,292,1
 489,96.28,80026C94,RotTransPers4,lib,lib/libgte/cmb_00,128,0
 490,96.86,80032D78,func_80032D78,game,game/unk_8002FE30,88,1
 491,96.87,8004208C,func_8004208C,game,game/unk_8003FD00,112,1
@@ -565,7 +565,7 @@ order,seconds,addr,name,category,file,bytes,matched
 564,105.29,8004C664,func_8004C664,game,game/unk_8004BD54,1144,0
 565,105.30,8004D01C,func_8004D01C,game,game/unk_8004BD54,104,0
 566,105.31,8004BF8C,func_8004BF8C,game,game/unk_8004BD54,172,0
-567,105.34,8004C038,func_8004C038,game,game/unk_8004BD54,284,0
+567,105.34,8004C038,func_8004C038,game,game/unk_8004BD54,284,1
 568,105.35,8004BE90,func_8004BE90,game,game/unk_8004BD54,24,1
 569,112.35,8005545C,func_8005545C,game,game/unk_80051F24,80,1
 570,114.26,800545B4,func_800545B4,game,game/unk_80051F24,24,1
