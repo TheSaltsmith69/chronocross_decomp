@@ -130,7 +130,7 @@ order,seconds,addr,name,category,file,bytes,matched
 129,10.70,8003B420,func_8003B420,game,game/unk_8002FE30,112,1
 130,10.71,8003BC80,func_8003BC80,game,game/unk_8002FE30,172,1
 131,10.72,80030934,func_80030934,game,game/unk_8002FE30,52,1
-132,10.73,80042364,func_80042364,game,game/unk_8003FD00,280,0
+132,10.73,80042364,func_80042364,game,game/unk_8003FD00,280,1
 133,10.74,8003F884,func_8003F884,game,game/unk_8003DD74,64,1
 134,10.75,80041EB4,func_80041EB4,game,game/unk_8003FD00,88,1
 135,10.76,800328F0,func_800328F0,game,game/unk_8002FE30,200,1
@@ -422,7 +422,7 @@ order,seconds,addr,name,category,file,bytes,matched
 421,62.12,800118D4,SetTexWindow,lib,lib/libgpu/p38,112,0
 422,62.14,8001DCC4,func_8001DCC4,game,game/main,2200,0
 423,62.17,80015488,func_80015488,lib,lib/libpad/padcmd,28,0
-424,62.24,8002B1CC,func_8002B1CC,game,game/unk_8002B070,260,0
+424,62.24,8002B1CC,func_8002B1CC,game,game/unk_8002B070,260,1
 425,62.25,8001C388,func_8001C388,game,game/main,280,0
 426,62.28,800154A4,func_800154A4,lib,lib/libpad/padcmd,200,0
 427,63.77,8001BF6C,func_8001BF6C,game,game/main,40,1
