@@ -162,7 +162,7 @@ segments:
       - [0x9634, asm, lib/libcard/patch]  # 80018E34
       - [0x9854, asm, lib/libcard/init]  # 80019054
       - [0x9954, asm, lib/libcard/end]  # 80019154
-      - [0x99D4, asm, game/unk_800191D4]  # 800191D4
+      - [0x99D4, c, game/unk_800191D4]  # 800191D4
       - [0xAEB0, c, game/main]  # 8001A6B0
       - [0x130D4, asm, lib/libapi/c57]  # 800228D4
       - [0x130E4, asm, lib/libapi/c68]  # 800228E4
@@ -269,22 +269,22 @@ segments:
       - [0x1B638, asm, lib/libsn/creat]  # 8002AE38
       - [0x1B718, asm, lib/libsn/snwrite]  # 8002AF18
       - [0x1B730, asm, lib/libgte/mtx_00a]  # 8002AF30
-      - [0x1B870, asm, game/unk_8002B070]  # 8002B070
+      - [0x1B870, c, game/unk_8002B070]  # 8002B070
       - [0x20060, asm, lib/libgte/fgo_03]  # 8002F860
       - [0x202F0, asm, lib/libgte/fgo_04]  # 8002FAF0
       - [0x20490, asm, lib/libgte/fgo_05]  # 8002FC90
-      - [0x20630, asm, game/unk_8002FE30]  # 8002FE30
+      - [0x20630, c, game/unk_8002FE30]  # 8002FE30
       - [0x2D218, asm, lib/libgte/mtx_004]  # 8003CA18
-      - [0x2D378, asm, game/unk_8003CB78]  # 8003CB78
+      - [0x2D378, c, game/unk_8003CB78]  # 8003CB78
       - [0x2E554, asm, lib/libgte/reg08]  # 8003DD54
-      - [0x2E574, asm, game/unk_8003DD74]  # 8003DD74
+      - [0x2E574, c, game/unk_8003DD74]  # 8003DD74
       - [0x304F0, asm, lib/libapi/a13]  # 8003FCF0
-      - [0x30500, asm, game/unk_8003FD00]  # 8003FD00
+      - [0x30500, c, game/unk_8003FD00]  # 8003FD00
       - [0x3A3F0, asm, lib/libcd/event]  # 80049BF0
       - [0x3A540, asm, lib/libgte/mtx_04]  # 80049D40
       - [0x3A650, asm, lib/libgte/fgo_00]  # 80049E50
       - [0x3A690, asm, lib/libgte/smp_01]  # 80049E90
-      - [0x3A790, asm, game/unk_80049F90]  # 80049F90
+      - [0x3A790, c, game/unk_80049F90]  # 80049F90
       - [0x3B9A0, asm, lib/libspu/s_stsa]  # 8004B1A0
       - [0x3BA00, asm, lib/libspu/s_stm]  # 8004B200
       - [0x3BA30, asm, lib/unk_8004B230]  # 8004B230
@@ -295,17 +295,17 @@ segments:
       - [0x3C434, asm, lib/libspu/s_cb]  # 8004BC34
       - [0x3C464, asm, lib/libspu/s_r]  # 8004BC64
       - [0x3C524, asm, lib/libspu/s_stc]  # 8004BD24
-      - [0x3C554, asm, game/unk_8004BD54]  # 8004BD54
+      - [0x3C554, c, game/unk_8004BD54]  # 8004BD54
       - [0x3E570, asm, lib/libspu/s_snc]  # 8004DD70
       - [0x3E5C0, asm, lib/libspu/s_gvex]  # 8004DDC0
       - [0x3E5E0, asm, lib/libspu/s_srmd]  # 8004DDE0
-      - [0x3E610, asm, game/unk_8004DE10]  # 8004DE10
+      - [0x3E610, c, game/unk_8004DE10]  # 8004DE10
       - [0x41EC4, asm, lib/libspu/s_srmt]  # 800516C4
       - [0x42094, asm, lib/libspu/s_sra]  # 80051894
       - [0x42564, asm, lib/libspu/s_crwa]  # 80051D64
       - [0x42704, asm, lib/libapi/a10]  # 80051F04
       - [0x42714, asm, lib/libspu/s_grmt]  # 80051F14
-      - [0x42724, asm, game/unk_80051F24]  # 80051F24
+      - [0x42724, c, game/unk_80051F24]  # 80051F24
       - [0x46C40, asm, lib/libspu/s_sia]  # 80056440
       - [0x46C80, asm, lib/libgte/cmb_07]  # 80056480
       - [0x46D30, data, main_data]   # 0x80056530-0x8006CE28
