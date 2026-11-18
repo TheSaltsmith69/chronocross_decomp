@@ -105,7 +105,7 @@ order,seconds,addr,name,category,file,bytes,matched
 104,9.14,800190E4,func_800190E4,lib,lib/libcard/init,72,0
 105,9.16,80018D84,func_80018D84,lib,lib/libcard/a75,16,0
 106,9.17,80018D34,func_80018D34,lib,lib/libcard/c112,16,0
-107,10.45,8002B5C0,func_8002B5C0,game,game/unk_8002B070,256,0
+107,10.45,8002B5C0,func_8002B5C0,game,game/unk_8002B070,256,1
 108,10.46,80017024,PadInitDirect,lib,lib/libpad/padportd,352,0
 109,10.47,80017684,_padInitDirSeq,lib,lib/libpad/padseqd,52,0
 110,10.49,80010284,bzero,lib,lib/libc2/bzero,48,0
@@ -233,7 +233,7 @@ order,seconds,addr,name,category,file,bytes,matched
 232,17.32,80044CD0,func_80044CD0,game,game/unk_80043F90,204,1
 233,18.56,8001A994,func_8001A994,game,game/main,40,1
 234,18.57,80019FE4,func_80019FE4,game,game/unk_800191D4,136,1
-235,18.59,80019ED8,func_80019ED8,game,game/unk_800191D4,268,0
+235,18.59,80019ED8,func_80019ED8,game,game/unk_800191D4,268,1
 236,18.60,8004582C,func_8004582C,game,game/unk_80043F90,144,1
 237,18.61,80044924,func_80044924,game,game/unk_80043F90,228,1
 238,18.62,80044630,func_80044630,game,game/unk_80043F90,664,1
@@ -249,7 +249,7 @@ order,seconds,addr,name,category,file,bytes,matched
 248,23.88,8003D504,func_8003D504,game,game/unk_8003CB78,512,0
 249,23.90,80019DA0,func_80019DA0,game,game/unk_800191D4,312,0
 250,23.91,80019CD4,func_80019CD4,game,game/unk_800191D4,204,1
-251,23.92,80019690,func_80019690,game,game/unk_800191D4,260,0
+251,23.92,80019690,func_80019690,game,game/unk_800191D4,260,1
 252,23.93,80010774,rand,lib,lib/libc2/rand,48,0
 253,23.97,800197C0,func_800197C0,game,game/unk_800191D4,576,0
 254,24.01,800221E0,func_800221E0,game,game/main,88,1
@@ -354,7 +354,7 @@ order,seconds,addr,name,category,file,bytes,matched
 353,61.15,80025044,func_80025044,lib,lib/libgte/geo_00,60,0
 354,61.16,80025080,func_80025080,lib,lib/libgte/geo_00,148,0
 355,61.18,8001BF48,func_8001BF48,game,game/main,36,1
-356,61.19,8001BF94,func_8001BF94,game,game/main,264,0
+356,61.19,8001BF94,func_8001BF94,game,game/main,264,1
 357,61.20,80011974,SetDrawStp,lib,lib/libgpu/p40,48,0
 358,61.32,8003B13C,func_8003B13C,game,game/unk_8002FE30,212,0
 359,61.33,8003CB78,func_8003CB78,game,game/unk_8003CB78,180,1
@@ -378,7 +378,7 @@ order,seconds,addr,name,category,file,bytes,matched
 377,61.54,8002BC2C,func_8002BC2C,game,game/unk_8002B070,64,1
 378,61.55,80022508,func_80022508,game,game/main,8,1
 379,61.56,8002B4C8,func_8002B4C8,game,game/unk_8002B070,248,1
-380,61.57,80030AA0,func_80030AA0,game,game/unk_8002FE30,248,0
+380,61.57,80030AA0,func_80030AA0,game,game/unk_8002FE30,248,1
 381,61.58,80030680,func_80030680,game,game/unk_8002FE30,44,1
 382,61.59,8003EC44,func_8003EC44,game,game/unk_8003DD74,460,0
 383,61.60,8002BE64,func_8002BE64,game,game/unk_8002B070,56,1
@@ -515,7 +515,7 @@ order,seconds,addr,name,category,file,bytes,matched
 514,97.31,8002EF9C,func_8002EF9C,game,game/unk_8002B070,192,1
 515,97.32,8002E768,func_8002E768,game,game/unk_8002B070,480,0
 516,97.34,8002E948,func_8002E948,game,game/unk_8002B070,480,0
-517,97.35,80032EB4,func_80032EB4,game,game/unk_8002FE30,248,0
+517,97.35,80032EB4,func_80032EB4,game,game/unk_8002FE30,248,1
 518,97.39,8003BD2C,func_8003BD2C,game,game/unk_8002FE30,8,1
 519,100.01,8004AC80,func_8004AC80,game,game/unk_80049F90,32,1
 520,100.02,80048B44,func_80048B44,game,game/unk_80043F90,188,1
@@ -538,7 +538,7 @@ order,seconds,addr,name,category,file,bytes,matched
 537,104.91,80053E84,func_80053E84,game,game/unk_80051F24,56,1
 538,104.92,80053E50,func_80053E50,game,game/unk_80051F24,52,1
 539,104.93,8004A8B4,func_8004A8B4,game,game/unk_80049F90,64,1
-540,104.94,8004F9C4,func_8004F9C4,game,game/unk_8004DE10,256,0
+540,104.94,8004F9C4,func_8004F9C4,game,game/unk_8004DE10,256,1
 541,104.96,8004DA38,func_8004DA38,game,game/unk_8004BD54,428,0
 542,104.97,80052518,func_80052518,game,game/unk_80051F24,676,0
 543,104.98,8004C154,func_8004C154,game,game/unk_8004BD54,1296,0
@@ -572,4 +572,4 @@ order,seconds,addr,name,category,file,bytes,matched
 571,119.43,800554AC,func_800554AC,game,game/unk_80051F24,148,1
 572,128.31,8005459C,func_8005459C,game,game/unk_80051F24,24,1
 573,131.25,80038AD0,func_80038AD0,game,game/unk_8002FE30,600,0
-574,136.78,80032B54,func_80032B54,game,game/unk_8002FE30,264,0
+574,136.78,80032B54,func_80032B54,game,game/unk_8002FE30,264,1

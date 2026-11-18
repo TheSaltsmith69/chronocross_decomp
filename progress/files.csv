@@ -102,8 +102,8 @@ lib/libcard/card,lib,80018DF4,1,0,64,0
 lib/libcard/patch,lib,80018E34,6,0,544,0
 lib/libcard/init,lib,80019054,3,0,256,0
 lib/libcard/end,lib,80019154,1,0,128,0
-game/unk_800191D4,game,800191D4,18,6,5340,832
-game/main,game,8001A6B0,73,34,33316,2236
+game/unk_800191D4,game,800191D4,18,8,5340,1360
+game/main,game,8001A6B0,73,35,33316,2500
 lib/libapi/c57,lib,800228D4,1,0,16,0
 lib/libapi/c68,lib,800228E4,1,0,16,0
 lib/libapi/c73,lib,800228F4,1,0,16,0
@@ -209,11 +209,11 @@ lib/unk_80029AA4,lib,80029AA4,13,0,5012,0
 lib/libsn/creat,lib,8002AE38,2,0,224,0
 lib/libsn/snwrite,lib,8002AF18,1,0,24,0
 lib/libgte/mtx_00a,lib,8002AF30,1,0,320,0
-game/unk_8002B070,game,8002B070,65,7,18416,724
+game/unk_8002B070,game,8002B070,65,8,18416,980
 lib/libgte/fgo_03,lib,8002F860,1,0,656,0
 lib/libgte/fgo_04,lib,8002FAF0,1,0,416,0
 lib/libgte/fgo_05,lib,8002FC90,1,0,416,0
-game/unk_8002FE30,game,8002FE30,135,35,52200,2996
+game/unk_8002FE30,game,8002FE30,135,38,52200,3756
 lib/libgte/mtx_004,lib,8003CA18,1,0,352,0
 game/unk_8003CB78,game,8003CB78,22,4,4572,276
 lib/libgte/reg08,lib,8003DD54,1,0,32,0
@@ -240,7 +240,7 @@ game/unk_8004BD54,game,8004BD54,32,17,8220,920
 lib/libspu/s_snc,lib,8004DD70,1,0,80,0
 lib/libspu/s_gvex,lib,8004DDC0,1,0,32,0
 lib/libspu/s_srmd,lib,8004DDE0,1,0,48,0
-game/unk_8004DE10,game,8004DE10,71,7,14516,652
+game/unk_8004DE10,game,8004DE10,71,8,14516,908
 lib/libspu/s_srmt,lib,800516C4,1,0,464,0
 lib/libspu/s_sra,lib,80051894,1,0,1232,0
 lib/libspu/s_crwa,lib,80051D64,1,0,416,0
