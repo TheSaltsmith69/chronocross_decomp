@@ -6,11 +6,95 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003E074);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003E444);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003EC44);
+typedef struct {
+    u8 pad0[0x2A];
+    u16 unk2A;
+    u8 pad2C[0x7E - 0x2C];
+    u16 unk7E;
+} Unk8003EC44_0;
+typedef struct {
+    Unk8003EC44_0 *unk0;
+    u8 pad4[0x10];
+    u32 unk14;
+} Unk8003EC44;
+extern s16 D_1F800010;
+extern s32 D_8006B480;
+s32 func_80030934(s32);
+
+void func_8003EC44(void) {
+    s32 i;
+    Unk8003EC44 *p;
+    Unk8003EC44_0 *o;
+    i = 0;
+    func_8009C718();
+    while ((p = (Unk8003EC44 *)func_80030934(i++)) != NULL) {
+        if (!(p->unk0->unk7E & 1) && ((p->unk14 >> 1) & 1)) {
+            func_80096888(p->unk0);
+        }
+    }
+    i = 0;
+    while ((p = (Unk8003EC44 *)func_80030934(i++)) != NULL) {
+        if (!(p->unk0->unk7E & 1) && ((p->unk14 >> 1) & 1)) {
+            func_80094140(p->unk0);
+        }
+    }
+    i = 0;
+    while ((p = (Unk8003EC44 *)func_80030934(i++)) != NULL) {
+        if (!(p->unk0->unk7E & 1) && ((p->unk14 >> 1) & 1)) {
+            func_80094318(p->unk0);
+        }
+    }
+    o = (Unk8003EC44_0 *)D_8006B480;
+    if (o != NULL) {
+        func_8009B1A0(o);
+        func_80096354(D_8006B480, (s16)((u16)D_1F800010 * ((Unk8003EC44_0 *)D_8006B480)->unk2A));
+        if (!(o->unk7E & 1)) {
+            func_80096888(D_8006B480);
+            func_80094140(D_8006B480);
+            func_80094318(D_8006B480);
+            func_800B42B8(D_8006B480);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003EE10);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F2A8);
+typedef struct {
+    s16 x, y, w, h;
+} RECT_8003F2A8;
+typedef struct {
+    RECT_8003F2A8 disp;
+    RECT_8003F2A8 screen;
+    u8 isinter, isrgb24, pad0, pad1;
+} DISPENV_8003F2A8;
+extern s16 D_1F800010;
+extern s32 D_80086FA8;
+extern u16 D_80086FAC[];
+extern u16 D_80086FB8_[] asm("D_80086FB8");
+extern u16 D_80086FBC_[] asm("D_80086FBC");
+
+void func_8003F2A8(void) {
+    DISPENV_8003F2A8 env;
+    s32 t, t2;
+    if (D_1F800010 != 0) {
+        if (D_80086FA8 != 0) {
+            D_80086FA8--;
+            D_80086FBC_[1] += D_80086FB8_[1];
+            D_80086FBC_[0] += D_80086FB8_[0];
+            if (D_80086FA8 == 0) {
+                D_80086FBC_[1] = D_80086FAC[1];
+                D_80086FBC_[0] = D_80086FAC[0];
+            }
+        }
+        if ((D_80086FBC_[1] >> 8) != 0 || (D_80086FBC_[0] >> 8) != 0) {
+            GetDispEnv(&env);
+            env.screen.x = ((rand() & 0xFFFF) * ((s16)D_80086FBC_[0] >> 8)) / 0x10000 + (s16)D_80086FBC_[0] / 512;
+            t = ((rand() & 0xFFFF) * ((s16)D_80086FBC_[1] >> 8)) / 0x10000;
+            env.screen.y = t + (s16)((s16)D_80086FBC_[1] / 512 + 10);
+            PutDispEnv(&env);
+        }
+    }
+}
 
 typedef struct Task8003F414 {
     void (*fn)(struct Task8003F414 *);

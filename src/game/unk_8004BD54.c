@@ -221,6 +221,85 @@ void func_8004D9D8(Unk80051F24 *ch, u32 *out, u32 mask, u32 keep) {
     *out &= keep;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004DA38);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    u32 unk8;
+    u8 padC[0x10];
+    u32 unk1C;
+} Unk8004DA38;
+extern s32 D_8008BEB0[];
+extern u32 D_8008E3B4;
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004DBE4);
+void func_8004DA38(void) {
+    u32 acc;
+    u32 keep;
+    u32 s1;
+    u32 s0;
+    u32 act = D_8008BEB0[0] | D_8008BEB0[4];
+    s1 = 0;
+    acc = 0;
+    keep = ~(act | D_8008E3B4);
+    if (D_8008ABF8 != 0) {
+        s1 = ((Unk8004DA38 *)D_8008ABF8)->unk1C;
+        if (s1 & ((Unk8004DA38 *)D_8008ABF8)->unk8) {
+            func_8004D9D8(D_8008ABF4, &acc, s1 & ((Unk8004DA38 *)D_8008ABF8)->unk8, keep);
+            ((Unk8004DA38 *)D_8008ABF8)->unk1C &= ~((Unk8004DA38 *)D_8008ABF8)->unk8;
+            s1 &= ~((Unk8004DA38 *)D_8008ABF8)->unk8;
+        }
+    }
+    s0 = ((Unk8004DA38 *)D_8008BE50)->unk1C;
+    if (s0 & ((Unk8004DA38 *)D_8008BE50)->unk8) {
+        func_8004D9D8((Unk80051F24 *)D_80087980, &acc, s0 & ((Unk8004DA38 *)D_8008BE50)->unk8, keep);
+        ((Unk8004DA38 *)D_8008BE50)->unk1C &= ~((Unk8004DA38 *)D_8008BE50)->unk8;
+        s0 &= ~((Unk8004DA38 *)D_8008BE50)->unk8;
+    }
+    if (D_8008ABF8 != 0 && s1 != 0) {
+        func_8004D9D8(D_8008ABF4, &acc, s1, keep);
+        ((Unk8004DA38 *)D_8008ABF8)->unk1C = 0;
+    }
+    if (s0 != 0) {
+        func_8004D9D8((Unk80051F24 *)D_80087980, &acc, s0, keep);
+        ((Unk8004DA38 *)D_8008BE50)->unk1C = 0;
+    }
+    acc |= D_8008BEB0[3];
+    D_8008BEB0[3] = 0;
+    if (acc != 0) {
+        func_8004BD70(acc);
+    }
+}
+
+extern s32 D_8008BEB0[];
+extern u32 D_8008E3B4;
+
+void func_8004DBE4(u32 *out, u32 m1, u32 m0, u32 extra) {
+    u32 acc;
+    u32 keep;
+    u32 s1;
+    u32 s0;
+    u32 act = D_8008BEB0[0] | D_8008BEB0[4];
+    s1 = 0;
+    acc = 0;
+    keep = ~(act | D_8008E3B4);
+    if (D_8008ABF8 != 0) {
+        s1 = ((Unk8004D354 *)D_8008ABF8)->unk4 & m1;
+        if (s1 & ((Unk8004D354 *)D_8008ABF8)->unk8) {
+            func_8004D9D8(D_8008ABF4, &acc, s1 & ((Unk8004D354 *)D_8008ABF8)->unk8, keep);
+            s1 &= ~((Unk8004D354 *)D_8008ABF8)->unk8;
+        }
+    }
+    s0 = ((Unk8004D354 *)D_8008BE50)->unk4 & m0;
+    if (s0 & ((Unk8004D354 *)D_8008BE50)->unk8) {
+        func_8004D9D8((Unk80051F24 *)D_80087980, &acc, s0 & ((Unk8004D354 *)D_8008BE50)->unk8, keep);
+        s0 &= ~((Unk8004D354 *)D_8008BE50)->unk8;
+    }
+    if (D_8008ABF8 != 0 && s1 != 0) {
+        func_8004D9D8(D_8008ABF4, &acc, s1, keep);
+    }
+    if (s0 != 0) {
+        func_8004D9D8((Unk80051F24 *)D_80087980, &acc, s0, keep);
+    }
+    acc |= extra;
+    *out = acc;
+    D_8008E398[2] |= 0x100;
+}

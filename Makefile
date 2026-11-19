@@ -34,6 +34,13 @@ CFLAGS    := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -f
 O0_SRCS   := src/game/unk_80043F90.c
 $(O0_SRCS:%.c=$(BUILD)/%.o): CFLAGS := -quiet -O0 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char
 
+# Most game-logic objects were assembled without divide-by-zero checks
+# (no break 7 after div); unk_800191D4 and the sound objects have them.
+NODIV_SRCS := src/game/main.c src/game/unk_8002B070.c \
+              src/game/unk_8002FE30.c src/game/unk_8003CB78.c src/game/unk_8003DD74.c \
+              src/game/unk_8003FD00.c
+$(NODIV_SRCS:%.c=$(BUILD)/%.o): MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
+
 ASFLAGS   := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_scripts/undefined_funcs_auto.txt \
              -T linker_scripts/undefined_syms_auto.txt -T $(LD_SCRIPT) -Map $(BUILD)/$(BASENAME).map
