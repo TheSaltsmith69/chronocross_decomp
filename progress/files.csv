@@ -103,7 +103,7 @@ lib/libcard/patch,lib,80018E34,6,0,544,0
 lib/libcard/init,lib,80019054,3,0,256,0
 lib/libcard/end,lib,80019154,1,0,128,0
 game/unk_800191D4,game,800191D4,18,12,5340,3496
-game/main,game,8001A6B0,73,40,33316,5436
+game/main,game,8001A6B0,73,41,33316,6948
 lib/libapi/c57,lib,800228D4,1,0,16,0
 lib/libapi/c68,lib,800228E4,1,0,16,0
 lib/libapi/c73,lib,800228F4,1,0,16,0
