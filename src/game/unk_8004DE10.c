@@ -326,7 +326,10 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050C54);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050CB4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050CF4);
+extern u8 *D_8008BE50_u asm("D_8008BE50");
+void func_80050CF4(u16 *arg0) {
+    *(u16 *)(D_8008BE50_u + 0x70) = *arg0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050D08);
 

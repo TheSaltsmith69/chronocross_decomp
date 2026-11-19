@@ -216,7 +216,9 @@ void func_8003DB84(MemBlk8003D92C *n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DC64);
+s32 func_8003DC64(s32 *arg0) {
+    return arg0[-2] - (s32)arg0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DC70);
 

@@ -28,7 +28,9 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041C0C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041E2C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041EAC);
+void func_80041EAC(s32 *arg0, s32 arg1) {
+    arg0[1] = arg1;
+}
 
 void func_80041EB4(Unk8006B490 *arg0, Unk8006B490 *arg1) {
     Unk8006B490 *head = D_8006B490;
@@ -90,7 +92,10 @@ void func_8004206C(s32 *arg0) {
     arg0[2] |= 0x80000000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042080);
+extern s32 D_8006B494_t asm("D_8006B494");
+void func_80042080(s32 arg0) {
+    D_8006B494_t = arg0;
+}
 
 Unk8006B490 *func_8004208C(Unk8006B490 *arg0, u32 arg1, s32 arg2) {
     if (arg0 != NULL) {

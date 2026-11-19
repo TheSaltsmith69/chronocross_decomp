@@ -716,7 +716,10 @@ void func_8004D354(u32 arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D434);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D484);
+extern s32 D_8008BE64_t asm("D_8008BE64");
+void func_8004D484(u8 *arg0) {
+    *(s32 *)(arg0 + 0x54) = D_8008BE64_t;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D494);
 
