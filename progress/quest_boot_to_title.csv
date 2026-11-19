@@ -363,7 +363,7 @@ order,seconds,addr,name,category,file,bytes,matched
 362,61.37,8001249C,ClearOTagR,lib,lib/libgpu/sys,172,0
 363,61.38,80013468,func_80013468,lib,lib/libgpu/sys,224,0
 364,61.39,800307F8,func_800307F8,game,game/unk_8002FE30,12,1
-365,61.40,8003CC2C,func_8003CC2C,game,game/unk_8003CB78,132,0
+365,61.40,8003CC2C,func_8003CC2C,game,game/unk_8003CB78,132,1
 366,61.41,80032FAC,func_80032FAC,game,game/unk_8002FE30,200,1
 367,61.42,8003C988,func_8003C988,game,game/unk_8002FE30,64,1
 368,61.43,80025584,SetFogNearFar,lib,lib/libgte/fog_02,272,0
@@ -564,7 +564,7 @@ order,seconds,addr,name,category,file,bytes,matched
 563,105.28,8004D084,func_8004D084,game,game/unk_8004BD54,592,1
 564,105.29,8004C664,func_8004C664,game,game/unk_8004BD54,1144,0
 565,105.30,8004D01C,func_8004D01C,game,game/unk_8004BD54,104,1
-566,105.31,8004BF8C,func_8004BF8C,game,game/unk_8004BD54,172,0
+566,105.31,8004BF8C,func_8004BF8C,game,game/unk_8004BD54,172,1
 567,105.34,8004C038,func_8004C038,game,game/unk_8004BD54,284,1
 568,105.35,8004BE90,func_8004BE90,game,game/unk_8004BD54,24,1
 569,112.35,8005545C,func_8005545C,game,game/unk_80051F24,80,1
