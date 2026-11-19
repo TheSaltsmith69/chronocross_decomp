@@ -172,7 +172,62 @@ s32 func_80052E64(Unk80051F24 *ch) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80053078);
+extern Unk8008ADD0 D_8008ADD0_g[] asm("D_8008ADD0");
+
+void func_80053078(Unk80051F24 *ch, u32 key) {
+    u8 *z;
+    Unk8008ADD0 *s;
+    s32 flags;
+    u32 idx;
+    if ((u32)ch->unkFA < key || ch->unkFA == 0xFF) {
+        z = ch->unk18;
+        while (z[13] != 0 && z[2] < key) {
+            z += 8;
+        }
+    } else if (key < (u32)ch->unkFA) {
+        z = ch->unk18;
+        while (z[13] != 0 && key >= z[9]) {
+            z += 8;
+        }
+    } else {
+        return;
+    }
+    flags = ch->unk34;
+    idx = z[0];
+    ch->unk7E = idx;
+    s = &D_8008ADD0_g[idx];
+    ch->unk110 = s->unk0;
+    ch->unk114 = s->unk4;
+    if (!(flags & 0x1000000)) {
+        ch->unk11A = z[3] << 8;
+    } else {
+        ch->unk11A &= 0x7F00;
+    }
+    ch->unk11A |= s->unkC & 0x80FF;
+    if (!(flags & 0x8000000)) {
+        ch->unk11C &= 0x201F;
+        ch->unk11C |= z[4] << 6;
+    } else {
+        ch->unk11C &= 0x3FDF;
+    }
+    switch (z[5]) {
+    case 3:
+        ch->unk11C |= 0x4000;
+        break;
+    case 5:
+        ch->unk11C |= 0x8000;
+        break;
+    case 7:
+        ch->unk11C |= 0xC000;
+        break;
+    }
+    if (!(flags & 0x10000000)) {
+        ch->unk11C &= 0xFFE0;
+        ch->unk11C |= z[6];
+    }
+    ch->unk11C |= s->unkE & 0x20;
+    ch->unk11E = z[7];
+}
 
 typedef struct {
     u8 pad0[8];

@@ -55,7 +55,89 @@ u8 *func_80019794(s32 arg0, s32 arg1) {
     return p + ((u16 *)p)[arg1];
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800197C0);
+typedef struct Ent800197C0 {
+    u8 pad0[3];
+    u8 unk3;
+    u8 pad4[0x2C];
+    u16 unk30[8];
+    u16 unk40[0x30];
+    u8 padA0[0x2C];
+} Ent800197C0;
+typedef struct G800197C0 {
+    Ent800197C0 ent[0x2C];
+    u8 pad2310[0x30AC - 0x2310];
+    s16 n;
+    s16 pad30AE;
+    s32 pad30B0;
+    u16 masks[0x2C][8];
+    u8 unk3374[0x420];
+} G800197C0;
+extern G800197C0 D_8006EBC8_h asm("D_8006EBC8");
+extern s32 D_8006EB20[];
+extern s32 D_8006EB50;
+void func_8004582C(s32);
+s32 func_80044924(s32);
+s32 func_8003D8F4(s32, s32, s32);
+void func_80046698(s32 *, s32);
+void func_80044EE0(s32);
+void func_8003D504(s32);
+
+void func_800197C0(u8 load) {
+    s32 i;
+    s32 j;
+    s32 b;
+    s32 k;
+    u8 *data;
+    u8 v;
+    Ent800197C0 *e;
+    u16 *m;
+    if (load) {
+        func_8004582C(6);
+        D_8006EB50 = func_8003D8F4(func_80044924(0x7F), 1, 3);
+        D_8006EB20[0] = 0x7F;
+        D_8006EB20[1] = D_8006EB50;
+        D_8006EB20[2] = 0;
+        D_8006EB20[3] = 0;
+        func_80046698(D_8006EB20, 0x80);
+        func_80044EE0(0);
+    }
+    for (i = 0; i < 0x2C; i++) {
+        e = &D_8006EBC8_h.ent[i];
+        m = D_8006EBC8_h.masks[i];
+        for (j = 0; j < D_8006EBC8_h.n; j++) {
+            v = ((u8 *)D_8006EB50)[e->unk3 + j * 8];
+            if (v != 0xFF) {
+                m[(u8)(v / 10)] |= 1 << (v % 10);
+            }
+        }
+        for (j = 0; j < 0x30; j++) {
+            e->unk40[j] |= 0x4000;
+        }
+        for (j = 0, k = 0; j < 8; j++) {
+            for (b = 0; b < 10; b++) {
+                if ((e->unk30[j] >> b) & 1) {
+                    if ((m[j] >> b) & 1) {
+                        e->unk40[k] &= 0xBFFF;
+                    } else {
+                        e->unk40[k] |= 0x4000;
+                    }
+                    k++;
+                }
+            }
+        }
+    }
+    if (!load) {
+        u8 *p;
+        u8 c = 0x55;
+        i = 0x41F;
+        for (p = (u8 *)&D_8006EBC8_h + i; i >= 0; i--) {
+            p[0x3374] = c;
+            p--;
+        }
+    } else {
+        func_8003D504(D_8006EB50);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019A00);
 
