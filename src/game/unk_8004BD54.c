@@ -82,7 +82,47 @@ void func_8004BF5C(s32 voice, s32 arg1, u32 arg2) {
     *reg = (*reg & 0xFFC0) | (((arg2 >> 2) << 5) | arg1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004BF8C);
+typedef struct V8004BF8C {
+    s32 unk0;
+    s32 unk4;
+    u32 unk8;
+    u32 unkC;
+    u16 unk10;
+    u16 unk12;
+    u16 unk14;
+    u16 pad16;
+    s16 unk18;
+    s16 unk1A;
+} V8004BF8C;
+void func_8004BF8C(s32 voice, V8004BF8C *v, s32 scale) {
+    u16 *p;
+    s32 l;
+    s32 r;
+    v->unk4 = 0;
+    p = (u16 *)(0x1F801C00 + voice * 16);
+    if (scale == 0) {
+        l = v->unk18;
+        r = v->unk1A;
+    } else {
+        l = v->unk18 * scale;
+        r = v->unk1A * scale;
+        l >>= 7;
+        r >>= 7;
+    }
+    *p = l & 0x7FFF;
+    p++;
+    *p = r & 0x7FFF;
+    p++;
+    *p = v->unk10;
+    p++;
+    *p = v->unk8 >> 3;
+    p++;
+    *p = v->unk12;
+    p++;
+    *p = v->unk14;
+    p += 2;
+    *p = v->unkC >> 3;
+}
 
 typedef struct {
     s32 unk0;
@@ -193,7 +233,7 @@ extern Unk80051F24 *D_8008E408[];
 void func_8004C664(Unk80051F24 *, u32);
 s32 func_8004D01C(s32);
 s32 func_8004CF6C(s32);
-void func_8004BF8C(s32, void *, s32);
+void func_8004BF8C();
 void func_8004C038_i(s32, void *, s32) asm("func_8004C038");
 #define CUR ((Cur8004D084 *)D_8008BE50)
 #define CH120(c) (*(s16 *)&(c)->pad120[0])

@@ -26,7 +26,20 @@ void func_8003CB78(s32 size, s32 arg1) {
     D_1F80000C = p + D_8007EE1C;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CC2C);
+extern s32 D_8007EE30[];
+extern s32 D_8007EE28[];
+extern s32 D_8007EE18;
+void func_8003CC2C(s32 i) {
+    s32 v;
+    D_8007EE30[1] = D_8007EE38;
+    D_8007EE30[0] = D_1F800014;
+    v = D_8007EE20[i];
+    D_8007EE28[0] = i;
+    D_8007EE18 = D_8007EE40[i];
+    D_1F800014 = v;
+    D_8007EE38 = v;
+    D_1F80000C = v + D_8007EE1C - D_8006B3FC - 0x400;
+}
 
 extern s32 D_8007EE20[];
 extern s32 D_1F80000C;
