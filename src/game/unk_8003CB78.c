@@ -222,6 +222,9 @@ s32 func_8003DC64(s32 *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DC70);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DD14);
+void f_3D504_t(void) asm("func_8003D504");
+void func_8003DD14(void) {
+    f_3D504_t();
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DD34);

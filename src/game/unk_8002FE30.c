@@ -43,7 +43,12 @@ void func_8003073C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030784);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800307AC);
+typedef struct { u16 a, b; } P800307AC;
+extern P800307AC D_8007EB08_t asm("D_8007EB08");
+void func_800307AC(P800307AC arg0) {
+    D_8007EB08_t.a = arg0.a;
+    D_8007EB08_t.b = arg0.b;
+}
 
 extern u8 D_8006B1E9;
 extern u8 D_8006B1EA;
