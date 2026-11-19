@@ -183,7 +183,206 @@ void func_8004C038(s32 voice, Attr8004C038 *a) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004C154);
+typedef struct {
+    u8 pad0[0x1C];
+    s16 *u1C;
+    s16 *u20;
+    s16 *u24;
+    u8 pad28[4];
+    u32 u2C;
+    s32 u30;
+    u8 pad34[4];
+    s32 u38;
+    s32 u3C;
+    s32 u40;
+    s32 u44;
+    s32 u48;
+    s32 u4C;
+    u8 pad50[0xC];
+    s32 u5C;
+    s32 u60;
+    s32 u64;
+    u8 pad68[0x2E];
+    u16 u96;
+    u16 u98;
+    u8 pad9A[2];
+    u16 u9C;
+    u8 pad9E[4];
+    u16 uA2;
+    u16 uA4;
+    u16 uA6;
+    u8 padA8[0xC];
+    u16 uB4;
+    u16 uB6;
+    u16 uB8;
+    u8 padBA[2];
+    u16 uBC;
+    u16 uBE;
+    u16 uC0;
+    u16 uC2;
+    u8 padC4[2];
+    u16 uC6;
+    u16 uC8;
+    u16 uCA;
+    u8 padCC[2];
+    u16 uCE;
+    u16 uD0;
+    u16 uD2;
+    u16 uD4;
+    u16 uD6;
+    u8 padD8[2];
+    u16 uDA;
+    u16 uDC;
+    u16 uDE;
+    u16 uE0;
+    u16 uE2;
+    u8 padE4[8];
+    s16 uEC;
+    u8 padEE[6];
+    s16 uF4;
+    u8 padF6[0xA];
+    s16 u100;
+    s16 u102;
+    s16 u104;
+    u8 pad106[6];
+    s32 u10C;
+} C154;
+extern s32 D_8008BEB0[];
+void func_8004C154(Unk80051F24 *ch_, u32 bit, s32 flag) {
+#define ch ((C154 *)ch_)
+    s32 v;
+    s16 *p;
+    u16 t;
+    u32 k;
+    if (ch->u9C != 0) {
+        ch->u9C--;
+        v = ch->u5C + ch->u60;
+        if ((v & 0xFFE00000) != (ch->u5C & 0xFFE00000)) {
+            ch->u10C |= 3;
+        }
+        ch->u5C = v;
+    }
+    if (flag == 0 && ch->u98 != 0) {
+        ch->u98--;
+        v = ch->u96 + ch->uEC;
+        if ((v & 0x7F00) != (ch->u96 & 0x7F00)) {
+            ch->u10C |= 3;
+        }
+        ch->u96 = v;
+    }
+    if (ch->uA4 != 0) {
+        ch->uA4--;
+        v = ch->uA2 + ch->uF4;
+        if ((v & 0xFF00) != (ch->uA2 & 0xFF00)) {
+            ch->u10C |= 3;
+        }
+        ch->uA2 = v;
+    }
+    if (ch->uB4 != 0) {
+        ch->uB4--;
+    }
+    if (ch->uC6 != 0) {
+        ch->uC6--;
+    }
+    if (ch->uB6 != 0) {
+        ch->uB6--;
+        ch->u38 += ch->u3C;
+    }
+    if (ch->uC8 != 0) {
+        ch->uC8--;
+        ch->u40 += ch->u44;
+    }
+    if (ch->uD4 != 0) {
+        ch->uD4--;
+        ch->u48 += ch->u4C;
+    }
+    if (ch->uE0 != 0) {
+        if (--ch->uE0 == 0) {
+            if (flag == 0) {
+                ((s32 *)D_8008BE50)[0x10] ^= bit;
+            } else {
+                D_8008BEB0[7] ^= bit;
+            }
+            D_8008E398[2] |= 0x110;
+        }
+    }
+    if (ch->uE2 != 0) {
+        if (--ch->uE2 == 0) {
+            if (flag == 0) {
+                ((s32 *)D_8008BE50)[0x12] ^= bit;
+            } else {
+                D_8008BEB0[9] ^= bit;
+            }
+            D_8008E398[2] |= 0x100;
+        }
+    }
+    if (ch->uC0 != 0) {
+        ch->uC0--;
+        t = ch->uBE + ch->uC2;
+        ch->uBE = t;
+        k = (t & 0x7F00) >> 8;
+        if (t & 0x8000) {
+            t = (k * ch->u2C) >> 7;
+        } else {
+            t = (k * ((ch->u2C * 15) >> 8)) >> 7;
+        }
+        ch->uBC = t;
+        if (ch->uB4 == 0 && ch->uB8 != 1) {
+            p = ch->u1C;
+            if (p[0] == 0 && p[1] == 0) {
+                p += p[2];
+            }
+            v = (ch->uBC * *p) >> 16;
+            if (v != ch->u100) {
+                ch->u100 = v;
+                ch->u10C |= 0x10;
+                if (v >= 0) {
+                    ch->u100 = v << 1;
+                }
+            }
+        }
+    }
+    if (ch->uD0 != 0) {
+        ch->uD0--;
+        ch->uCE += ch->uD2;
+        if (ch->uC6 == 0 && ch->uCA != 1) {
+            p = ch->u20;
+            if (p[0] == 0 && p[1] == 0) {
+                p += p[2];
+            }
+            v = (s16)((((((s16 *)ch)[0x2F] * (ch->u96 >> 8)) >> 7) * (ch->uCE >> 8)) >> 7);
+            v = (v * *p) >> 15;
+            if (v != ch->u102) {
+                ch->u102 = v;
+                ch->u10C |= 3;
+            }
+        }
+    }
+    if (ch->uDC != 0) {
+        ch->uDC--;
+        ch->uDA += ch->uDE;
+        if (ch->uD6 != 1) {
+            p = ch->u24;
+            if (p[0] == 0 && p[1] == 0) {
+                p += p[2];
+            }
+            v = ((ch->uDA >> 8) * *p) >> 15;
+            if (v != ch->u104) {
+                ch->u104 = v;
+                ch->u10C |= 3;
+            }
+        }
+    }
+    if (ch->uA6 != 0) {
+        ch->uA6--;
+        v = ch->u30 + ch->u64;
+        if ((v & 0xFFFF0000) != (ch->u30 & 0xFFFF0000)) {
+            ch->u10C |= 0x10;
+        }
+        ch->u30 = v;
+    }
+#undef ch
+}
 
 typedef struct {
     u8 pad0[0x1C];
