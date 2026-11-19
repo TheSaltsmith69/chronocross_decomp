@@ -298,7 +298,7 @@ order,seconds,addr,name,category,file,bytes,matched
 297,37.57,8002671C,SetDQA,lib,lib/libgte/reg03,12,0
 298,37.59,80026728,SetDQB,lib,lib/libgte/reg03,12,0
 299,37.60,80026744,SetBackColor,lib,lib/libgte/reg10,32,0
-300,37.61,8001AD30,func_8001AD30,game,game/main,808,0
+300,37.61,8001AD30,func_8001AD30,game,game/main,808,1
 301,42.66,80033588,func_80033588,game,game/unk_8002FE30,204,0
 302,42.70,80041AEC,func_80041AEC,game,game/unk_8003FD00,288,0
 303,42.72,80042004,func_80042004,game,game/unk_8003FD00,104,1
@@ -504,7 +504,7 @@ order,seconds,addr,name,category,file,bytes,matched
 503,97.06,8003B594,func_8003B594,game,game/unk_8002FE30,124,1
 504,97.08,800329B8,func_800329B8,game,game/unk_8002FE30,80,1
 505,97.09,80031074,func_80031074,game,game/unk_8002FE30,1120,0
-506,97.10,800321B8,func_800321B8,game,game/unk_8002FE30,824,0
+506,97.10,800321B8,func_800321B8,game,game/unk_8002FE30,824,1
 507,97.12,800263A4,ApplyMatrixSV,lib,lib/libgte/mtx_06,96,0
 508,97.13,800318BC,func_800318BC,game,game/unk_8002FE30,516,0
 509,97.25,8002A284,func_8002A284,lib,lib/unk_80029AA4,124,0
