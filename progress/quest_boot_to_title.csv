@@ -265,7 +265,7 @@ order,seconds,addr,name,category,file,bytes,matched
 264,30.62,8004B3F0,func_8004B3F0,lib,lib/unk_8004B230,196,0
 265,30.63,8004B230,func_8004B230,lib,lib/unk_8004B230,80,0
 266,31.20,80049FD0,func_80049FD0,game,game/unk_80049F90,96,1
-267,31.22,8003DB84,func_8003DB84,game,game/unk_8003CB78,224,0
+267,31.22,8003DB84,func_8003DB84,game,game/unk_8003CB78,224,1
 268,37.12,8003FA64,func_8003FA64,game,game/unk_8003DD74,80,1
 269,37.13,80042B20,func_80042B20,game,game/unk_8003FD00,4104,0
 270,37.14,8004A26C,func_8004A26C,game,game/unk_80049F90,60,1
@@ -356,7 +356,7 @@ order,seconds,addr,name,category,file,bytes,matched
 355,61.18,8001BF48,func_8001BF48,game,game/main,36,1
 356,61.19,8001BF94,func_8001BF94,game,game/main,264,1
 357,61.20,80011974,SetDrawStp,lib,lib/libgpu/p40,48,0
-358,61.32,8003B13C,func_8003B13C,game,game/unk_8002FE30,212,0
+358,61.32,8003B13C,func_8003B13C,game,game/unk_8002FE30,212,1
 359,61.33,8003CB78,func_8003CB78,game,game/unk_8003CB78,180,1
 360,61.34,80041F0C,func_80041F0C,game,game/unk_8003FD00,96,1
 361,61.36,80026BA4,RotTransPers,lib,lib/libgte/smp_02,48,0
