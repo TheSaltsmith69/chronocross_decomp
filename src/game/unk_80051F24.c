@@ -65,7 +65,112 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800527BC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80052850);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80052E64);
+extern u8 D_8006B53C[];
+extern u8 D_8006B59C[];
+#define CH_B0(ch) (*(u16 *)&(ch)->padAA[6])
+#define CH_14(ch) (*(u8 **)(ch)->pad14)
+
+s32 func_80052E64(Unk80051F24 *ch) {
+    u8 *p = ch->unk0;
+    s32 d = ch->unkE4;
+    u32 op;
+    s32 len;
+
+    for (;;) {
+        if (*p < 0x9A) {
+            if (*p >= 0x8F) {
+                CH_B0(ch) &= 0xFFFA;
+            }
+            return *p;
+        }
+        if (*p < 0xA0) {
+            return 0xA0;
+        }
+        op = *p;
+        len = D_8006B53C[op - 0xA0];
+        if (len != 0) {
+            p += len;
+            continue;
+        }
+        switch (op) {
+        case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5:
+        case 0xF6: case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB:
+            return 0x83;
+        case 0xFC:
+            return 0x84;
+        case 0xFD:
+            return 0x8F;
+        case 0xFE:
+            p++;
+            op = *p;
+            len = D_8006B59C[op];
+            if (len != 0) {
+                p += len;
+                continue;
+            }
+            switch (op) {
+            case 8:
+            case 9:
+                p++;
+                if (*p == (u16)ch->unk86[d] + 1) {
+                    p++;
+                    d--;
+                    d &= 3;
+                    goto rel;
+                }
+                p += 3;
+                continue;
+            case 6:
+            case 14:
+                p++;
+                goto rel;
+            case 7:
+                p++;
+                if (*p++ > *(u16 *)((u8 *)D_8008BE50 + 0x70)) {
+                    goto skip;
+                }
+            rel:
+                op = p[0] + (p[1] << 8);
+                p += (s16)op;
+                continue;
+            skip:
+                p += 2;
+                continue;
+            case 15:
+                p = CH_14(ch);
+                continue;
+            }
+            continue;
+        case 0xC9:
+            p++;
+            if (*p == (u16)ch->unk86[d] + 1) {
+                p++;
+                d--;
+                d &= 3;
+                continue;
+            }
+            p = ch->unk4[d];
+            continue;
+        case 0xCB:
+        case 0xCD:
+        case 0xD1:
+        case 0xDB:
+            CH_B0(ch) &= 0xFFFA;
+            p++;
+            continue;
+        case 0xCA:
+            if (ch->unk34 & 0x200000) {
+                goto def;
+            }
+            p = ch->unk4[d];
+            continue;
+        default:
+        def:
+            CH_B0(ch) &= 0xFFFA;
+            return 0xA0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80053078);
 
