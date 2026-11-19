@@ -190,7 +190,7 @@ order,seconds,addr,name,category,file,bytes,matched
 189,11.46,80017A2C,func_80017A2C,lib,lib/libpad/padseqd,224,0
 190,11.47,800172E0,func_800172E0,lib,lib/libpad/padportd,16,0
 191,11.48,8003F414,func_8003F414,game,game/unk_8003DD74,276,1
-192,11.49,8003F2A8,func_8003F2A8,game,game/unk_8003DD74,364,0
+192,11.49,8003F2A8,func_8003F2A8,game,game/unk_8003DD74,364,1
 193,11.50,80015810,PadGetState,lib,lib/libpad/padentry,204,0
 194,11.61,800177C8,func_800177C8,lib,lib/libpad/padseqd,612,0
 195,11.62,800156B8,_padCmdParaMode,lib,lib/libpad/padcmd,32,0
@@ -274,7 +274,7 @@ order,seconds,addr,name,category,file,bytes,matched
 273,37.18,8004F7A8,func_8004F7A8,game,game/unk_8004DE10,44,1
 274,37.19,8004E538,func_8004E538,game,game/unk_8004DE10,864,0
 275,37.21,8004DD70,SpuSetNoiseClock,lib,lib/libspu/s_snc,80,0
-276,37.23,8004DBE4,func_8004DBE4,game,game/unk_8004BD54,396,0
+276,37.23,8004DBE4,func_8004DBE4,game,game/unk_8004BD54,396,1
 277,37.24,8004BD8C,func_8004BD8C,game,game/unk_8004BD54,28,1
 278,37.25,8004BDA8,func_8004BDA8,game,game/unk_8004BD54,28,1
 279,37.26,8004BDC4,func_8004BDC4,game,game/unk_8004BD54,28,1
@@ -380,7 +380,7 @@ order,seconds,addr,name,category,file,bytes,matched
 379,61.56,8002B4C8,func_8002B4C8,game,game/unk_8002B070,248,1
 380,61.57,80030AA0,func_80030AA0,game,game/unk_8002FE30,248,1
 381,61.58,80030680,func_80030680,game,game/unk_8002FE30,44,1
-382,61.59,8003EC44,func_8003EC44,game,game/unk_8003DD74,460,0
+382,61.59,8003EC44,func_8003EC44,game,game/unk_8003DD74,460,1
 383,61.60,8002BE64,func_8002BE64,game,game/unk_8002B070,56,1
 384,61.61,800369FC,func_800369FC,game,game/unk_8002FE30,1360,0
 385,61.63,80043F0C,func_80043F0C,game,game/unk_8003FD00,132,0
@@ -402,7 +402,7 @@ order,seconds,addr,name,category,file,bytes,matched
 401,61.86,8003B258,func_8003B258,game,game/unk_8002FE30,88,1
 402,61.89,8003C8CC,func_8003C8CC,game,game/unk_8002FE30,100,1
 403,61.90,80043B30,func_80043B30,game,game/unk_8003FD00,988,0
-404,61.91,80037CA8,func_80037CA8,game,game/unk_8002FE30,448,0
+404,61.91,80037CA8,func_80037CA8,game,game/unk_8002FE30,448,1
 405,61.92,8003A4C0,func_8003A4C0,game,game/unk_8002FE30,2852,0
 406,61.93,8003C7F4,func_8003C7F4,game,game/unk_8002FE30,216,1
 407,61.95,80026A6C,Square0,lib,lib/libgte/smp_00,40,0
@@ -452,7 +452,7 @@ order,seconds,addr,name,category,file,bytes,matched
 451,88.90,80023298,CdReady,lib,lib/libcd/sys,32,0
 452,88.91,80023F28,CD_ready,lib,lib/libcd/bios,712,0
 453,90.85,8004B0B4,func_8004B0B4,game,game/unk_80049F90,132,1
-454,90.91,80055F20,func_80055F20,game,game/unk_80051F24,432,0
+454,90.91,80055F20,func_80055F20,game,game/unk_80051F24,432,1
 455,90.92,80055B70,func_80055B70,game,game/unk_80051F24,144,1
 456,90.93,8004BE5C,func_8004BE5C,game,game/unk_8004BD54,28,1
 457,90.95,8004BD70,func_8004BD70,game,game/unk_8004BD54,28,1
@@ -472,7 +472,7 @@ order,seconds,addr,name,category,file,bytes,matched
 471,91.11,80056440,SpuSetIRQAddr,lib,lib/libspu/s_sia,64,0
 472,91.12,8004BD54,func_8004BD54,game,game/unk_8004BD54,28,1
 473,91.36,80056364,func_80056364,game,game/unk_80051F24,48,1
-474,91.37,80056208,func_80056208,game,game/unk_80051F24,348,0
+474,91.37,80056208,func_80056208,game,game/unk_80051F24,348,1
 475,91.38,8004B2B8,func_8004B2B8,lib,lib/unk_8004B230,48,0
 476,91.62,80056394,func_80056394,game,game/unk_80051F24,56,1
 477,91.91,8004AFC4,func_8004AFC4,game,game/unk_80049F90,56,1
@@ -508,7 +508,7 @@ order,seconds,addr,name,category,file,bytes,matched
 507,97.12,800263A4,ApplyMatrixSV,lib,lib/libgte/mtx_06,96,0
 508,97.13,800318BC,func_800318BC,game,game/unk_8002FE30,516,0
 509,97.25,8002A284,func_8002A284,lib,lib/unk_80029AA4,124,0
-510,97.27,80033080,func_80033080,game,game/unk_8002FE30,300,0
+510,97.27,80033080,func_80033080,game,game/unk_8002FE30,300,1
 511,97.28,80030B98,func_80030B98,game,game/unk_8002FE30,1244,0
 512,97.29,800314D4,func_800314D4,game,game/unk_8002FE30,1000,0
 513,97.30,8002F078,func_8002F078,game,game/unk_8002B070,1220,0
@@ -539,7 +539,7 @@ order,seconds,addr,name,category,file,bytes,matched
 538,104.92,80053E50,func_80053E50,game,game/unk_80051F24,52,1
 539,104.93,8004A8B4,func_8004A8B4,game,game/unk_80049F90,64,1
 540,104.94,8004F9C4,func_8004F9C4,game,game/unk_8004DE10,256,1
-541,104.96,8004DA38,func_8004DA38,game,game/unk_8004BD54,428,0
+541,104.96,8004DA38,func_8004DA38,game,game/unk_8004BD54,428,1
 542,104.97,80052518,func_80052518,game,game/unk_80051F24,676,0
 543,104.98,8004C154,func_8004C154,game,game/unk_8004BD54,1296,0
 544,105.03,8004D9D8,func_8004D9D8,game,game/unk_8004BD54,96,1
@@ -556,7 +556,7 @@ order,seconds,addr,name,category,file,bytes,matched
 555,105.17,80054580,func_80054580,game,game/unk_80051F24,28,1
 556,105.18,80052E64,func_80052E64,game,game/unk_80051F24,532,0
 557,105.19,80053078,func_80053078,game,game/unk_80051F24,552,0
-558,105.20,800532A0,func_800532A0,game,game/unk_80051F24,400,0
+558,105.20,800532A0,func_800532A0,game,game/unk_80051F24,400,1
 559,105.21,80054860,func_80054860,game,game/unk_80051F24,96,1
 560,105.25,8004D354,func_8004D354,game,game/unk_8004BD54,224,1
 561,105.26,8004DDC0,SpuGetVoiceEnvelope,lib,lib/libspu/s_gvex,32,0
