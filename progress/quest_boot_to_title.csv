@@ -253,7 +253,7 @@ order,seconds,addr,name,category,file,bytes,matched
 252,23.93,80010774,rand,lib,lib/libc2/rand,48,0
 253,23.97,800197C0,func_800197C0,game,game/unk_800191D4,576,1
 254,24.01,800221E0,func_800221E0,game,game/main,88,1
-255,24.02,8001B638,func_8001B638,game,game/main,336,0
+255,24.02,8001B638,func_8001B638,game,game/main,336,1
 256,24.03,8001B5A0,func_8001B5A0,game,game/main,152,1
 257,24.05,8001B53C,func_8001B53C,game,game/main,100,1
 258,24.06,8001B50C,func_8001B50C,game,game/main,48,1
@@ -387,7 +387,7 @@ order,seconds,addr,name,category,file,bytes,matched
 386,61.64,8003DD54,ReadGeomOffset,lib,lib/libgte/reg08,32,0
 387,61.65,8003EE10,func_8003EE10,game,game/unk_8003DD74,1176,0
 388,61.66,8004A87C,func_8004A87C,game,game/unk_80049F90,56,1
-389,61.67,8004F888,func_8004F888,game,game/unk_8004DE10,316,0
+389,61.67,8004F888,func_8004F888,game,game/unk_8004DE10,316,1
 390,61.68,8004ED00,func_8004ED00,game,game/unk_8004DE10,72,1
 391,61.70,80012DBC,SetDrawOffset,lib,lib/libgpu/sys,64,0
 392,61.71,8001B8B0,func_8001B8B0,game,game/main,1688,0
@@ -500,7 +500,7 @@ order,seconds,addr,name,category,file,bytes,matched
 499,96.96,8002BB1C,func_8002BB1C,game,game/unk_8002B070,84,1
 500,96.97,8002E238,func_8002E238,game,game/unk_8002B070,76,0
 501,96.98,8002CEB4,func_8002CEB4,game,game/unk_8002B070,4996,0
-502,96.99,8003AFE4,func_8003AFE4,game,game/unk_8002FE30,328,0
+502,96.99,8003AFE4,func_8003AFE4,game,game/unk_8002FE30,328,1
 503,97.06,8003B594,func_8003B594,game,game/unk_8002FE30,124,1
 504,97.08,800329B8,func_800329B8,game,game/unk_8002FE30,80,1
 505,97.09,80031074,func_80031074,game,game/unk_8002FE30,1120,0
