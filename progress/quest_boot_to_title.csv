@@ -243,7 +243,7 @@ order,seconds,addr,name,category,file,bytes,matched
 242,18.67,80044484,func_80044484,game,game/unk_80043F90,428,1
 243,22.17,80046FB4,func_80046FB4,game,game/unk_80043F90,1556,1
 244,22.18,80047724,func_80047724,game,game/unk_80043F90,60,1
-245,23.81,80019A00,func_80019A00,game,game/unk_800191D4,724,0
+245,23.81,80019A00,func_80019A00,game,game/unk_800191D4,724,1
 246,23.82,80010414,memmove,lib,lib/libc2/memmove,112,0
 247,23.84,80019794,func_80019794,game,game/unk_800191D4,44,1
 248,23.88,8003D504,func_8003D504,game,game/unk_8003CB78,512,0
