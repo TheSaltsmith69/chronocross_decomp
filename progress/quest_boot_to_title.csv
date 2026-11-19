@@ -269,10 +269,10 @@ order,seconds,addr,name,category,file,bytes,matched
 268,37.12,8003FA64,func_8003FA64,game,game/unk_8003DD74,80,1
 269,37.13,80042B20,func_80042B20,game,game/unk_8003FD00,4104,0
 270,37.14,8004A26C,func_8004A26C,game,game/unk_80049F90,60,1
-271,37.15,8005134C,func_8005134C,game,game/unk_8004DE10,888,0
+271,37.15,8005134C,func_8005134C,game,game/unk_8004DE10,888,1
 272,37.16,8003FCF0,DisableEvent,lib,lib/libapi/a13,16,0
 273,37.18,8004F7A8,func_8004F7A8,game,game/unk_8004DE10,44,1
-274,37.19,8004E538,func_8004E538,game,game/unk_8004DE10,864,0
+274,37.19,8004E538,func_8004E538,game,game/unk_8004DE10,864,1
 275,37.21,8004DD70,SpuSetNoiseClock,lib,lib/libspu/s_snc,80,0
 276,37.23,8004DBE4,func_8004DBE4,game,game/unk_8004BD54,396,1
 277,37.24,8004BD8C,func_8004BD8C,game,game/unk_8004BD54,28,1

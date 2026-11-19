@@ -240,7 +240,7 @@ game/unk_8004BD54,game,8004BD54,32,24,8220,2968
 lib/libspu/s_snc,lib,8004DD70,1,0,80,0
 lib/libspu/s_gvex,lib,8004DDC0,1,0,32,0
 lib/libspu/s_srmd,lib,8004DDE0,1,0,48,0
-game/unk_8004DE10,game,8004DE10,71,10,14516,1516
+game/unk_8004DE10,game,8004DE10,71,12,14516,3268
 lib/libspu/s_srmt,lib,800516C4,1,0,464,0
 lib/libspu/s_sra,lib,80051894,1,0,1232,0
 lib/libspu/s_crwa,lib,80051D64,1,0,416,0
