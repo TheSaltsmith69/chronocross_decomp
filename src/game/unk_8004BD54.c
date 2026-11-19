@@ -151,7 +151,29 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CADC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CF6C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D01C);
+typedef struct Env8004D01C {
+    s32 unk0;
+    s16 unk4;
+    s16 unk6;
+} Env8004D01C;
+extern Env8004D01C D_8008AC00_d[] asm("D_8008AC00");
+s32 func_8004D01C(s32 i) {
+    Env8004D01C *e;
+    if (i != 0) {
+        i = 0;
+    } else {
+        i = D_8008BE50->unk3C;
+    }
+    e = &D_8008AC00_d[i];
+    while (e->unk4 != 0) {
+        i++;
+        if (i >= 0x18) {
+            break;
+        }
+        e++;
+    }
+    return i;
+}
 
 typedef struct Cur8004D084 {
     s32 unk0;
