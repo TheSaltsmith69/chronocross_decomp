@@ -142,7 +142,84 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CF6C);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D01C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D084);
+typedef struct Cur8004D084 {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+} Cur8004D084;
+typedef struct Env8004D084 {
+    s32 unk0;
+    s16 unk4;
+    s16 unk6;
+} Env8004D084;
+extern Env8004D084 D_8008AC00_i[] asm("D_8008AC00");
+extern u32 D_8008BF04;
+extern Unk80051F24 *D_8008E408[];
+void func_8004C664(Unk80051F24 *, u32);
+s32 func_8004D01C(s32);
+s32 func_8004CF6C(s32);
+void func_8004BF8C(s32, void *, s32);
+void func_8004C038_i(s32, void *, s32) asm("func_8004C038");
+#define CUR ((Cur8004D084 *)D_8008BE50)
+#define CH120(c) (*(s16 *)&(c)->pad120[0])
+#define CH122(c) (*(s16 *)&(c)->pad120[2])
+
+void func_8004D084(Unk80051F24 *ch, u32 mask, u32 direct, u32 *out_) {
+    u32 *out = out_;
+    u32 bit = 1;
+    s32 i = 0;
+    u32 keyon = mask & CUR->unk10;
+    s32 alt;
+    s32 v;
+    do {
+        if (mask & bit) {
+            func_8004C664(ch, bit);
+            if (ch->unk10C != 0) {
+                if (D_8008BF04 & bit) {
+                    CH122(ch) = 0;
+                    CH120(ch) = 0;
+                }
+                if (keyon & bit) {
+                    if (direct & bit) {
+                        *out |= 1 << i;
+                        ch->unk108 = i;
+                    } else {
+                        alt = (CUR->unk8 & bit) != 0;
+                        v = func_8004D01C(alt);
+                        if (v == 0x18) {
+                            CUR->unk0 |= 2;
+                            v = func_8004CF6C(alt);
+                            if (v == 0x18) {
+                                ch->unk108 = v;
+                                CUR->unk0 |= 1;
+                                goto start;
+                            }
+                        }
+                        *out |= 1 << v;
+                        ch->unk108 = v;
+                        D_8008AC00_i[v].unk4 = 0x7FFF;
+                    }
+                start:
+                    if ((u32)ch->unk108 < 0x18) {
+                        func_8004BF8C(ch->unk108, &ch->unk108, (u16)ch->unk11E);
+                        D_8008E408[ch->unk108] = D_8008BE50;
+                        D_8008E398[2] |= 0x100;
+                    }
+                } else {
+                    if ((u32)ch->unk108 < 0x18) {
+                        func_8004C038_i(ch->unk108, &ch->unk108, ch->unk34);
+                    }
+                }
+            }
+            mask &= ~bit;
+        }
+        bit <<= 1;
+        ch++;
+        i++;
+    } while (mask != 0);
+}
 
 extern s32 D_8008ABF8;
 extern Unk80051F24 *D_8008ABF4;
