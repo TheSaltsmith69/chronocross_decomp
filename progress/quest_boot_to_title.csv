@@ -299,7 +299,7 @@ order,seconds,addr,name,category,file,bytes,matched
 298,37.59,80026728,SetDQB,lib,lib/libgte/reg03,12,0
 299,37.60,80026744,SetBackColor,lib,lib/libgte/reg10,32,0
 300,37.61,8001AD30,func_8001AD30,game,game/main,808,1
-301,42.66,80033588,func_80033588,game,game/unk_8002FE30,204,0
+301,42.66,80033588,func_80033588,game,game/unk_8002FE30,204,1
 302,42.70,80041AEC,func_80041AEC,game,game/unk_8003FD00,288,0
 303,42.72,80042004,func_80042004,game,game/unk_8003FD00,104,1
 304,42.73,80040DD0,func_80040DD0,game,game/unk_8003FD00,1576,0
