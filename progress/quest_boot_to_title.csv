@@ -458,7 +458,7 @@ order,seconds,addr,name,category,file,bytes,matched
 457,90.95,8004BD70,func_8004BD70,game,game/unk_8004BD54,28,1
 458,90.96,80055ECC,func_80055ECC,game,game/unk_80051F24,84,1
 459,90.98,80056198,func_80056198,game,game/unk_80051F24,112,1
-460,90.99,80055C00,func_80055C00,game,game/unk_80051F24,444,0
+460,90.99,80055C00,func_80055C00,game,game/unk_80051F24,444,1
 461,91.00,8004BDE0,func_8004BDE0,game,game/unk_8004BD54,72,1
 462,91.01,8004BE28,func_8004BE28,game,game/unk_8004BD54,24,1
 463,91.02,8004BE40,func_8004BE40,game,game/unk_8004BD54,28,1
