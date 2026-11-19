@@ -677,7 +677,56 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A1F8);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A4C0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003AFE4);
+typedef struct {
+    u8 pad0[0x10];
+    u32 unk10;
+} OAFE4;
+typedef struct {
+    u8 pad0[0xC];
+    void *unkC;
+    u8 pad10[0x6C];
+    s16 unk7C;
+} EAFE4;
+typedef struct {
+    Blk80033F20 hdr;
+    void (*fn)();
+    s32 pad8;
+    EAFE4 e;
+} BAFE4;
+void func_8003B258();
+void func_8003C22C();
+void func_80043B30();
+void func_8003AFE4(s32 arg0) {
+    s32 n = 0;
+    OAFE4 *o;
+    BAFE4 *p;
+    while ((n = func_8004208C(n, 10, arg0)) != 0) {
+        o = func_80041F6C((void *)n);
+        if (!(o->unk10 & 1)) {
+            func_8003B258(o);
+        }
+        o->unk10 |= 1;
+        if (D_1F800008_b != NULL) {
+        restart:
+            p = (BAFE4 *)(D_1F800008_b + 1);
+            if (p->hdr.next != 0) {
+                do {
+                    if (p->hdr.used && p->fn == func_80043B30) {
+                        EAFE4 *e = &p->e;
+                        if (e->unkC == o) {
+                            if (e->unk7C == 0) {
+                                func_8003C22C(e);
+                                goto restart;
+                            }
+                            e->unk7C = 1;
+                        }
+                    }
+                    p = (BAFE4 *)(p->hdr.next * 4 + (u32)D_1F800008_b);
+                } while (p->hdr.next != 0);
+            }
+        }
+    }
+}
 
 void func_8003B12C(s32 *arg0, s32 arg1) {
     arg0[-1] = arg1;

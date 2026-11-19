@@ -85,7 +85,44 @@ void func_8004F7A8(s32 *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004F7D4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004F888);
+extern Unk80051F24 *D_8008ABF8;
+extern u8 *D_8008ABF4;
+extern u8 D_80087980[];
+void func_8004F888(s32 *arg) {
+    s32 n = 1;
+    Unk80051F24 *ch;
+    s32 v;
+    s32 cur;
+    if (arg[1] != 0) {
+        n = arg[1];
+    }
+    v = ((arg[2] & 0x7F) << 16) | 0x8000;
+    arg = (s32 *)arg[0];
+    if (arg == 0 || (s32)arg == D_8008BE50->unk6E) {
+        cur = D_8008BE50->unk54;
+        cur &= 0xFFFF0000;
+        cur |= 0x8000;
+        v -= cur;
+        v /= n;
+        D_8008BE50->unk5C = n;
+        D_8008BE50->unk54 = cur;
+        D_8008BE50->unk58 = v;
+        func_8004ED00(D_8008BE50, D_80087980);
+    } else {
+        ch = D_8008ABF8;
+        if (ch != NULL && arg != 0 && (s32)arg == ch->unk6E) {
+            cur = ch->unk54;
+            cur &= 0xFFFF0000;
+            cur |= 0x8000;
+            v -= cur;
+            v /= n;
+            ch->unk5C = n;
+            ch->unk54 = cur;
+            ch->unk58 = v;
+            func_8004ED00(ch, D_8008ABF4);
+        }
+    }
+}
 
 extern Unk80051F24 *D_8008ABF8;
 extern u8 *D_8008ABF4;
