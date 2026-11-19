@@ -213,7 +213,7 @@ game/unk_8002B070,game,8002B070,65,27,18416,3264
 lib/libgte/fgo_03,lib,8002F860,1,0,656,0
 lib/libgte/fgo_04,lib,8002FAF0,1,0,416,0
 lib/libgte/fgo_05,lib,8002FC90,1,0,416,0
-game/unk_8002FE30,game,8002FE30,135,62,52200,11692
+game/unk_8002FE30,game,8002FE30,135,63,52200,11920
 lib/libgte/mtx_004,lib,8003CA18,1,0,352,0
 game/unk_8003CB78,game,8003CB78,22,12,4572,1380
 lib/libgte/reg08,lib,8003DD54,1,0,32,0
