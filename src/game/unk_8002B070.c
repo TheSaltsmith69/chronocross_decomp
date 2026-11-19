@@ -373,6 +373,118 @@ void func_8002EF9C(VEC_8002EF9C *a, VEC_8002EF9C *b, s32 *cnt) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002F05C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002F078);
+typedef struct { s16 vx, vy, vz, pad; } SV_F078;
+typedef struct { s32 x, y, z, pad; } V_F078;
+extern s32 D_8007EB00;
+void func_8002F53C(s32, s32, SV_F078 *, V_F078 *);
+void func_8002F078(s32 n, SV_F078 *p, void (*cb)(V_F078 *, V_F078 *, s32), s32 arg) {
+    V_F078 a;
+    V_F078 b;
+    s32 pad[2];
+    s32 i;
+    s32 k;
+    D_8007EB00 = 0;
+    if (n < 5) {
+        if (n < 3) {
+            if (n < 2) {
+                return;
+            }
+            a.x = p[0].vx;
+            a.y = p[0].vy;
+            a.z = p[0].vz;
+            b.x = p[1].vx;
+            b.y = p[1].vy;
+            b.z = p[1].vz;
+            cb(&a, &b, arg);
+            return;
+        }
+        switch (n) {
+        case 3:
+            p[3].vx = p[2].vx;
+            p[3].vy = p[2].vy;
+            p[3].vz = p[2].vz;
+            p[4].vx = p[2].vx;
+            p[4].vy = p[2].vy;
+            p[4].vz = p[2].vz;
+            break;
+        case 4:
+            p[4].vx = p[3].vx;
+            p[4].vy = p[3].vy;
+            p[4].vz = p[3].vz;
+            break;
+        }
+        n = 5;
+    }
+    k = 0;
+    func_8002F53C(0, 0, &p[k], &a);
+    for (i = 1; i != 8; i++) {
+        if (i & 1) {
+            func_8002F53C(0, i, &p[k], &b);
+            cb(&a, &b, arg);
+        } else {
+            func_8002F53C(0, i, &p[k], &a);
+            cb(&b, &a, arg);
+        }
+    }
+    if (n >= 6) {
+        k = 1;
+        func_8002F53C(1, 0, &p[k], &a);
+        cb(&b, &a, arg);
+        for (i = 1; i != 8; i++) {
+            if (i & 1) {
+                func_8002F53C(1, i, &p[k], &b);
+                cb(&a, &b, arg);
+            } else {
+                func_8002F53C(1, i, &p[k], &a);
+                cb(&b, &a, arg);
+            }
+        }
+    }
+    for (k = 2; k < n - 5; k++) {
+        func_8002F53C(2, 0, &p[k], &a);
+        cb(&b, &a, arg);
+        for (i = 1; i != 8; i++) {
+            if (i & 1) {
+                func_8002F53C(2, i, &p[k], &b);
+                cb(&a, &b, arg);
+            } else {
+                func_8002F53C(2, i, &p[k], &a);
+                cb(&b, &a, arg);
+            }
+        }
+    }
+    if (n >= 7) {
+        k = n - 5;
+        func_8002F53C(3, 0, &p[k], &a);
+        cb(&b, &a, arg);
+        for (i = 1; i != 8; i++) {
+            if (i & 1) {
+                func_8002F53C(3, i, &p[k], &b);
+                cb(&a, &b, arg);
+            } else {
+                func_8002F53C(3, i, &p[k], &a);
+                cb(&b, &a, arg);
+            }
+        }
+    }
+    k = n - 4;
+    func_8002F53C(4, 0, &p[k], &a);
+    cb(&b, &a, arg);
+    for (i = 1; i != 8; i++) {
+        if (i & 1) {
+            func_8002F53C(4, i, &p[k], &b);
+            cb(&a, &b, arg);
+        } else {
+            func_8002F53C(4, i, &p[k], &a);
+            cb(&b, &a, arg);
+        }
+    }
+    if (n >= 5) {
+        a.x = p[n - 1].vx;
+        a.y = p[n - 1].vy;
+        a.z = p[n - 1].vz;
+        cb(&b, &a, arg);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002F53C);
