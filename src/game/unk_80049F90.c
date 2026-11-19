@@ -8,7 +8,25 @@ s32 func_80049F90(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_80049FB0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_80049FD0);
+extern u8 *D_8008BE1C;
+extern u8 *D_8008BE24;
+extern u8 *D_8008E388;
+extern u8 *D_8008BE28;
+s32 func_80049FD0(u8 *arg0) {
+    s32 r = func_8004B280();
+    if (r == 0) {
+        u8 *p;
+        p = arg0 + 0x10;
+        D_8008BE1C = p;
+        p = arg0 + 0x410;
+        D_8008BE24 = p;
+        p = arg0 + 0x610;
+        D_8008E388 = p;
+        p = arg0 + 0x810;
+        D_8008BE28 = p;
+    }
+    return r;
+}
 
 extern s32 D_8008BEE0;
 void func_8005134C(s32);

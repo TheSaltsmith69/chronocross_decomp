@@ -26,7 +26,18 @@ void func_8004BDC4(u32 arg0) {
     *(u16 *)0x1F801D92 = arg0 >> 16;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004BDE0);
+void func_8004BDE0(s32 voice, u32 l, u32 r, u32 scale) {
+    u16 *p;
+    if (scale != 0) {
+        l *= scale;
+        l >>= 7;
+        r *= scale;
+        r >>= 7;
+    }
+    p = (u16 *)(0x1F801C00 + voice * 16);
+    p[0] = l & 0x7FFF;
+    p[1] = r & 0x7FFF;
+}
 
 void func_8004BE28(s32 voice, u16 arg1) {
     ((u16 *)0x1F801C04)[voice * 8] = arg1;

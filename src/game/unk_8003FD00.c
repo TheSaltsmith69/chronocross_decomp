@@ -214,7 +214,9 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042AE0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042AE8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042B10);
+void func_80042B10(void *sp) {
+    __asm__ volatile("addu $sp, %0, $zero\n\taddu $fp, $sp, $zero" : : "r"(sp));
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042B20);
 

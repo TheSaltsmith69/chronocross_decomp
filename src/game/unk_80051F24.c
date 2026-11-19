@@ -314,7 +314,19 @@ void func_80053FFC(Unk80051F24 *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054048);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800540E8);
+void func_800540E8(Unk80051F24 *arg0) {
+    Unk80051F24 *cur = D_8008BE50;
+    u8 *p = arg0->unk0;
+    s32 hi = (s8)p[1];
+    s32 lo = p[0];
+    arg0->unk0 = p + 2;
+    cur->unk6A = 0;
+    hi <<= 20;
+    lo <<= 12;
+    hi |= lo;
+    D_8008E398[2] |= 0x80;
+    cur->unk4C = hi;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054130);
 

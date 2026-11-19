@@ -115,9 +115,25 @@ void func_8003D8A8(s32 arg0) {
     D_8007EE5C = arg0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D8B4);
+extern s32 D_8007EE50;
+s32 func_8003CD38(s32, s32);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D8F4);
+s32 func_8003D8B4(s32 size, s32 a1, s32 a2) {
+    s32 ra;
+    __asm__ volatile("sw $ra, 0(%0)" : : "r"(&ra));
+    a2 = 7;
+    D_8007EE5C = a2;
+    D_8007EE50 = ra;
+    return func_8003CD38(size, 1);
+}
+
+s32 func_8003D8F4(s32 size, s32 arg1, s32 arg2) {
+    s32 ra;
+    __asm__ volatile("sw $ra, 0(%0)" : : "r"(&ra));
+    D_8007EE5C = arg2;
+    D_8007EE50 = ra;
+    return func_8003CD38(size, arg1);
+}
 
 typedef struct MemBlk8003D92C {
     struct MemBlk8003D92C *next;
