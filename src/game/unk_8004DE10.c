@@ -17,7 +17,104 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E0D0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E464);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E538);
+typedef struct {
+    u8 pad0[0x28];
+    s32 unk28;
+    u8 pad2C[8];
+    u32 unk34;
+    u8 pad38[0x18];
+    s32 unk50;
+    u8 pad54[0x18];
+    s32 unk6C;
+    u8 pad70[0xB4];
+} C8004E538;
+extern C8004E538 D_80089E40_c[] asm("D_80089E40");
+void func_80053EBC();
+extern s32 D_8008BEB0[];
+void func_8004E538(s32 id, s32 flags) {
+    u32 bit = 0x1000;
+    C8004E538 *ch = D_80089E40_c;
+    u32 mask = D_8008BEB0[0] | D_8008BEB0[4];
+    u32 i;
+    s32 max;
+    if (flags & 0x0FFFFFFF) {
+        for (i = 0; i < 12; i++, ch++, bit <<= 1) {
+            if ((mask & bit) && (ch->unk28 & flags)) {
+                if (ch->unk34 & 0x100000) {
+                ch->unk34 |= 0x200000;
+            } else {
+                D_8008BEB0[3] |= bit;
+                func_80053EBC(ch, bit);
+                ch->unk34 = 0;
+            }
+            }
+        }
+    } else if (flags < 0) {
+        ch = &D_80089E40_c[id];
+        bit <<= id;
+        if (mask & bit) {
+            func_8004E538(ch->unk50, 0);
+        }
+        bit <<= 1;
+        ch++;
+        if (mask & bit) {
+            func_8004E538(ch->unk50, 0);
+        }
+        return;
+    } else if (flags & 0x40000000) {
+        for (i = 0; i < 12; i++, ch++, bit <<= 1) {
+            if (ch->unk28 != 0) {
+                mask &= ~bit;
+            }
+        }
+        ch = D_80089E40_c;
+        bit = 0x1000;
+        max = 0;
+        for (i = 0; i < 12; i++, ch++, bit <<= 1) {
+            if ((mask & bit) && max < ch->unk6C) {
+                max = ch->unk6C;
+            }
+        }
+        ch = D_80089E40_c;
+        bit = 0x1000;
+        for (i = 0; i < 12; i++, ch++, bit <<= 1) {
+            if ((mask & bit) && max == ch->unk6C) {
+                if (ch->unk34 & 0x100000) {
+                ch->unk34 |= 0x200000;
+            } else {
+                D_8008BEB0[3] |= bit;
+                func_80053EBC(ch, bit);
+                ch->unk34 = 0;
+            }
+            }
+        }
+    } else {
+        for (i = 0; i < 12; i++, ch++, bit <<= 1) {
+            if (mask & bit) {
+                if (id == -1) {
+                    if (ch->unk50 < 0) {
+                        if (ch->unk34 & 0x100000) {
+                ch->unk34 |= 0x200000;
+            } else {
+                D_8008BEB0[3] |= bit;
+                func_80053EBC(ch, bit);
+                ch->unk34 = 0;
+            }
+                    }
+                } else if (ch->unk50 == id) {
+                    if (ch->unk34 & 0x100000) {
+                ch->unk34 |= 0x200000;
+            } else {
+                D_8008BEB0[3] |= bit;
+                func_80053EBC(ch, bit);
+                ch->unk34 = 0;
+            }
+                }
+            }
+        }
+    }
+    D_8008E398[2] |= 0x110;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E898);
 
@@ -307,4 +404,106 @@ void func_800512FC(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8005134C);
+typedef struct { s32 unk0, unk4, unk8, unkC, unk10, unk14; } A8005134C;
+typedef struct { u8 pad0[4]; u16 unk4; u8 pad6[2]; u16 unk8; } P8005134C;
+extern s32 D_8006B4E0;
+extern A8005134C D_8008BDD0;
+extern s32 D_8008BEE0[];
+extern s32 D_8008E404;
+extern void (*D_8006C16C[])(A8005134C *);
+int DisableEvent();
+int EnableEvent();
+s32 func_8004B280();
+s32 func_8005134C(u32 cmd) {
+    s32 ret = 0;
+    P8005134C *p;
+    s32 v;
+    A8005134C *a;
+    s32 *q;
+    DisableEvent(D_8006B4E0);
+    cmd &= 0xFF;
+    a = &D_8008BDD0;
+    switch (cmd) {
+    case 0x01:
+        D_8008E404 ^= 0x100;
+        break;
+    case 0x10:
+    case 0x12:
+    case 0x14:
+    case 0x19:
+    case 0x1A:
+        q = D_8008BEE0;
+        if (func_8004B280(q[0]) == 0) {
+            ret = q[0];
+            if (D_8008BE50->unk6E != ((P8005134C *)ret)->unk4 || (D_8008ABF8 != NULL && D_8008ABF8->unk6E != D_8008BE50->unk6E)) {
+                if (cmd != 0x19) {
+                    func_800512FC(((P8005134C *)ret)->unk8);
+                }
+                a->unk0 = ret;
+                a->unk8 = ((P8005134C *)ret)->unk4;
+                switch (cmd) {
+                case 0x14:
+                    a->unkC = q[1] != 0 ? q[1] | 1 : -1;
+                    break;
+                case 0x12:
+                    a->unkC = q[1];
+                    break;
+                case 0x19:
+                    a->unk10 = q[1];
+                    break;
+                case 0x1A:
+                    a->unk10 = q[1];
+                    a->unk14 = q[2];
+                    break;
+                }
+                ret = ((P8005134C *)ret)->unk4;
+            } else {
+                cmd = 0;
+                ret = 0;
+            }
+        } else {
+            cmd = 0;
+            ret = -1;
+        }
+        break;
+    case 0xD8:
+        a->unk0 = D_8008BEE0[0];
+        D_8006C16C[0xD0](a);
+        cmd = 0xD4;
+        break;
+    case 0xD9:
+        a->unk0 = D_8008BEE0[0];
+        a->unk4 = D_8008BEE0[1];
+        D_8006C16C[0xD1](a);
+        cmd = 0xD5;
+        break;
+    case 0xDA:
+        a->unk0 = D_8008BEE0[0];
+        a->unk4 = D_8008BEE0[1];
+        a->unk8 = D_8008BEE0[2];
+        D_8006C16C[0xD2](a);
+        cmd = 0xD6;
+        break;
+    case 0x99:
+        D_8006C16C[0x9B](a);
+        D_8006C16C[0x9D](a);
+        cmd = 0x9F;
+        break;
+    case 0x98:
+        D_8006C16C[0x9A](a);
+        D_8006C16C[0x9C](a);
+        cmd = 0x9E;
+        break;
+    default:
+        a->unk0 = D_8008BEE0[0];
+        a->unk4 = D_8008BEE0[1];
+        a->unk8 = D_8008BEE0[2];
+        a->unkC = D_8008BEE0[3];
+        a->unk10 = D_8008BEE0[4];
+        a->unk14 = D_8008BEE0[5];
+        break;
+    }
+    D_8006C16C[cmd](a);
+    EnableEvent(D_8006B4E0);
+    return ret;
+}
