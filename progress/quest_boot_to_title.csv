@@ -321,7 +321,7 @@ order,seconds,addr,name,category,file,bytes,matched
 320,55.24,800308E0,func_800308E0,game,game/unk_8002FE30,12,1
 321,55.62,8003B238,func_8003B238,game,game/unk_8002FE30,32,1
 322,55.63,80033324,func_80033324,game,game/unk_8002FE30,8,1
-323,55.64,8003FB60,func_8003FB60,game,game/unk_8003DD74,272,0
+323,55.64,8003FB60,func_8003FB60,game,game/unk_8003DD74,272,1
 324,55.66,80025724,SquareRoot0,lib,lib/libgte/msc01,144,0
 325,55.67,80027274,RotMatrixZYX_gte,lib,lib/libgte/rmat_00,512,0
 326,55.68,80026434,ScaleMatrix,lib,lib/libgte/mtx_08,320,0
@@ -427,7 +427,7 @@ order,seconds,addr,name,category,file,bytes,matched
 426,62.28,800154A4,func_800154A4,lib,lib/libpad/padcmd,200,0
 427,63.77,8001BF6C,func_8001BF6C,game,game/main,40,1
 428,64.90,8003C22C,func_8003C22C,game,game/unk_8002FE30,216,1
-429,64.91,80033F20,func_80033F20,game,game/unk_8002FE30,260,0
+429,64.91,80033F20,func_80033F20,game,game/unk_8002FE30,260,1
 430,65.54,800395D4,func_800395D4,game,game/unk_8002FE30,1064,0
 431,77.53,80037320,func_80037320,game,game/unk_8002FE30,2080,0
 432,77.55,80030814,func_80030814,game,game/unk_8002FE30,144,1
