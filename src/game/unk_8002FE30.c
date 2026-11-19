@@ -41,7 +41,11 @@ void func_8003073C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     func_800307CC(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030784);
+typedef struct { u16 a, b; } P80030784;
+extern P80030784 D_8007EB08_r asm("D_8007EB08");
+P80030784 func_80030784(void) {
+    return D_8007EB08_r;
+}
 
 typedef struct { u16 a, b; } P800307AC;
 extern P800307AC D_8007EB08_t asm("D_8007EB08");
@@ -1481,7 +1485,9 @@ void func_8003B13C(s32 size, s32 arg1) {
     end->top = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B210);
+void func_8003B210(void **arg0) {
+    ((void (*)(void))arg0[-1])();
+}
 
 typedef struct Unk8003B238 {
     struct Unk8003B238 *next;

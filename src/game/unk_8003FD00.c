@@ -148,7 +148,12 @@ Obj800420FC *func_800420FC(s32 id, s32 a1, s32 a2) {
     return o;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800421E8);
+void f_40928_t(s32) asm("func_80040928");
+void f_3D504_u(s32) asm("func_8003D504");
+void func_800421E8(s32 arg0) {
+    f_40928_t(arg0);
+    f_3D504_u(arg0);
+}
 
 void func_800413F8(Unk8006B490 *);
 void func_80042214(Unk8006B490 *arg0) {
