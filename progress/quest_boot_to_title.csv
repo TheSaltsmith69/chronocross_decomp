@@ -562,7 +562,7 @@ order,seconds,addr,name,category,file,bytes,matched
 561,105.26,8004DDC0,SpuGetVoiceEnvelope,lib,lib/libspu/s_gvex,32,0
 562,105.27,8004D2D4,func_8004D2D4,game,game/unk_8004BD54,128,1
 563,105.28,8004D084,func_8004D084,game,game/unk_8004BD54,592,1
-564,105.29,8004C664,func_8004C664,game,game/unk_8004BD54,1144,0
+564,105.29,8004C664,func_8004C664,game,game/unk_8004BD54,1144,1
 565,105.30,8004D01C,func_8004D01C,game,game/unk_8004BD54,104,1
 566,105.31,8004BF8C,func_8004BF8C,game,game/unk_8004BD54,172,1
 567,105.34,8004C038,func_8004C038,game,game/unk_8004BD54,284,1
