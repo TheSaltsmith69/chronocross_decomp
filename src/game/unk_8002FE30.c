@@ -186,7 +186,148 @@ INCLUDE_RODATA("asm/nonmatchings/game/unk_8002FE30", D_80062D98);
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_8002FE30", D_80062E40);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80030B98);
+typedef struct { s16 m[3][3]; s32 t[3]; } M_B98;
+typedef struct { s16 vx, vy, vz, pad; } SV_B98;
+typedef struct { s16 x, y, z; } S3_B98;
+typedef struct { s32 vx, vy, vz, pad; } V_B98;
+typedef struct L_B98 { struct L_B98 *next; } L_B98;
+typedef struct {
+    u32 u0;
+    u8 pad4[2];
+    s16 u6;
+    s16 u8;
+    s16 uA;
+    u8 uC, uD, uE, uF;
+    L_B98 *u10;
+    u8 u14[4];
+} C_B98;
+typedef struct {
+    u8 pad0[4];
+    C_B98 *u4;
+    s32 u8;
+    s32 uC;
+    s32 u10;
+    s16 u14;
+    u8 pad16[2];
+    s32 u18;
+    M_B98 m;
+} O_B98;
+typedef struct { u8 pad[0x1F4]; s16 u1F4; } R_B98;
+extern S3_B98 D_8006B214_s asm("D_8006B214");
+extern u16 D_8006B22C;
+extern u8 D_8006B238;
+extern s8 D_8006B3EF;
+extern u8 D_8006B3F4;
+extern M_B98 D_8007ED70_m asm("D_8007ED70");
+void func_800314D4_x(void *, void *, void *, void *, s32, s32, u8) asm("func_800314D4");
+static inline s32 cnt_B98(L_B98 *l) {
+    s32 n;
+    if ((s32)l > 0) {
+        return (s32)l;
+    }
+    n = 0;
+    while (l != NULL) {
+        l = l->next;
+        n++;
+    }
+    return n;
+}
+void func_80030B98(O_B98 *o) {
+    C_B98 *c;
+    L_B98 *l;
+    s32 n;
+    s32 m;
+    s32 ang;
+    u16 a16;
+    s32 at;
+    R_B98 *r;
+    SV_B98 sv;
+    V_B98 sc;
+    V_B98 sq;
+    SV_B98 sv2;
+    char buf[8];
+    c = o->u4;
+    if (o->u8 == 0) {
+        l = c->u10;
+        if ((s32)l < 0) {
+            func_800314D4_x(c->u10, &o->u8, &o->uC, &o->u10, c->u8, cnt_B98(l), 1);
+        } else {
+            func_800314D4_x(c->u14, &o->u8, &o->uC, &o->u10, c->u8, cnt_B98(l), 0);
+        }
+    }
+    if (c->u0 & 1) {
+        r = (R_B98 *)func_800321B8(&o->m, c->uC, c->uD, c->uE, c->uF, 0);
+        if (((c->u0 >> 5) & 1) && r != NULL) {
+            sc.vx = r->u1F4;
+            sc.vy = r->u1F4;
+            sc.vz = r->u1F4;
+            ScaleMatrix(&o->m, &sc);
+        }
+    }
+    ang = func_8002B1CC(o->u14, c->u6);
+    func_8002E948(o->u8, (u16)ang, &sv);
+    ApplyMatrixSV(&o->m, &sv, &sv);
+    sv.vx += o->m.t[0];
+    sv.vy += o->m.t[1];
+    sv.vz += o->m.t[2];
+    func_80032EB4(&D_8006B214_s, &sv, c->uA);
+    if ((c->u0 >> 6) & 1) {
+        sc.vx = D_8006B214_s.x;
+        sc.vy = 0;
+        sc.vz = D_8006B214_s.z;
+        Square0(&sc, &sq);
+        if (SquareRoot0(sq.vx + sq.vz) > 0x1800) {
+            at = func_80027684(D_8006B214_s.z, D_8006B214_s.x);
+            D_8006B214_s.x = (func_80025114(at) * 0x1800) / 4096;
+            D_8006B214_s.z = (func_80025044(at) * 0x1800) / 4096;
+        }
+    }
+    func_8002E948(o->uC, (u16)ang, &sv);
+    ApplyMatrixSV(&o->m, &sv, &sv);
+    sv.vx += o->m.t[0];
+    sv.vy += o->m.t[1];
+    sv.vz += o->m.t[2];
+    func_80032EB4(D_8006B21C, &sv, c->uA);
+    func_8002E948(o->u10, (u16)ang, &sv);
+    D_8006B234 = sv.vx;
+    D_8006B22C = sv.vy;
+    if (!((c->u0 >> 4) & 1) && c->uC != 0 && D_8006B214_s.y > 0) {
+        D_8006B214_s.y = 0;
+    }
+    func_800318BC();
+    if (!((c->u0 >> 4) & 1) && c->uC != 0) {
+        sv2.vx = D_8006B214_s.x;
+        sv2.vy = D_8006B214_s.y;
+        sv2.vz = D_8006B214_s.z;
+        sv2.vy = 0;
+        ApplyMatrixSV(&D_8007ED70_m, &sv2, &sv2);
+        sv2.vx += D_8007ED70_m.t[0];
+        sv2.vy += D_8007ED70_m.t[1];
+        sv2.vz += D_8007ED70_m.t[2];
+        if (sv2.vy < 0x100) {
+            D_8007ED70_m.t[1] += 0x100 - sv2.vy;
+        }
+    }
+    if (D_8006B3EF != 0 && D_8006B3F4 != 0) {
+        func_8003F884(buf, 8);
+        *(s32 *)buf = o->u18;
+        func_8002FE30("                       %s\n", buf);
+    }
+    if (D_8006B238 == 0) {
+        if (o->u8 != 0) {
+            func_8003D504(o->u8);
+            o->u8 = 0;
+        }
+        if (o->uC != 0) {
+            func_8003D504(o->uC);
+            o->uC = 0;
+        }
+        if (o->u10 != 0) {
+            func_8003D504(o->u10);
+            o->u10 = 0;
+        }
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_8002FE30", D_800632FC);
 
