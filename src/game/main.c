@@ -494,7 +494,149 @@ INCLUDE_RODATA("asm/nonmatchings/game/main", D_80062444);
 
 INCLUDE_RODATA("asm/nonmatchings/game/main", D_80062468);
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C4A0);
+typedef struct {
+    u16 type;
+    u16 id;
+    s32 data;
+} E4A0;
+typedef struct {
+    s32 n;
+    E4A0 e[1];
+} L4A0;
+typedef struct {
+    L4A0 *u0;
+    s32 u4;
+    s32 u8;
+    u8 padC[4];
+    s32 u10;
+    u16 u14;
+    u16 u16;
+    u8 pad18[4];
+    u8 u1C;
+    u8 u1D;
+    u8 u1E;
+    u8 pad1F[7];
+    s16 u26;
+} O4A0;
+extern u32 D_80064190;
+extern s32 D_80064194;
+extern s32 D_8007E858;
+extern s32 D_8007E85C;
+extern s32 D_8007E860;
+extern s32 D_8007E864;
+extern s32 D_8007E868;
+extern s32 D_8007E874;
+extern s32 D_8007E878;
+extern s32 D_800A120C;
+extern s32 D_8007E834;
+extern s32 D_8007E828;
+extern s32 D_8007E830;
+extern s32 D_8007E880;
+extern s32 D_8007E884;
+void func_80090D64(O4A0 *, s32);
+void func_80090608(O4A0 *, s32);
+void func_8001C388(u16, u16, s16, u32);
+void func_8001C918(u16, s32, s32, u8, u8, s32, s32, s32, s16);
+void func_8001CF00(u16, s32, s32, u8, u8, s32, s32, s32, s16);
+void func_8001D558(u16, s32, s32, s32, u16, u8, s32, s32, s32, s16);
+void func_8001DCC4(u16, s32, s32, s32, u16, u8, s32, s32, s32, s16);
+void func_8001E55C(u16, s32, s32, s32, s32, s16);
+void func_8001EA4C(u16, s32, s32, s32, s32, s16);
+void func_8001EFA8(u16, s32, s32, s32, s32, s16);
+void func_8001F274(u16, s32, s32, s32, s32, s32, s16);
+void func_8001F958(u16, s32, s32, s32, s32, s32, s16);
+void func_8001C4A0(u32 flags, O4A0 *a, O4A0 *b, s16 t, s32 p4, u16 p5, s16 p6, s32 p7, s32 p8) {
+    s32 *pa;
+    s32 *pb;
+    u16 c;
+    s32 col;
+    u32 t5;
+    u32 tmp;
+    s32 n;
+    pa = (s32 *)a->u0;
+    D_80064190 = flags;
+    pb = pa;
+    if (flags & 2) {
+        pb = (s32 *)b->u0;
+    }
+    t5 = p5 & 0x7F;
+    c = t5;
+    p6 &= 0x7F;
+    if (t > 0x1000) {
+        t = 0x1000;
+    }
+    D_8007E858 = 0x1000 - t;
+    D_8007E85C = t;
+    D_8007E860 = t5;
+    D_8007E864 = p6;
+    D_8007E868 = a->u26;
+    tmp = a->u1C | (a->u1D << 8) | (a->u1E << 16);
+    D_8007E874 = a->u4;
+    D_8007E878 = b->u4;
+    D_800A120C = 6;
+    D_8007E834 = tmp;
+    col = tmp;
+    if (flags & 0xC) {
+        if (a->u10 == 0) {
+            func_80090D64(a, 0);
+        }
+        if (a->u8 == 0) {
+            func_80090608(a, 0);
+        }
+    }
+    if ((D_80064190 & 2) && b != NULL && (D_80064190 & 0xC)) {
+        if (b->u10 == 0) {
+            func_80090D64(b, 0);
+        }
+        if (b->u8 == 0) {
+            func_80090608(b, 0);
+        }
+        D_8007E828 = b->u10;
+        D_8007E830 = b->u8;
+    }
+    D_8007E880 = a->u10;
+    D_8007E884 = a->u8;
+    D_8007E828 = b->u10;
+    D_8007E830 = b->u8;
+    if (D_80064190 & 2) {
+        func_8001C388(a->u14, a->u16, t, D_80064190);
+    }
+    D_80064194 = 0;
+    n = *pa++;
+    pb++;
+    for (; n != 0; pa += 2, n--, pb += 2) {
+        switch (((E4A0 *)pa)->type) {
+        case 0x24:
+            func_8001C918(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, p4, c, p6, p7, p8, col, t);
+            break;
+        case 0x2C:
+            func_8001CF00(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, p4, c, p6, p7, p8, col, t);
+            break;
+        case 0x20:
+            func_8001E55C(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, p4, p8, col, t);
+            break;
+        case 0x28:
+            func_8001EA4C(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, p4, p8, col, t);
+            break;
+        case 0x30:
+            func_8001F274(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, pb[1], p4, p8, col, t);
+            break;
+        case 0x38:
+            if (D_80064190 & 0x400) {
+                func_8001EFA8(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, p4, p8, col, t);
+            } else {
+                func_8001F958(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, pb[1], p4, p8, col, t);
+            }
+            break;
+        case 0x34:
+            func_8001D558(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, pb[1], p4, c, p6, p7, p8, col, t);
+            break;
+        case 0x3C:
+            func_8001DCC4(((E4A0 *)pa)->id, ((E4A0 *)pa)->data, pb[1], p4, c, p6, p7, p8, col, t);
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C918);
 
