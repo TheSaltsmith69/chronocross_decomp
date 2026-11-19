@@ -668,7 +668,116 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800342B0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800369FC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80036F4C);
+typedef union { s32 w; struct { u16 lo; s16 hi; } h; } FX36F4C;
+typedef struct { s16 vx, vy, vz, pad; } SV36F4C;
+typedef struct {
+    u8 pad0[0x20];
+    s32 u20;
+    u8 pad24[4];
+    u8 u28, u29, u2A, u2B;
+    s32 u2C;
+} P36F4C;
+typedef struct {
+    s32 u0, u4, u8, uC, u10, u14, u18;
+    u8 pad1C[0x56 - 0x1C];
+    s16 u56, u58, u5A;
+    u8 pad5C[6];
+    s16 u62, u64, u66;
+    u8 pad68[0x7C - 0x68];
+    s16 u7C;
+    u8 pad7E[0x94 - 0x7E];
+    u32 u94;
+    u8 pad98[0xA8 - 0x98];
+    s32 uA8, uAC, uB0, uB4;
+    u16 uB8, uBA, uBC;
+    s16 uBE, uC0, uC2;
+    u16 uC4, uC6, uC8;
+    s16 uCA, uCC, uCE;
+    P36F4C *uD0;
+    u8 padD4[4];
+    M800321B8 uD8;
+    u8 padF8[0];
+    s16 uF8, uFA;
+} O36F4C;
+extern s16 D_1F800010;
+extern u8 D_1F800000;
+s32 func_8002B1CC(s32, s32);
+void func_8002E948();
+int ApplyMatrixSV();
+void func_80036F4C(O36F4C *o) {
+    O36F4C *e = o;
+    s32 v[4];
+    SV36F4C sv;
+    M800321B8 m;
+    s32 pad[2];
+    M800321B8 *mp;
+    P36F4C *p;
+    s32 i;
+    s32 n;
+    s32 sh;
+    if ((o->u94 >> 19) & 1) {
+        v[0] = o->u56 << 16;
+        v[1] = o->u58 << 16;
+        v[2] = o->u5A << 16;
+        v[0] |= o->uB8;
+        v[1] |= o->uBA;
+        v[2] |= o->uBC;
+        for (i = 0; i != D_1F800010; i++) {
+            v[0] += e->uBE << 5;
+            v[1] += e->uC0 << 5;
+            v[2] += e->uC2 << 5;
+        }
+        o->u56 = v[0] >> 16;
+        o->u58 = v[1] >> 16;
+        o->u5A = v[2] >> 16;
+        e->uB8 = v[0];
+        e->uBA = v[1];
+        e->uBC = v[2];
+    }
+    if ((e->u94 >> 20) & 1) {
+        v[0] = (o->u62 << 16) | e->uC4;
+        v[1] = (o->u64 << 16) | e->uC6;
+        v[2] = (o->u66 << 16) | e->uC8;
+        for (i = 0; i != D_1F800010; i++) {
+            v[0] += e->uCA << 5;
+            v[1] += e->uCC << 5;
+            v[2] += e->uCE << 5;
+        }
+        o->u62 = v[0] >> 16;
+        o->u64 = v[1] >> 16;
+        o->u66 = v[2] >> 16;
+        e->uC4 = v[0];
+        e->uC6 = v[1];
+        e->uC8 = v[2];
+    }
+    if (e->u94 & 1) {
+        e->uA8 += e->uB0 * D_1F800010;
+        e->uAC += e->uB4 * D_1F800010;
+    }
+    p = e->uD0;
+    if (p != NULL && o->uFA != o->u7C) {
+        func_8002E948(p->u2C, (u16)func_8002B1CC(((o->uFA - o->u7C) << 12) / o->uFA, o->uF8), &sv);
+        if (p->u20 & 1) {
+            func_800321B8(&m, p->u28, p->u29, p->u2A, p->u2B, 0);
+            mp = &m;
+        } else {
+            mp = &o->uD8;
+        }
+        ApplyMatrixSV(mp, &sv, &sv);
+        sv.vx += mp->t[0];
+        sv.vy += mp->t[1];
+        sv.vz += mp->t[2];
+        v[0] = sv.vx << 16;
+        v[1] = sv.vy << 16;
+        v[2] = sv.vz << 16;
+        if (D_1F800010 != 0) {
+            sh = D_1F800000;
+            o->u10 = ((v[0] - o->u0) >> sh) / D_1F800010;
+            o->u14 = ((v[1] - o->u4) >> sh) / D_1F800010;
+            o->u18 = ((v[2] - o->u8) >> sh) / D_1F800010;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80037320);
 
