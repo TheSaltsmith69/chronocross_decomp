@@ -192,7 +192,139 @@ INCLUDE_RODATA("asm/nonmatchings/game/unk_8002FE30", D_800632FC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80031074);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800314D4);
+typedef struct E314D4 {
+    struct E314D4 *next;
+    s16 u4, u6, u8, uA, uC, uE, u10, u12;
+} E314D4;
+typedef struct { s16 x, y, z, w; } V314D4;
+typedef struct {
+    s32 n;
+    u8 pad4[0x10];
+    V314D4 v[1];
+} L314D4;
+s32 func_8003D8F4(s32, s32, s32);
+void func_8002F078();
+void func_8002E768();
+void func_8003D504(s32);
+void func_80029D9C(void);
+void func_8002EF9C();
+void func_800314D4(E314D4 *list, L314D4 **outA, L314D4 **outB, L314D4 **outC, s32 mode, s32 count, u8 linked) {
+    s32 cnt = count;
+    V314D4 *buf;
+    V314D4 *p;
+    L314D4 *a;
+    L314D4 *b;
+    L314D4 *c;
+    E314D4 *e;
+    V314D4 *src;
+    V314D4 *d1;
+    V314D4 *d2;
+    s32 n;
+    s32 i;
+    if (cnt < 5) {
+        n = 5;
+    } else {
+        n = cnt;
+    }
+    buf = (V314D4 *)func_8003D8F4(n << 4, 0, 1);
+    n <<= 7;
+    n += 0x1C;
+    a = (L314D4 *)func_8003D8F4(n, 1, 1);
+    b = (L314D4 *)func_8003D8F4(n, 1, 1);
+    c = (L314D4 *)func_8003D8F4(n, 1, 1);
+    a->n = 0;
+    b->n = 0;
+    c->n = 0;
+    if (linked) {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->uC;
+            p->y = e->uE;
+            p->z = e->u10;
+            e = e->next;
+        }
+    } else {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->uC;
+            p->y = e->uE;
+            p->z = e->u10;
+            e++;
+        }
+    }
+    func_8002F078(cnt, buf, func_8002EF9C, b);
+    b->n++;
+    func_8002E768(b);
+    if (linked) {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->u4;
+            p->y = e->u6;
+            p->z = e->u8;
+            e = e->next;
+        }
+    } else {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->u4;
+            p->y = e->u6;
+            p->z = e->u8;
+            e++;
+        }
+    }
+    func_8002F078(cnt, buf, func_8002EF9C, a);
+    a->n++;
+    func_8002E768(a);
+    if (linked) {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->uA;
+            p->y = e->u12;
+            p->z = 0;
+            e = e->next;
+        }
+    } else {
+        for (p = buf, i = 0, e = list; i != cnt; i++, p++) {
+            p->x = e->uA;
+            p->y = e->u12;
+            p->z = 0;
+            e++;
+        }
+    }
+    func_8002F078(cnt, buf, func_8002EF9C, c);
+    c->n++;
+    func_8002E768(c);
+    n = a->n - 1;
+    if (a->n == b->n && c->n != a->n) {
+        func_80029D9C();
+    }
+    switch (mode) {
+    case 1:
+        d1 = a->v;
+        src = b->v;
+        d2 = c->v;
+        break;
+    case 2:
+        d2 = a->v;
+        d1 = b->v;
+        src = c->v;
+        break;
+    default:
+        src = a->v;
+        d1 = b->v;
+        d2 = c->v;
+        break;
+    }
+    if (n > 0) {
+        i = 0;
+        do {
+            d1->w = src->w;
+            d2->w = src->w;
+            src++;
+            d1++;
+            d2++;
+        } while (++i != n);
+    }
+    func_8003D504((s32)buf);
+    *outA = a;
+    *outB = b;
+    *outC = c;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800318BC);
 
