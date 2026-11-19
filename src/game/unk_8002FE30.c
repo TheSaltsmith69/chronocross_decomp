@@ -1127,7 +1127,194 @@ void func_80037CA8(Unk80037CA8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80037E68);
+typedef struct { s16 m[3][3]; s32 t[3]; } M_E68;
+typedef struct { s32 vx, vy, vz, pad; } V_E68;
+typedef struct { s16 vx, vy, vz, pad; } SV_E68;
+typedef struct { u8 pad[0x14]; u8 *u14; } C_E68;
+typedef struct {
+    u8 pad0[2];
+    s16 u2;
+    u8 pad4[2];
+    s16 u6;
+    u8 pad8[2];
+    s16 uA;
+    C_E68 *uC;
+    u8 pad10[0xC];
+    u32 *u1C;
+    u8 pad20[0x10];
+    M_E68 m;
+    u8 pad50[0x2A];
+    s16 u7A;
+    u8 pad7C[0xC];
+    u32 u88;
+} O_E68;
+extern M_E68 *D_8007ED6C_e asm("D_8007ED6C");
+extern s32 D_8006B2C4;
+void ApplyMatrixLV(void *, void *, void *);
+void MulMatrix0(void *, void *, void *);
+void SetMulMatrix(void *, void *);
+s32 RotTransPers(void *, void *, void *, void *);
+void func_80097854(void *, s32, void *, void *);
+#define gte_SetRotMatrix_e(r0) __asm__ volatile ("addu $12, %0, $0; lw $13, 0($12); lw $14, 4($12); ctc2 $13, $0; ctc2 $14, $1; lw $13, 8($12); lw $14, 12($12); lw $15, 16($12); ctc2 $13, $2; ctc2 $14, $3; ctc2 $15, $4" : : "r"(r0) : "$12", "$13", "$14", "$15")
+#define gte_SetTransMatrix_e(r0) __asm__ volatile ("addu $12, %0, $0; lw $13, 20($12); lw $14, 24($12); ctc2 $13, $5; lw $15, 28($12); ctc2 $14, $6; ctc2 $15, $7" : : "r"(r0) : "$12", "$13", "$14", "$15")
+#define gte_ldv0_e(r0) __asm__ volatile ("addu $12, %0, $0; lwc2 $0, 0($12); lwc2 $1, 4($12)" : : "r"(r0) : "$12")
+#define gte_rtv0_e() __asm__ volatile ("nop; nop; mvmva 1, 0, 0, 3, 0")
+#define gte_stlvnl_e(r0) __asm__ volatile ("addu $12, %0, $0; swc2 $25, 0($12); swc2 $26, 4($12); swc2 $27, 8($12)" : : "r"(r0) : "$12", "memory")
+#define gte_ldv3_e(r0, r1, r2) __asm__ volatile ("addu $12, %0, $0" : : "r"(r0) : "$12"); __asm__ volatile ("addu $13, %0, $0" : : "r"(r1) : "$13"); __asm__ volatile ("addu $14, %0, $0" : : "r"(r2) : "$14"); __asm__ volatile ("lwc2 $0, 0($12); lwc2 $1, 4($12); lwc2 $2, 0($13); lwc2 $3, 4($13); lwc2 $4, 0($14); lwc2 $5, 4($14)")
+#define gte_rtpt_e() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3_e(r0, r1, r2) __asm__ volatile ("addu $12, %0, $0" : : "r"(r0) : "$12"); __asm__ volatile ("addu $13, %0, $0" : : "r"(r1) : "$13"); __asm__ volatile ("addu $14, %0, $0" : : "r"(r2) : "$14"); __asm__ volatile ("swc2 $12, 0($12); swc2 $13, 0($13); swc2 $14, 0($14)" : : : "memory")
+#define gte_stflg_e(r0) __asm__ volatile ("addu $12, %0, $0; cfc2 $13, $31; nop; sw $13, 0($12)" : : "r"(r0) : "$12", "$13", "memory")
+#define gte_stszotz_e(r0) __asm__ volatile ("addu $12, %0, $0; mfc2 $13, $19; nop; sra $13, $13, 2; sw $13, 0($12)" : : "r"(r0) : "$12", "$13", "memory")
+s32 func_80037E68(O_E68 *arg0) {
+    O_E68 *o = arg0;
+    V_E68 v;
+    SV_E68 sv;
+    M_E68 tm;
+    union { M_E68 m; s32 s[8]; } u;
+    M_E68 m2;
+    s32 a;
+    M_E68 *b;
+    u32 flag;
+    s32 otz;
+    s32 ip;
+    C_E68 *c;
+    M_E68 *mp;
+    u8 *s0;
+    u8 *s3;
+    u8 *p;
+    u16 *q;
+    s32 i;
+    s32 r;
+    s32 n;
+    s32 x;
+
+    if (!((o->u88 >> 25) & 1)) {
+        x = o->u2;
+        sv.vx = x;
+        x = o->u6;
+        sv.vy = x;
+        x = o->uA;
+        sv.vz = x;
+        gte_SetRotMatrix_e(D_8007ED6C_e);
+        gte_ldv0_e(&sv);
+        gte_rtv0_e();
+        gte_stlvnl_e(&v);
+    } else {
+        v.vx = o->u2;
+        v.vy = o->u6;
+        v.vz = o->uA;
+    }
+    if ((o->u88 >> 15) & 1) {
+        c = o->uC;
+        s0 = func_80030814(c->u14, 0x30);
+        if (s0 != NULL) {
+            mp = (M_E68 *)(*(u16 *)(s0 + 4) | (*(u16 *)(s0 + 6) << 16));
+            v.vx = o->u2;
+            v.vy = o->u6;
+            v.vz = o->uA;
+            ApplyMatrixLV(mp, &v, &v);
+            v.vx += mp->t[0];
+            v.vy += mp->t[1];
+            v.vz += mp->t[2];
+            ApplyMatrixLV(D_8007ED6C_e, &v, &v);
+        } else {
+            s0 = func_80030814(c->u14, 0x39);
+            if (s0 != NULL) {
+                s3 = (u8 *)func_800321B8((M800321B8 *)&u.m, s0[2], s0[3], s0[4], s0[5], 0);
+                mp = &u.m;
+                v.vx = o->u2;
+                v.vy = o->u6;
+                v.vz = o->uA;
+                ApplyMatrixLV(mp, &v, &v);
+                v.vx += mp->t[0];
+                v.vy += mp->t[1];
+                v.vz += mp->t[2];
+                ApplyMatrixLV(D_8007ED6C_e, &v, &v);
+                if (*(u8 *)&o->u88 >> 7) {
+                    if (s3 != NULL) {
+                        if (s0[3] >= 2) {
+                            func_80097854(s3, s0[3] - 2, &a, &b);
+                            MulMatrix0(b, &o->m, &o->m);
+                        } else {
+                            RotMatrix(s3 + 0xA4, &m2);
+                            MulMatrix0(&m2, &o->m, &o->m);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if ((o->u88 >> 26) & 1) {
+        if (!((o->u88 >> 24) & 1)) {
+            SetMulMatrix(D_8007ED6C_e, &o->m);
+            tm.t[0] = D_8007ED6C_e->t[0] + v.vx;
+            tm.t[1] = D_8007ED6C_e->t[1] + v.vy;
+            tm.t[2] = D_8007ED6C_e->t[2] + v.vz;
+            gte_SetTransMatrix_e(&tm);
+        } else {
+            SetMulMatrix(D_8007ED6C_e, &o->m);
+            tm.t[0] = v.vx;
+            tm.t[1] = v.vy;
+            tm.t[2] = v.vz + (D_8006B230 << D_1F800000);
+            gte_SetTransMatrix_e(&tm);
+        }
+    } else {
+        if (!((o->u88 >> 24) & 1)) {
+            tm.t[0] = D_8007ED6C_e->t[0] + v.vx;
+            tm.t[1] = D_8007ED6C_e->t[1] + v.vy;
+            tm.t[2] = D_8007ED6C_e->t[2] + v.vz;
+            gte_SetTransMatrix_e(&tm);
+            gte_SetRotMatrix_e(&o->m);
+        } else {
+            tm.t[0] = v.vx;
+            tm.t[1] = v.vy;
+            tm.t[2] = v.vz + (D_8006B230 << D_1F800000);
+            gte_SetTransMatrix_e(&tm);
+            gte_SetRotMatrix_e(&o->m);
+        }
+    }
+    r = 0;
+    if ((o->u88 >> 28) & 1) {
+        if ((o->u1C[2] & 0x3F) == 0xE) {
+            p = func_80041F6C(o->u1C);
+            r = 1;
+            gte_ldv3_e(p + 0x28, p + 0x30, p + 0x38);
+            gte_rtpt_e();
+            gte_stsxy3_e(&u.s[2], &u.s[3], &u.s[4]);
+            gte_ldv3_e(p + 0x40, p + 0x48, p + 0x50);
+            gte_rtpt_e();
+            gte_stsxy3_e(&u.s[5], &u.s[6], &u.s[7]);
+            gte_stflg_e(&flag);
+            gte_stszotz_e(&otz);
+            if (!(flag & 0x40000000)) {
+                i = 0;
+                n = 6;
+                q = (u16 *)&u.s[2];
+                do {
+                    if ((u32)(q[0] - 1) < 0x15F) goto zero;
+                    if ((u16)(q[1] + 0x1F) < 0xFF) goto zero;
+                    i++;
+                    q += 2;
+                } while (i != n);
+                goto done;
+            zero:
+                r = 0;
+            done:;
+            }
+        } else {
+            otz = RotTransPers(&D_8006B2C4, &u.s[0], &ip, &flag);
+            r = flag >> 31;
+        }
+        if ((o->u88 >> 12) & 1) {
+            if ((D_8006B230 * 2) < otz) {
+                o->u7A = 1;
+            } else {
+                o->u7A = 2;
+            }
+        }
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80038554);
 
