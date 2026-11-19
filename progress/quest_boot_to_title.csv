@@ -408,7 +408,7 @@ order,seconds,addr,name,category,file,bytes,matched
 407,61.95,80026A6C,Square0,lib,lib/libgte/smp_00,40,0
 408,61.96,80027684,func_80027684,lib,lib/libgte/ratan,384,0
 409,61.97,80025CF4,MulMatrix0,lib,lib/libgte/mtx_000,272,0
-410,61.98,80036F4C,func_80036F4C,game,game/unk_8002FE30,980,0
+410,61.98,80036F4C,func_80036F4C,game,game/unk_8002FE30,980,1
 411,61.99,80039038,func_80039038,game,game/unk_8002FE30,1044,0
 412,62.01,80037E68,func_80037E68,game,game/unk_8002FE30,1772,0
 413,62.02,80026134,SetMulMatrix,lib,lib/libgte/mtx_00b,272,0
