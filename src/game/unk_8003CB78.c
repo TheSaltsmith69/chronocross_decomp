@@ -54,7 +54,57 @@ INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_80063674);
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_8006368C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D370);
+typedef struct Hdr8003D370 {
+    struct Hdr8003D370 *next;
+    u32 prev : 21;
+    u32 used : 3;
+    u32 rest : 8;
+} Hdr8003D370;
+extern u8 D_8006B3F4;
+extern s8 D_8006B3EC;
+extern Hdr8003D370 *D_8007EE54_ asm("D_8007EE54");
+extern char D_80063674[];
+extern char D_8006368C[];
+
+void func_8003D370(u8 *p, s32 size) {
+    Hdr8003D370 *h;
+    Hdr8003D370 *nx;
+    Hdr8003D370 *n;
+    if (D_8006B3F4 != 0 && D_8006B3EC != 0) {
+        Hdr8003D370 *r;
+        u8 found = 0;
+        func_8033B4B4();
+        for (r = D_8007EE54_; r != NULL; r = r->next) {
+            if (r == (Hdr8003D370 *)(p - 8)) {
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            func_80029DD8(D_80063674, p);
+            return;
+        }
+    }
+    nx = ((Hdr8003D370 *)(p - 8))->next;
+    h = (Hdr8003D370 *)(p - 8);
+    if ((u8 *)nx - p < size) {
+        func_80029DD8(D_8006368C);
+        return;
+    }
+    n = (Hdr8003D370 *)((u8 *)h + (size + 8));
+    if (nx == n || (u32)((u8 *)nx - (u8 *)n) < 8) {
+        return;
+    }
+    n->used = h->used;
+    n->next = ((Hdr8003D370 *)(p - 8))->next;
+    n->prev = ((u32)h & 0x7FFFFF) >> 2;
+    nx->prev = ((u32)n & 0x7FFFFF) >> 2;
+    ((Hdr8003D370 *)(p - 8))->next = n;
+    if (D_8006B3F4 != 0 && D_8006B3EC != 0) {
+        func_8033CAA0();
+    }
+    func_8003D504((s32)(n + 1));
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D504);
 
@@ -69,7 +119,34 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D8B4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D8F4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D92C);
+typedef struct MemBlk8003D92C {
+    struct MemBlk8003D92C *next;
+    u32 prev : 21;
+    u32 used : 3;
+    u32 rest : 8;
+} MemBlk8003D92C;
+extern MemBlk8003D92C *D_8007EE54_b asm("D_8007EE54");
+extern MemBlk8003D92C *D_8007EE48_b asm("D_8007EE48");
+extern u8 D_8007EE5C;
+extern u8 D_8006B3F7;
+
+void func_8003D92C(MemBlk8003D92C *heap, s32 size) {
+    MemBlk8003D92C *end;
+    D_8007EE54_b = heap;
+    end = (MemBlk8003D92C *)((u8 *)heap + size) - 1;
+    heap->prev = 0;
+    heap->next = end;
+    heap->used = 0;
+    D_8007EE48_b = end;
+    end->prev = ((u32)heap & 0x7FFFFF) >> 2;
+    D_8007EE5C = 1;
+    end->next = NULL;
+    end->used = 1;
+    if (D_8006B3F7 == 0) {
+        func_80336E48();
+        func_8033CAA0();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D9E0);
 
