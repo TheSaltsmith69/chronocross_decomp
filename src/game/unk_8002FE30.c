@@ -1399,7 +1399,41 @@ void func_8003B134(s32 *arg0, s32 arg1) {
     arg0[-2] = arg1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B13C);
+typedef struct H8003B13C {
+    u32 lo : 16;
+    u32 mid : 15;
+    u32 top : 1;
+} H8003B13C;
+typedef struct B8003B13C {
+    s32 unk0;
+    H8003B13C h;
+} B8003B13C;
+extern char D_80063444[];
+extern B8003B13C *D_1F800008_ asm("D_1F800008");
+extern H8003B13C *D_8006B244_ asm("D_8006B244");
+extern s32 D_8006B240;
+extern s32 D_8006B24C;
+extern u8 D_8006B30C;
+void func_8003DB78(char *);
+s32 func_8003D8F4(s32, s32, s32);
+
+void func_8003B13C(s32 size, s32 arg1) {
+    B8003B13C *p;
+    H8003B13C *end;
+    func_8003DB78(D_80063444);
+    p = (B8003B13C *)func_8003D8F4(size, arg1, 1);
+    D_1F800008_ = p;
+    D_8006B244_ = end = (H8003B13C *)((u8 *)p + size - 0xC);
+    D_8006B240 = 0;
+    D_8006B24C = 0;
+    D_8006B30C = 0;
+    p->h.mid = 0;
+    p->h.lo = ((u32)end - (u32)p) >> 2;
+    p->h.top = 0;
+    end->mid = 1;
+    end->lo = 0;
+    end->top = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B210);
 

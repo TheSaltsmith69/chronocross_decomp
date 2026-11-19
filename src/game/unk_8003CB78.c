@@ -188,7 +188,33 @@ void func_8003DB78(s32 arg0) {
     D_8007EE4C = arg0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DB84);
+extern char D_800635F4[];
+void VSync(s32);
+void func_803395E8(void);
+void func_8003DB84(MemBlk8003D92C *n) {
+    MemBlk8003D92C *b = D_8007EE54_b;
+    MemBlk8003D92C *next;
+    u32 t;
+    if (D_8006B3F4 != 0 && (u32)b->next < (u32)(n + 1)) {
+        func_80029DD8(D_800635F4);
+        VSync(60);
+        func_803395E8();
+        VSync(60);
+        func_803395E8();
+        return;
+    }
+    t = ((u32)n & 0x7FFFFF) >> 2;
+    next = b->next;
+    b = n;
+    next->prev = t;
+    D_8007EE54_b = b;
+    b->prev = 0;
+    b->next = next;
+    b->used = 0;
+    if (D_8006B3F4 != 0) {
+        func_8033CAA0();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DC64);
 
