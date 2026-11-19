@@ -198,7 +198,101 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800318BC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80031AC0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800321B8);
+typedef struct { s16 vx, vy, vz, pad; } SV800321B8;
+typedef struct { s32 vx, vy, vz, pad; } V800321B8;
+typedef struct { s16 m[3][3]; s32 t[3]; } M800321B8;
+extern M800321B8 *D_8007ED48;
+extern s8 D_8007ED4C;
+extern s8 D_8007ED4D;
+extern s8 D_8007ED4E;
+extern s8 D_8007ED4F;
+extern s8 D_8007ED50;
+extern s32 D_8007ED54;
+extern s16 D_8006B476;
+extern M800321B8 D_8006B3C0_m asm("D_8006B3C0");
+int func_80031AC0();
+int func_80027684();
+int func_80025114();
+int RotMatrix();
+int ScaleMatrix();
+extern u8 D_80043A20[];
+s32 func_800321B8(M800321B8 *m, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
+    register u32 sp asm("$29");
+    SV800321B8 a;
+    SV800321B8 b;
+    SV800321B8 rot;
+    M800321B8 tmp;
+    V800321B8 d;
+    V800321B8 sq;
+    V800321B8 sc;
+    s32 len;
+    s32 s;
+    if (sp <= 0x1F80017F) {
+        D_8007ED48 = m;
+        D_8007ED4C = a1;
+        D_8007ED4D = a2;
+        D_8007ED4E = a3;
+        D_8007ED4F = a4;
+        D_8007ED50 = a5;
+        if (D_8006B476 == 0) {
+            __asm__ volatile("addu $8, %0, $0\n\tsw $29, 0($8)\n\taddiu $8, $8, -4\n\taddu $29, $8, $0" : : "r"(D_80043A20) : "$8", "memory");
+        }
+        D_8006B476++;
+        D_8007ED54 = func_800321B8(D_8007ED48, D_8007ED4C, D_8007ED4D, D_8007ED4E, D_8007ED4F, D_8007ED50);
+        D_8006B476--;
+        if (D_8006B476 == 0) {
+            __asm__ volatile("addiu $29, $29, 4\n\tlw $29, 0($29)" : : : "memory");
+        }
+        if (D_8006B476 < 0) {
+            D_8006B476 = 0;
+        }
+        return D_8007ED54;
+    }
+    if (a1 == 0) {
+        *m = D_8006B3C0_m;
+        m->t[2] = 0;
+        m->t[1] = 0;
+        m->t[0] = 0;
+        return;
+    }
+    func_80031AC0(m, a1, a2);
+    if (a3 == 0) {
+        return;
+    }
+    func_80031AC0(&tmp, a3, a4);
+    a.vx = m->t[0];
+    a.vy = m->t[1];
+    a.vz = m->t[2];
+    b.vx = tmp.t[0];
+    b.vy = tmp.t[1];
+    b.vz = tmp.t[2];
+    d.vy = b.vy - a.vy;
+    d.vx = b.vx - a.vx;
+    d.vz = b.vz - a.vz;
+    Square0(&d, &sq);
+    len = SquareRoot0(sq.vx + sq.vz);
+    rot.vx = 0;
+    rot.vy = -func_80027684(d.vz, d.vx);
+    rot.vz = func_80027684(d.vy, (len << 1) >> 1);
+    RotMatrix(&rot, m);
+    if (rot.vz & 0x3FF) {
+        rot.vz++;
+    }
+    s = (len << 13) / func_80025114(rot.vz);
+    sc.vy = 0x1000;
+    a.vx += b.vx;
+    a.vy += b.vy;
+    a.vz += b.vz;
+    a.vx /= 2;
+    a.vy /= 2;
+    a.vz /= 2;
+    sc.vx = s;
+    sc.vz = s;
+    m->t[0] = a.vx;
+    m->t[1] = a.vy;
+    m->t[2] = a.vz;
+    return ScaleMatrix(m, &sc);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800324F0);
 
