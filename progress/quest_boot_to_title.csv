@@ -96,7 +96,7 @@ order,seconds,addr,name,category,file,bytes,matched
 95,9.03,8004B980,GetRCnt,lib,lib/libapi/counter,56,0
 96,9.04,8004D494,func_8004D494,game,game/unk_8004BD54,1348,0
 97,9.05,8004DDE0,func_8004DDE0,lib,lib/libspu/s_srmd,48,0
-98,9.06,8005203C,func_8005203C,game,game/unk_80051F24,1244,0
+98,9.06,8005203C,func_8005203C,game,game/unk_80051F24,1244,1
 99,9.09,80022CF0,ReadInitPadFlag,lib,lib/libapi/pad,16,0
 100,9.10,80018D74,InitCARD2,lib,lib/libcard/a74,16,0
 101,9.11,80019014,_copy_memcard_patch,lib,lib/libcard/patch,64,0

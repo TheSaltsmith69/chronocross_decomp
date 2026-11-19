@@ -246,6 +246,6 @@ lib/libspu/s_sra,lib,80051894,1,0,1232,0
 lib/libspu/s_crwa,lib,80051D64,1,0,416,0
 lib/libapi/a10,lib,80051F04,1,0,16,0
 lib/libspu/s_grmt,lib,80051F14,1,0,16,0
-game/unk_80051F24,game,80051F24,128,36,17692,5084
+game/unk_80051F24,game,80051F24,128,37,17692,6328
 lib/libspu/s_sia,lib,80056440,1,0,64,0
 lib/libgte/cmb_07,lib,80056480,1,0,176,0
