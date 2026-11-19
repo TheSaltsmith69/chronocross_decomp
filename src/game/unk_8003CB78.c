@@ -50,6 +50,10 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CD38);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D070);
 
+INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_80063674);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_8006368C);
+
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D370);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D504);

@@ -236,7 +236,99 @@ void func_8001A350(void) {
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062314);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A448);
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_8006231C);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062324);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062338);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_8006234C);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062354);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062368);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_8006237C);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_80062390);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_800623A4);
+
+INCLUDE_RODATA("asm/nonmatchings/game/unk_800191D4", D_800623A8);
+
+typedef struct {
+    s32 w0, w1, w2, w3, w4, w5;
+    s16 h;
+    s16 pad;
+    s32 x;
+} Unk80064160;
+typedef struct {
+    s32 fat;
+    s32 fid;
+    s32 addr;
+    Unk80064160 cfg;
+} Args8001A448;
+extern char D_8006231C[], D_80062324[], D_80062338[], D_8006234C[], D_80062354[], D_80062368[], D_8006237C[], D_80062390[], D_800623A4[], D_800623A8[];
+extern u8 D_8006B3F5;
+extern u8 D_8006B47A;
+extern Unk80064160 D_80064160;
+
+void func_8001A448(void) {
+    Args8001A448 a;
+    u8 hdr[0x38];
+    s32 fd;
+    char *path;
+    s32 v;
+    if (D_8006B3F5 == 0) {
+        func_8003DB78(D_8006231C);
+        if (D_8006B47A == 2) {
+            a.fat = func_80048C00(D_80062324, 0);
+        } else {
+            a.fat = func_80048C00(D_80062338, 0);
+        }
+        func_8003DB78(D_8006234C);
+        if (D_8006B47A == 2) {
+            a.fid = func_80048C00(D_80062354, 0);
+        } else {
+            a.fid = func_80048C00(D_80062368, 0);
+        }
+        a.addr = 0x80780000;
+        if (D_8006B47A == 2) {
+            fd = PCopen(D_8006237C, 0, 0);
+        } else {
+            fd = PCopen(D_80062390, 0, 0);
+        }
+        PCread(fd, 0x80780000, func_8033C948(fd));
+        func_80028614(fd);
+    } else {
+        func_8003DB78(D_800623A4);
+        a.fat = func_8003D8F4(0x60E0, 1, 1);
+        func_8003DB78(D_800623A8);
+        a.fid = func_8003D8F4(0x22, 1, 1);
+        a.addr = 0;
+    }
+    a.cfg.w0 = D_80064160.w0;
+    a.cfg.w1 = D_80064160.w1;
+    a.cfg.w2 = D_80064160.w2;
+    a.cfg.w3 = D_80064160.w3;
+    a.cfg.w4 = D_80064160.w4;
+    a.cfg.w5 = D_80064160.w5;
+    a.cfg.h = D_80064160.h;
+    func_80043F90(&a);
+    if (D_8006B3F5 != 0) {
+        func_80045E78(0x17, hdr, 0x2C, 0);
+        func_80044EE0(0);
+        if (*(s32 *)(hdr + 0x20) == 0x4F524843 && *(s32 *)(hdr + 0x24) == 0x52434F4E) {
+            v = hdr[0];
+            if (v == 1) {
+                D_8006B47A = v;
+            }
+            if (v == 2) {
+                D_8006B47A = v;
+            }
+        }
+    }
+}
 
 typedef struct {
     s16 x, y, w, h;
