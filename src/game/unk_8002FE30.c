@@ -1729,7 +1729,40 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C4B8);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C52C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C630);
+typedef struct B8003C630 {
+    s32 w;
+    void *fn;
+    s32 pad8;
+} B8003C630;
+extern u8 *SPAD_BASE asm("D_1F800008");
+void *f_33D80_g(s32, s32) asm("func_80033D80");
+void f_3C22C_g(void *) asm("func_8003C22C");
+void f_43B30_g(void) asm("func_80043B30");
+void L8003F63C_g(void) asm(".L8003F63C");
+void *func_8003C630(s32 size, s32 owner) {
+    void *r;
+    B8003C630 *b;
+    u8 *p;
+outer:
+    for (;;) {
+        r = f_33D80_g(size, owner);
+        if (r != NULL) {
+            return r;
+        }
+        b = (B8003C630 *)(SPAD_BASE + 4);
+        while (*(u16 *)b != 0) {
+            if (b->w < 0) {
+                p = (u8 *)(b + 1);
+                if (b->fn == (void *)f_43B30_g && *(s16 *)(p + 0x7C) != 0) {
+                    f_3C22C_g(p);
+                    goto outer;
+                }
+            }
+            b = (B8003C630 *)((*(u16 *)b << 2) + (u32)SPAD_BASE);
+        }
+        L8003F63C_g();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C714);
 
