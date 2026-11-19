@@ -139,7 +139,119 @@ void func_800197C0(u8 load) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019A00);
+typedef struct E80019A00 {
+    u8 pad0[0x16];
+    u16 unk16;
+    u8 pad18[0x17];
+    u8 unk2F;
+    u8 pad30[0x88];
+    u16 unkB8;
+    u8 padBA[0x12];
+} E80019A00;
+typedef struct G80019A00 {
+    E80019A00 ent[0x2C];
+    u16 unk2310[0x204];
+    u16 unk2718[0x180];
+    u8 unk2A18[0x180];
+    u16 unk2B98[0xC0];
+    u8 unk2D18[0xC0];
+    u8 pad2DD8[8];
+    s32 unk2DE0;
+    u8 pad2DE4[4];
+    u8 names[0x2C][0x10];
+    s32 unk30A8;
+    u8 pad30AC[8];
+    u16 masks[0x2C][8];
+    u8 unk3374[0x420];
+    u8 pad3794[0x10];
+    u8 bits[0x18];
+} G80019A00;
+extern G80019A00 D_8006EBC8_a asm("D_8006EBC8");
+extern s32 D_8006EB48;
+extern u16 D_80064020[];
+extern s32 D_8006EB54;
+extern u8 D_8006EBC0;
+extern u8 D_8006EB5D;
+extern u8 D_80072410;
+extern u8 D_8006EB5C;
+extern u16 D_80064130[];
+extern s16 D_800712AA;
+void bzero(void *, s32);
+void *memmove(void *, void *, s32);
+
+void func_80019A00(u8 arg0) {
+    s32 i;
+    s32 j;
+    E80019A00 *e;
+    u8 *s;
+    u8 *f;
+    u8 *p;
+    u8 *src = (u8 *)D_8006EB48;
+    for (i = 0; i < 0x2C; i++, src += 0xB0) {
+        e = &D_8006EBC8_a.ent[i];
+        bzero(e, 0xCC);
+        memmove(e, src, 0xB0);
+        e->unk2F = 1;
+        e->unkB8 = e->unk16;
+        if (arg0) {
+            for (j = 0; j < 0x10; j++) {
+                D_8006EBC8_a.names[i][j] = 0;
+            }
+            s = func_80019794(1, i);
+            for (j = 0; j < 0xC; j++) {
+                D_8006EBC8_a.names[i][j] = *s;
+                if (*s == 0) {
+                    break;
+                }
+                s++;
+            }
+        }
+        for (j = 0; j < 8; j++) {
+            D_8006EBC8_a.masks[0][i * 8 + j] = D_80064020[j];
+        }
+    }
+    func_8003D504(D_8006EB48);
+    for (i = 0; i < 0x180; i++) {
+        D_8006EBC8_a.unk2A18[i] = 0;
+        D_8006EBC8_a.unk2718[i] = 0;
+    }
+    for (i = 0; i < 0xC0; i++) {
+        D_8006EBC8_a.unk2D18[i] = 0;
+        D_8006EBC8_a.unk2B98[i] = 0;
+    }
+    {
+        u8 *q;
+        i = 0x41F;
+        for (q = (u8 *)&D_8006EBC8_a + i; i >= 0; i--) {
+            q[0x3374] = 0;
+            q--;
+        }
+    }
+    i = 0x17;
+    p = (u8 *)&D_8006EBC8_a + i;
+    f = (u8 *)D_8006EB54;
+    D_8006EBC8_a.unk2DE0 = 100;
+    D_8006EBC0 = 0;
+    D_8006EB5D = 0;
+    D_80072410 = 0;
+    D_8006EBC8_a.unk30A8 = 0;
+    D_8006EB5C = 0;
+    for (; i >= 0; i--) {
+        p[0x37A4] = 0;
+        p--;
+    }
+
+    for (i = 0; i < 0xC0; i++) {
+        if (f[0xA] & 0x40) {
+            D_8006EBC8_a.bits[i / 8] |= 1 << (i % 8);
+        }
+        f += 0x10;
+    }
+    for (i = 0; i < 0x18; i++) {
+        D_8006EBC8_a.unk2310[i + 0x1E8] = D_80064130[i];
+    }
+    D_800712AA = 0x3F;
+}
 
 extern u32 D_8006EB58;
 
