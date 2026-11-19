@@ -150,7 +150,7 @@ order,seconds,addr,name,category,file,bytes,matched
 149,10.93,8001A0E0,func_8001A0E0,game,game/unk_800191D4,108,1
 150,10.94,8001C0E4,func_8001C0E4,game,game/main,72,1
 151,10.95,8001A9BC,func_8001A9BC,game,game/main,72,1
-152,10.96,8001A448,func_8001A448,game,game/unk_800191D4,524,0
+152,10.96,8001A448,func_8001A448,game,game/unk_800191D4,524,1
 153,10.97,8003DB78,func_8003DB78,game,game/unk_8003CB78,12,1
 154,10.98,8003D8F4,func_8003D8F4,game,game/unk_8003CB78,56,0
 155,10.99,8003CD38,func_8003CD38,game,game/unk_8003CB78,824,0
