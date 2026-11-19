@@ -106,7 +106,42 @@ Unk8006B490 *func_8004208C(Unk8006B490 *arg0, u32 arg1, s32 arg2) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800420FC);
+typedef struct Obj800420FC {
+    struct Obj800420FC *next;
+    s32 unk4;
+    u32 id : 6;
+    u32 f6 : 1;
+    u32 f7 : 1;
+    u32 parent : 6;
+    u32 cnt : 17;
+    u32 top : 1;
+    s32 unkC;
+} Obj800420FC;
+extern u8 D_8006B3E0;
+s32 func_8003D8F4(s32, s32, s32);
+void func_8003F884(void *, s32);
+
+Obj800420FC *func_800420FC(s32 id, s32 a1, s32 a2) {
+    Obj800420FC *o = (Obj800420FC *)func_8003D8F4(0x10, D_8006B3E0, 1);
+    u32 flags;
+    func_8003F884(o, 0x10);
+    o->unk4 = 0x30;
+    o->cnt = 3;
+    o->id = 7;
+    o->f6 = 0;
+    o->f7 = 0;
+    o->unk4 = a1;
+    o->unkC = a2;
+    o->id = id;
+    o->f7 = 1;
+    o->next = (Obj800420FC *)D_8006B490;
+    D_8006B490 = (Unk8006B490 *)o;
+    flags = ((u32 *)o)[2];
+    if (o->parent == 0) {
+        ((u32 *)o)[2] = flags & ~0x3F00;
+    }
+    return o;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800421E8);
 
