@@ -110,7 +110,10 @@ void func_8002B400(void) {
     D_8006AF30 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B41C);
+extern s32 D_8006AF34_t asm("D_8006AF34");
+void func_8002B41C(void) {
+    D_8006AF34_t++;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B434);
 
@@ -382,7 +385,9 @@ void func_8002EF9C(VEC_8002EF9C *a, VEC_8002EF9C *b, s32 *cnt) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002F05C);
+void func_8002F05C(u8 *arg0) {
+    *(u8 **)(arg0 + 0x2C) = arg0 + *(s32 *)(arg0 + 0x30) * 8 + 0x34;
+}
 
 typedef struct { s16 vx, vy, vz, pad; } SV_F078;
 typedef struct { s32 x, y, z, pad; } V_F078;

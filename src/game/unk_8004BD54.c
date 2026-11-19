@@ -51,7 +51,10 @@ void func_8004BE5C(s32 voice, u32 arg1) {
     ((u16 *)0x1F801C0E)[voice * 8] = arg1 >> 3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004BE78);
+void func_8004BE78(s32 arg0, u16 arg1) {
+    u16 *p = (u16 *)0x1F801C08;
+    p[arg0 * 8] = arg1;
+}
 
 void func_8004BE90(s32 voice, u16 arg1) {
     ((u16 *)0x1F801C0A)[voice * 8] = arg1;
