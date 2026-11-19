@@ -123,7 +123,7 @@ order,seconds,addr,name,category,file,bytes,matched
 122,10.62,80017B0C,func_80017B0C,lib,lib/libpad/padseqd,56,0
 123,10.63,80029C3C,func_80029C3C,lib,lib/unk_80029AA4,352,0
 124,10.64,8001C164,func_8001C164,game,game/main,32,1
-125,10.65,8003D92C,func_8003D92C,game,game/unk_8003CB78,180,0
+125,10.65,8003D92C,func_8003D92C,game,game/unk_8003CB78,180,1
 126,10.66,8001A654,func_8001A654,game,game/unk_800191D4,92,1
 127,10.67,8003F7D4,func_8003F7D4,game,game/unk_8003DD74,176,1
 128,10.68,8003F934,func_8003F934,game,game/unk_8003DD74,12,1
@@ -310,7 +310,7 @@ order,seconds,addr,name,category,file,bytes,matched
 309,42.80,80041FD4,func_80041FD4,game,game/unk_8003FD00,48,1
 310,42.81,80041820,func_80041820,game,game/unk_8003FD00,716,0
 311,42.82,80040928,func_80040928,game,game/unk_8003FD00,1192,0
-312,42.83,8003D370,func_8003D370,game,game/unk_8003CB78,404,0
+312,42.83,8003D370,func_8003D370,game,game/unk_8003CB78,404,1
 313,42.84,80042214,func_80042214,game,game/unk_8003FD00,104,1
 314,42.85,800413F8,func_800413F8,game,game/unk_8003FD00,1064,0
 315,42.86,800420FC,func_800420FC,game,game/unk_8003FD00,236,0

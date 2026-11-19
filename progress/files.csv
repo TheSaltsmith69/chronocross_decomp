@@ -215,7 +215,7 @@ lib/libgte/fgo_04,lib,8002FAF0,1,0,416,0
 lib/libgte/fgo_05,lib,8002FC90,1,0,416,0
 game/unk_8002FE30,game,8002FE30,135,40,52200,4504
 lib/libgte/mtx_004,lib,8003CA18,1,0,352,0
-game/unk_8003CB78,game,8003CB78,22,4,4572,276
+game/unk_8003CB78,game,8003CB78,22,6,4572,860
 lib/libgte/reg08,lib,8003DD54,1,0,32,0
 game/unk_8003DD74,game,8003DD74,20,10,8060,1588
 lib/libapi/a13,lib,8003FCF0,1,0,16,0
