@@ -638,7 +638,207 @@ void func_8001C4A0(u32 flags, O4A0 *a, O4A0 *b, s16 t, s32 p4, u16 p5, s16 p6, s
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C918);
+typedef struct {
+    u8 col[4];
+    u32 uv0;
+    u32 uv1;
+    u16 uv2;
+    u16 i0;
+    u16 i1;
+    u16 i2;
+} F918;
+typedef struct {
+    u32 tag;
+    u8 r0, g0, b0, code;
+    s16 x0, y0;
+    u8 u0, v0;
+    u16 clut;
+    s16 x1, y1;
+    u8 u1, v1;
+    u16 tpage;
+    s16 x2, y2;
+    u8 u2, v2;
+    u16 pad;
+} FT3_918;
+typedef struct {
+    u32 tag;
+    u32 code[2];
+} DRM_918;
+typedef struct { s16 x, y, w, h; } RECT_918;
+extern s32 D_1F80000C;
+extern s32 D_1F800014;
+extern s32 D_800A1204;
+extern s32 D_8007E86C;
+extern s32 D_80064194;
+extern s32 D_8007E868;
+extern s32 D_8007E874;
+extern s32 D_8007E880;
+extern s32 D_8007E884;
+extern u32 D_80064190;
+void PushMatrix(void);
+void PopMatrix(void);
+void SetRotMatrix(s32);
+void func_8001C31C(u8 *, s32);
+void func_8001C244(u8 *, u8 *, u8 *);
+void DpqColor(u8 *, s32, u8 *);
+void ColorMatCol(s32, u8 *, u8 *, s32);
+void NormalColorCol(s32, u8 *, u8 *);
+void func_80011474(void *, s32);
+void AddPrim(void *, void *);
+void *memset(void *, s32, s32);
+#define gte_ldv3_918(r0, r1, r2) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 0(%1); lwc2 $3, 4(%1); lwc2 $4, 0(%2); lwc2 $5, 4(%2)" : : "r"(r0), "r"(r1), "r"(r2))
+#define gte_rtpt_918() __asm__ volatile ("nop; nop; rtpt")
+#define gte_nclip_918() __asm__ volatile ("nop; nop; nclip")
+#define gte_avsz3_918() __asm__ volatile ("nop; nop; avsz3")
+#define gte_stflg_918(r0) __asm__ volatile ("cfc2 $12, $31; nop; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
+#define gte_stopz_918(r0) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(r0) : "memory")
+#define gte_stotz_918(r0) __asm__ volatile ("swc2 $7, 0(%0)" : : "r"(r0) : "memory")
+#define gte_stdp_918(r0) __asm__ volatile ("swc2 $8, 0(%0)" : : "r"(r0) : "memory")
+#define gte_stsxy3_ft3_918(r0) __asm__ volatile ("swc2 $12, 8(%0); swc2 $13, 16(%0); swc2 $14, 24(%0)" : : "r"(r0) : "memory")
+#define TW_918(r) (0xE2000000 | (((r)->y & 0xFF) >> 3) << 15 | (((r)->x & 0xFF) >> 3) << 10 | ((~((r)->h - 1) & 0xFF) >> 3) << 5 | ((~((r)->w - 1) & 0xFF) >> 3))
+#define F ((F918 *)data)
+#define P ((FT3_918 *)pp)
+void func_8001C918(u16 n, s32 data, s32 ot, u8 du, u8 dv, s32 tw, s32 abr, s32 col, s16 t) {
+    u8 c[4];
+    RECT_918 r;
+    s32 flg;
+    s32 z;
+    s32 dp;
+    s32 semi;
+    s32 zofs;
+    s32 nrm;
+    u32 flags;
+    u8 *pp;
+    FT3_918 *q;
+    DRM_918 *d;
+    DRM_918 *d2;
+    u32 *cp;
+    s32 v;
+    u32 i;
+
+    zofs = D_8007E868;
+    nrm = D_8007E884;
+    flags = D_80064190;
+    if (abr > 0) {
+        semi = 1;
+        abr--;
+    } else {
+        semi = 0;
+    }
+    if ((u32)(D_1F800014 + n * 56) > (u32)D_1F80000C) {
+        return;
+    }
+    abr <<= 5;
+    pp = (u8 *)D_1F800014;
+    i = n;
+    while (i != 0) {
+        v = D_8007E874;
+        gte_ldv3_918(v + F->i1 * 8, v + F->i2 * 8, v + F->i0 * 8);
+        gte_rtpt_918();
+        gte_stflg_918(&flg);
+        gte_nclip_918();
+        gte_stopz_918(&z);
+        if (!(flags & 0x20)) {
+            if (flags & 0x10) {
+                if (z > 0) {
+                    goto next;
+                }
+            } else if (z <= 0) {
+                goto next;
+            }
+        }
+        if (flg < 0) {
+            goto next;
+        }
+        gte_stsxy3_ft3_918(pp);
+        if (flags & 0x40) {
+            if (P->x0 < 0 && P->x1 < 0 && P->x2 < 0) {
+                goto next;
+            }
+            if (P->y0 < 0 && P->y1 < 0 && P->y2 < 0) {
+                goto next;
+            }
+        }
+        *(u32 *)&P->u1 = F->uv1;
+        *(u32 *)&P->u0 = F->uv0;
+        *(u16 *)&P->u2 = F->uv2;
+        gte_avsz3_918();
+        gte_stotz_918(&z);
+        z = (z >> D_800A1204) + zofs;
+        if (z < 0) {
+            z = 0;
+        }
+        if (z >= 0x1000) {
+            z = 0xFFF;
+        }
+        if (flags & 4) {
+            PushMatrix();
+            SetRotMatrix(D_8007E86C);
+            func_8001C31C(&P->u0, nrm + F->i1 * 8);
+            func_8001C31C(&P->u1, nrm + F->i2 * 8);
+            func_8001C31C(&P->u2, nrm + F->i0 * 8);
+            P->tpage = (((abr - 1) & 3) << 5) | 0x95;
+            P->clut = 0x3BC0;
+            PopMatrix();
+        }
+        P->tpage = (P->tpage & 0xFF9F) | abr;
+        func_8001C244(c, (u8 *)&col, F->col);
+        if (flags & 0x200) {
+            gte_stdp_918(&dp);
+            DpqColor(c, dp, c);
+        }
+        if (flags & 8) {
+            if (flags & 0x80) {
+                ColorMatCol(D_8007E880 + D_80064194 * 8, c, &P->r0, 4);
+            } else {
+                NormalColorCol(D_8007E880 + D_80064194 * 8, c, &P->r0);
+            }
+        } else {
+            *(u32 *)&P->r0 = *(u32 *)c;
+        }
+        pp[3] = 7;
+        P->code = 0x24;
+        if (semi) {
+            func_80011474(pp, 1);
+        }
+        if (flags & 1) {
+            P->v0 += dv;
+            P->v1 += dv;
+            P->v2 += dv;
+            P->u0 += du;
+            P->u1 += du;
+            P->u2 += du;
+            q = (FT3_918 *)pp;
+            pp += sizeof(FT3_918);
+            d = (DRM_918 *)pp;
+            pp += sizeof(DRM_918);
+            memset(&r, 0, 8);
+            cp = (u32 *)(pp - 8);
+            ((u8 *)d)[3] = 2;
+            d->code[0] = TW_918(&r);
+            d->code[1] = 0;
+            AddPrim((s32 *)ot + z, d);
+            AddPrim((s32 *)ot + z, q);
+            d2 = (DRM_918 *)pp;
+            pp += sizeof(DRM_918);
+            cp = (u32 *)(pp - 8);
+            ((u8 *)d2)[3] = 2;
+            d2->code[0] = tw ? TW_918((RECT_918 *)tw) : 0;
+            d2->code[1] = 0;
+            AddPrim((s32 *)ot + z, d2);
+        } else {
+            AddPrim((s32 *)ot + z, pp);
+            pp += sizeof(FT3_918);
+        }
+    next:
+        i--;
+        D_80064194++;
+        data += sizeof(F918);
+    }
+    D_1F800014 = (s32)pp;
+}
+#undef P
+#undef F
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001CF00);
 
