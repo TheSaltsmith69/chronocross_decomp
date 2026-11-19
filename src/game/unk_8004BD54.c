@@ -185,7 +185,172 @@ void func_8004C038(s32 voice, Attr8004C038 *a) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004C154);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004C664);
+typedef struct {
+    u8 pad0[0x1C];
+    s16 *u1C;
+    s16 *u20;
+    s16 *u24;
+    u8 pad28[4];
+    s32 u2C;
+    u8 pad30[2];
+    s16 u32;
+    u32 u34;
+    u32 u38;
+    u8 pad3C[4];
+    u32 u40;
+    u8 pad44[4];
+    u32 u48;
+    u8 pad4C[0xA];
+    u16 u56;
+    u8 pad58[6];
+    s16 u5E;
+    u8 pad60[2];
+    s16 u62;
+    u8 pad64[4];
+    u16 u68;
+    u8 pad6A[0x2C];
+    u16 u96;
+    u8 pad98[0xA];
+    u16 uA2;
+    u8 padA4[0x10];
+    u16 uB4;
+    u8 padB6[2];
+    u16 uB8;
+    u8 padBA[2];
+    u16 uBC;
+    u8 padBE[8];
+    u16 uC6;
+    u8 padC8[2];
+    u16 uCA;
+    u8 padCC[2];
+    u16 uCE;
+    u8 padD0[6];
+    u16 uD6;
+    u8 padD8[2];
+    u16 uDA;
+    u8 padDC[0x24];
+    s16 u100;
+    s16 u102;
+    s16 u104;
+    u8 pad106[6];
+    s32 u10C;
+    u8 pad110[8];
+    u16 u118;
+    u8 pad11A[6];
+    s16 u120;
+    s16 u122;
+} C664;
+extern u32 D_8008E39C;
+extern u32 D_8008E390;
+extern s16 D_8006B808;
+extern s16 D_8006B708[];
+void func_8004C664(Unk80051F24 *ch_, u32 bit) {
+#define ch ((C664 *)ch_)
+    u32 f;
+    s32 vol;
+    s32 v;
+    s32 d;
+    s16 *p;
+    vol = (ch->u5E * (ch->u96 >> 8)) >> 7;
+    f = ch->u34;
+    if (f & 1) {
+        if (ch->uB4 == 0) {
+            if (--ch->uB8 == 0) {
+                ch->uB8 = ch->u38 >> 10;
+                p = ch->u1C;
+                if (p[0] == 0 && p[1] == 0) {
+                    ch->u1C = p + p[2];
+                }
+                d = *ch->u1C++;
+                v = (ch->uBC * d) >> 16;
+                if (v != ch->u100) {
+                    ch->u100 = v;
+                    ch->u10C |= 0x10;
+                    if (v >= 0) {
+                        ch->u100 = v << 1;
+                    }
+                }
+            }
+        }
+    }
+    if (f & 2) {
+        if (ch->uC6 == 0) {
+            if (--ch->uCA == 0) {
+                ch->uCA = ch->u40 >> 10;
+                p = ch->u20;
+                if (p[0] == 0 && p[1] == 0) {
+                    ch->u20 = p + p[2];
+                }
+                v = (s16)((vol * (ch->uCE >> 8)) >> 7);
+                d = *ch->u20++;
+                v = (v * d) >> 15;
+                if (v != ch->u102) {
+                    ch->u102 = v;
+                    ch->u10C |= 3;
+                }
+            }
+        }
+    }
+    if (f & 4) {
+        if (--ch->uD6 == 0) {
+            ch->uD6 = ch->u48 >> 10;
+            p = ch->u24;
+            if (p[0] == 0 && p[1] == 0) {
+                ch->u24 = p + p[2];
+            }
+            d = *ch->u24++;
+            v = ((ch->uDA >> 8) * d) >> 15;
+            if (v != ch->u104) {
+                ch->u104 = v;
+                ch->u10C |= 3;
+            }
+        }
+    }
+    if (f & 0x20) {
+        vol = ((s16)((ch - 1)->u118 << 1) * (ch->u96 >> 8)) >> 7;
+        ch->u10C |= 3;
+    }
+    if (ch->u10C & 3) {
+        vol += ch->u102;
+        d = (s32)D_8008BE50;
+        vol = (vol * (((C664 *)d)->u56 & 0x7F)) >> 7;
+        v = (ch->uA2 >> 8) + ch->u104;
+        v = (v + ((C664 *)d)->u62 - 0x40) & 0xFF;
+        if (D_8008E39C & 2) {
+            ch->u120 = ch->u122 = (vol * D_8006B808) >> 15;
+        } else {
+            ch->u120 = (vol * D_8006B708[v]) >> 15;
+            ch->u122 = (vol * D_8006B708[v ^ 0xFF]) >> 15;
+        }
+    }
+    if (f & 0x10) {
+        d = (ch - 1)->u118 + ch->u100 + ch->u32;
+        v = D_8008E390 & 0xFF0000;
+        if (v != 0) {
+            v >>= 16;
+            if (v < 0x80) {
+                d += (d * v) >> 7;
+            } else {
+                d = (d * v) >> 8;
+            }
+        }
+        ch->u118 = (ch->u68 + d) & 0x3FFF;
+        ch->u10C |= 0x10;
+    } else if (ch->u10C & 0x10) {
+        d = ch->u2C + ch->u100 + ch->u32;
+        v = D_8008E390 & 0xFF0000;
+        if (v != 0) {
+            v >>= 16;
+            if (v < 0x80) {
+                d += (d * v) >> 7;
+            } else {
+                d = (d * v) >> 8;
+            }
+        }
+        ch->u118 = (ch->u68 + d) & 0x3FFF;
+    }
+}
+#undef ch
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CADC);
 
