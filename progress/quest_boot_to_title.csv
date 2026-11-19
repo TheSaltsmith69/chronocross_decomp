@@ -313,7 +313,7 @@ order,seconds,addr,name,category,file,bytes,matched
 312,42.83,8003D370,func_8003D370,game,game/unk_8003CB78,404,1
 313,42.84,80042214,func_80042214,game,game/unk_8003FD00,104,1
 314,42.85,800413F8,func_800413F8,game,game/unk_8003FD00,1064,0
-315,42.86,800420FC,func_800420FC,game,game/unk_8003FD00,236,0
+315,42.86,800420FC,func_800420FC,game,game/unk_8003FD00,236,1
 316,42.87,8002B070,func_8002B070,game,game/unk_8002B070,348,1
 317,42.90,8001ABF0,func_8001ABF0,game,game/main,320,1
 318,55.21,800308F8,func_800308F8,game,game/unk_8002FE30,12,1
