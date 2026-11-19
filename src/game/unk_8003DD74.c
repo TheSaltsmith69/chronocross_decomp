@@ -237,6 +237,39 @@ void func_8003FA64(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003FAB4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003FB60);
+typedef struct Obj8003FB60 {
+    u8 pad[0x1F4];
+    s16 unk1F4;
+    s16 unk1F6;
+} Obj8003FB60;
+void func_80095A08(Obj8003FB60 *, s16 *);
+s32 SquareRoot0(s32);
+void func_8003FB60(Obj8003FB60 *o) {
+    s16 v[12];
+    s32 t;
+    func_80095A08(o, v);
+    t = (v[1] << 12) / 1067;
+    t -= 0x1000;
+    t /= 2;
+    t += 0x1000;
+    if (t > 0x10000) {
+        t = 0x8000;
+    }
+    if (t < 0x300) {
+        t = 0x300;
+    }
+    o->unk1F4 = t;
+    t = (SquareRoot0(v[0] * v[0] + v[2] * v[2]) << 12) / 572;
+    t -= 0x1000;
+    t /= 2;
+    t += 0x1000;
+    if (t > 0x10000) {
+        t = 0x8000;
+    }
+    if (t < 0x300) {
+        t = 0x300;
+    }
+    o->unk1F6 = t;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003FC70);

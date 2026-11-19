@@ -529,7 +529,40 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033B70);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033D80);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033F20);
+typedef struct Blk80033F20 {
+    u32 next : 16;
+    u32 prev : 15;
+    u32 used : 1;
+} Blk80033F20;
+extern Blk80033F20 *D_8006B240_b asm("D_8006B240");
+extern s32 D_8006B24C;
+extern Blk80033F20 *D_1F800008_b asm("D_1F800008");
+void func_80033F20(Blk80033F20 *q) {
+    Blk80033F20 *b = q - 3;
+    Blk80033F20 *p;
+    D_8006B240_b = b;
+    b->used = 0;
+    D_8006B24C--;
+    if (b->prev != 0) {
+        u32 base = (u32)D_1F800008_b;
+        p = (Blk80033F20 *)(b->prev * 4 + base);
+        if (!p->used) {
+            p->next = b->next;
+            q = (Blk80033F20 *)(b->next * 4 + base);
+            q->prev = ((u32)p - base) >> 2;
+            b = p;
+        }
+    }
+    {
+        u32 base = (u32)D_1F800008_b;
+        q = (Blk80033F20 *)(b->next * 4 + base);
+        if (!q->used) {
+            b->next = q->next;
+            q = (Blk80033F20 *)(q->next * 4 + base);
+            q->prev = ((u32)b - base) >> 2;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80034024);
 
