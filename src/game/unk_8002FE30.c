@@ -851,7 +851,26 @@ void func_80033530(s32 *tim) {
     LoadImage(tim + 1, tim + 3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033588);
+void func_80033588(s32 *tim, s32 cx, s32 cy, s32 px, s32 py) {
+    RECT_8003 r;
+    s32 *p = tim + 2;
+    if (tim[1] & 8) {
+        p = (s32 *)((u8 *)p + tim[2]);
+        r = *(RECT_8003 *)(tim + 3);
+        if (cx | cy) {
+            r.x = cx;
+            r.y = cy;
+        }
+        LoadImage(&r, tim + 5);
+    }
+    cx = (s32)p;
+    r = *(RECT_8003 *)((s32 *)cx + 1);
+    if (px | py) {
+        r.x = px;
+        r.y = py;
+    }
+    LoadImage(&r, (s32 *)cx + 3);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033654);
 
