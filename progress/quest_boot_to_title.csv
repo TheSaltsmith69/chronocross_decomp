@@ -412,7 +412,7 @@ order,seconds,addr,name,category,file,bytes,matched
 411,61.99,80039038,func_80039038,game,game/unk_8002FE30,1044,0
 412,62.01,80037E68,func_80037E68,game,game/unk_8002FE30,1772,0
 413,62.02,80026134,SetMulMatrix,lib,lib/libgte/mtx_00b,272,0
-414,62.03,8001C4A0,func_8001C4A0,game,game/main,1144,0
+414,62.03,8001C4A0,func_8001C4A0,game,game/main,1144,1
 415,62.04,8001C918,func_8001C918,game,game/main,1512,0
 416,62.05,8001C244,func_8001C244,game,game/main,88,1
 417,62.06,80010484,memset,lib,lib/libc2/memset,48,0
