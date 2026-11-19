@@ -236,7 +236,7 @@ lib/libspu/s_sic,lib,8004BBF4,1,0,64,0
 lib/libspu/s_cb,lib,8004BC34,1,0,48,0
 lib/libspu/s_r,lib,8004BC64,2,0,192,0
 lib/libspu/s_stc,lib,8004BD24,1,0,48,0
-game/unk_8004BD54,game,8004BD54,32,20,8220,2028
+game/unk_8004BD54,game,8004BD54,32,21,8220,2620
 lib/libspu/s_snc,lib,8004DD70,1,0,80,0
 lib/libspu/s_gvex,lib,8004DDC0,1,0,32,0
 lib/libspu/s_srmd,lib,8004DDE0,1,0,48,0
