@@ -1798,11 +1798,25 @@ void func_8003B420(void) {
     func_8003BC80(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B490);
-
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B4F0);
-
 s16 *f_30814_a(s32, s32) asm("func_80030814");
+void func_8003B490(void *arg0, u16 *arg1) {
+    u16 *p = f_30814_a(((s32 *)func_80041F6C(arg0))[5], 8);
+    if (p != NULL) {
+        p[1] = arg1[0];
+        p[2] = arg1[1];
+        p[3] = arg1[2];
+    }
+}
+
+void func_8003B4F0(void *arg0, u16 *arg1) {
+    u16 *p = f_30814_a(((s32 *)func_80041F6C(arg0))[5], 8);
+    if (p != NULL) {
+        arg1[0] = p[1];
+        arg1[1] = p[2];
+        arg1[2] = p[3];
+    }
+}
+
 void func_8003B550(void *arg0, u32 arg1) {
     s16 *p = f_30814_a(((s32 *)func_80041F6C(arg0))[5], 0x30);
     if (p != NULL) {

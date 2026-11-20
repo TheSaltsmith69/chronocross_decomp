@@ -390,7 +390,17 @@ void func_8002CCC0(void *arg0) {
     f_2B434_c();
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CD14);
+s32 f_44DD4_a(void *) asm("func_80044DD4");
+extern void *D_8006AF58_r asm("D_8006AF58");
+void f_3332C_a(void *, s32, s32, s32, s32, s32, s32) asm("func_8003332C");
+void f_3B134_a(void *, void *) asm("func_8003B134");
+void func_8002CCC0(void *);
+void func_8002CD14(void *arg0) {
+    if (f_44DD4_a(arg0) == 0) {
+        f_3332C_a(D_8006AF58_r, 0, 0, 0, 0, 0, 0);
+        f_3B134_a(arg0, func_8002CCC0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CD70);
 
