@@ -28,3 +28,8 @@ func_8033846C = 0x8033846C;
 func_8033CDA8 = 0x8033CDA8;
 func_8033CE00 = 0x8033CE00;
 func_8033D044 = 0x8033D044;
+
+/* rsin (lib/libgte/geo_00.s) indexes its sine table as %hi/%lo of
+ * 0x80063598 plus an offset. That address is the tail of the jump table
+ * for func_8003A4C0, which the C compiler now emits, so pin it here. */
+D_80063598 = 0x80063598;

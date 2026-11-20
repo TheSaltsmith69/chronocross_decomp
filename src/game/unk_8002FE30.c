@@ -1410,7 +1410,152 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A118);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A1F8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A4C0);
+typedef struct { s16 amp, freq, phase, pad; } W_A4C0;
+typedef struct { u16 hdr; W_A4C0 w[3]; } R_A4C0;
+typedef struct { u32 op : 9; u32 len : 6; u32 jmp : 1; u32 pad : 16; } H_A4C0;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } M_A4C0;
+typedef struct { s32 vx, vy, vz, pad; } V_A4C0;
+typedef struct {
+    V_A4C0 pos;
+    u8 pad10[0x20];
+    M_A4C0 m;
+    s16 scale[3];
+    s16 a56[3];
+    s16 rot[3];
+    s16 a62[3];
+    s16 a68[3];
+    s16 a6E[3];
+    u8 pad74[0x14];
+    s32 flags;
+} O_A4C0;
+typedef struct { u8 pad0[8]; u16 t; u8 pad[0xA]; u8 *rec; } C_A4C0;
+extern M_A4C0 D_8006B3C0_a asm("D_8006B3C0");
+s32 rsin_a(s32) asm("func_80025044");
+void RotMatrix_a(s16 *, M_A4C0 *) asm("RotMatrix_gte");
+void RotMatrixZYX_a(s16 *, M_A4C0 *) asm("RotMatrixZYX_gte");
+void ScaleMatrix_a(M_A4C0 *, V_A4C0 *) asm("ScaleMatrix");
+
+static inline s32 wave_A4C0(C_A4C0 *c, W_A4C0 *w) {
+    s32 v;
+    if (w->freq != 0) {
+        v = rsin_a((c->t & 0xFFF) * w->freq + w->phase) * w->amp * 16;
+    } else {
+        v = 0;
+    }
+    return v;
+}
+
+void f_A4C0(C_A4C0 *c, O_A4C0 *o) asm("func_8003A4C0");
+void f_A4C0(C_A4C0 *c, O_A4C0 *o) {
+    R_A4C0 *r;
+    V_A4C0 x;
+    V_A4C0 d;
+    V_A4C0 s;
+    u16 hb[2];
+
+    for (r = (R_A4C0 *)c->rec; r != NULL;) {
+        *(u16 *)hb = r->hdr;
+        if (((H_A4C0 *)hb)->op == 0) {
+            break;
+        }
+        switch (((H_A4C0 *)hb)->op) {
+        case 8:
+            o->pos.vx = r->w[0].amp << 16;
+            o->pos.vy = r->w[0].freq << 16;
+            o->pos.vz = r->w[0].phase << 16;
+            break;
+        case 0x12:
+            o->scale[0] = r->w[0].amp;
+            o->scale[1] = r->w[0].freq;
+            o->scale[2] = r->w[0].phase;
+            break;
+        case 0x19:
+            o->rot[0] = r->w[0].amp;
+            o->rot[1] = r->w[0].freq;
+            o->rot[2] = r->w[0].phase;
+            break;
+        case 0x20:
+            o->a68[0] = r->w[0].amp;
+            o->a68[1] = r->w[0].freq;
+            o->a68[2] = r->w[0].phase;
+            break;
+        case 9:
+            d.vx = wave_A4C0(c, &r->w[0]);
+            d.vy = wave_A4C0(c, &r->w[1]);
+            d.vz = wave_A4C0(c, &r->w[2]);
+            o->pos.vx += d.vx;
+            o->pos.vy += d.vy;
+            o->pos.vz += d.vz;
+            break;
+        case 0x14:
+            o->scale[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->scale[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->scale[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x16:
+            o->a56[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->a56[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->a56[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x1B:
+            o->a62[0] = r->w[0].amp;
+            o->a62[1] = r->w[0].freq;
+            o->a62[2] = r->w[0].phase;
+            break;
+        case 0x1C:
+            o->rot[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->rot[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->rot[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x1F:
+            o->a62[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->a62[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->a62[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x21:
+            o->a68[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->a68[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->a68[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x23:
+            o->a6E[0] += wave_A4C0(c, &r->w[0]) >> 16;
+            o->a6E[1] += wave_A4C0(c, &r->w[1]) >> 16;
+            o->a6E[2] += wave_A4C0(c, &r->w[2]) >> 16;
+            break;
+        case 0x22:
+            o->a6E[0] = r->w[0].amp;
+            o->a6E[1] = r->w[0].freq;
+            o->a6E[2] = r->w[0].phase;
+            break;
+        }
+        if (((H_A4C0 *)hb)->jmp) {
+            r = *(R_A4C0 **)((u8 *)r + ((((H_A4C0 *)r)->len + 3) & 0x7C));
+        } else {
+            r = (R_A4C0 *)((u8 *)r + ((H_A4C0 *)hb)->len);
+        }
+    }
+    if (*(s32 *)&o->rot[0] != 0 || o->rot[2] != 0) {
+        if (*(u16 *)((u8 *)o + 0x8A) & 1) {
+            RotMatrixZYX_a(o->rot, &o->m);
+        } else {
+            RotMatrix_a(o->rot, &o->m);
+        }
+    } else {
+        o->m = D_8006B3C0_a;
+    }
+    if (*(s32 *)&o->scale[0] != 0 || o->scale[2] != 0) {
+        s.vx = o->scale[0];
+        s.vy = o->scale[1];
+        s.vz = o->scale[2];
+        ScaleMatrix_a(&o->m, &s);
+    }
+    if (o->a62[0] != 0 || *(s32 *)&o->a62[1] != 0) {
+        o->flags |= 0x200000;
+    }
+    if (*(s32 *)&o->scale[0] != 0x10001000 || *(s32 *)&o->scale[2] != 0x1000 || *(s32 *)&o->a56[1] != 0) {
+        o->flags |= 0x400000;
+    }
+}
 
 typedef struct {
     u8 pad0[0x10];
@@ -1835,5 +1980,4 @@ void func_8003C988(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C9C8);
-INCLUDE_RODATA("asm/nonmatchings/game/unk_8002FE30", D_80063598);
 
