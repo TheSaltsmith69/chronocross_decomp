@@ -556,7 +556,38 @@ void func_8004C664(Unk80051F24 *ch_, u32 bit) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CADC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004CF6C);
+typedef struct { s32 w0; s16 h4; s16 h6; } SCF6C;
+extern SCF6C D_8008AC00_z8[] asm("D_8008AC00");
+extern u8 *D_8008BE50_z8 asm("D_8008BE50");
+extern u8 D_80087980_z8[] asm("D_80087980");
+void f_4D2D4_z8(void *, s32) asm("func_8004D2D4");
+s32 func_8004CF6C(s32 arg0) {
+    s32 i;
+    s16 best;
+    s32 idx;
+    SCF6C *p;
+    if (arg0 != 0) {
+        i = 0;
+    } else {
+        i = *(s32 *)(D_8008BE50_z8 + 0x3C);
+    }
+    best = 0x7FFF;
+    idx = 0x18;
+    p = &D_8008AC00_z8[i];
+    do {
+        if (p->h4 < best) {
+            best = p->h4;
+            idx = i;
+        }
+        i++;
+        p++;
+    } while (i < 0x18);
+    if (best == 0x7FFF) {
+        return 0x18;
+    }
+    f_4D2D4_z8(D_80087980_z8, idx);
+    return idx;
+}
 
 typedef struct Env8004D01C {
     s32 unk0;

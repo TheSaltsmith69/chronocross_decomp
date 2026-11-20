@@ -264,7 +264,34 @@ void func_8003FA64(void) {
     func_80022974();
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003FAB4);
+typedef struct { s16 x, y, w, h; } RectFAB4;
+extern u16 D_8007E9E8_z8[] asm("D_8007E9E8");
+extern u8 D_8006B3F7_z8 asm("D_8006B3F7");
+s32 SetDispMask_z8(s32) asm("SetDispMask");
+s32 ClearImage_z8(RectFAB4 *, s32, s32, s32) asm("ClearImage");
+s32 DrawSync_z8(s32) asm("DrawSync");
+s32 VSync_z8(s32) asm("VSync");
+void f_2B6C0_z8(void) asm("func_8002B6C0");
+void func_8003FAB4(void) {
+    RectFAB4 r;
+    SetDispMask_z8(1);
+    r.w = 640;
+    r.x = 0;
+    r.y = 0;
+    r.h = 224;
+    ClearImage_z8(&r, 0xFF, 0, 0);
+    DrawSync_z8(0);
+    while (1) {
+        if (D_8007E9E8_z8[1] & 0x800) {
+            break;
+        }
+        if (D_8006B3F7_z8 == 0) {
+            __asm__ volatile(".word 0x0001000D");
+        }
+        VSync_z8(0);
+        f_2B6C0_z8();
+    }
+}
 
 typedef struct Obj8003FB60 {
     u8 pad[0x1F4];

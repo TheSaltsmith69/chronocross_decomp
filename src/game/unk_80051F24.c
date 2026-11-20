@@ -559,7 +559,25 @@ void func_80053FFC(Unk80051F24 *arg0) {
     ch->unk6C = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054048);
+typedef struct { u8 pad[0x24]; s32 w24; s32 w28; u8 pad2[0x6C - 0x2C]; u16 h6C; } S54048;
+extern S54048 *D_8008BE50_y2 asm("D_8008BE50");
+void func_80054048(u8 **arg0) {
+    S54048 *b = D_8008BE50_y2;
+    u8 *p;
+    s32 v;
+    s32 t;
+    s32 old;
+    b->h6C = v = *(*arg0)++;
+    if (v == 0) {
+        b->h6C = 0x100;
+    }
+    p = *arg0;
+    t = (p[0] << 16) | (p[1] << 24);
+    *arg0 = p + 2;
+    old = D_8008BE50_y2->w24 & 0xFFFF0000;
+    D_8008BE50_y2->w28 = (t - old) / D_8008BE50_y2->h6C;
+    D_8008BE50_y2->w24 = old;
+}
 
 void func_800540E8(Unk80051F24 *arg0) {
     Unk80051F24 *cur = D_8008BE50;

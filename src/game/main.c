@@ -970,7 +970,22 @@ INCLUDE_ASM("asm/nonmatchings/game/main", func_80020EDC);
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_80021518);
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_80021B54);
+typedef struct { s32 a[4]; } Q21B54;
+typedef struct { u8 c[4]; } C21B54;
+typedef struct { Q21B54 q; C21B54 c; s32 w14; s32 w18; } E21B54;
+extern E21B54 D_8007E8A8_z8[] asm("D_8007E8A8");
+void f_21C0C_z8(void) asm("func_80021C0C");
+void func_80021B54(s32 arg0, Q21B54 *arg1, C21B54 *arg2, s32 arg3, s32 arg4) {
+    if (arg0 < 3) {
+        if (arg1 == NULL) {
+            f_21C0C_z8();
+        }
+        D_8007E8A8_z8[arg0].q = *arg1;
+        D_8007E8A8_z8[arg0].c = *arg2;
+        D_8007E8A8_z8[arg0].w14 = arg3;
+        D_8007E8A8_z8[arg0].w18 = arg4;
+    }
+}
 
 typedef struct {
     u8 pad0[0x14];
