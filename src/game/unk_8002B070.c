@@ -519,7 +519,28 @@ void func_8002E574(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E5B8);
+s32 *f_3099C_e(s32) asm("func_8003099C");
+s32 *f_309D0_e(s32) asm("func_800309D0");
+s32 f_41F0C_e(s32, s32) asm("func_80041F0C");
+void f_2A228_e(s32) asm("func_8002A228");
+void f_2B41C_e(void) asm("func_8002B41C");
+void *f_3C630_e(s32, void *) asm("func_8003C630");
+void f_2E574_e(void *) asm("func_8002E574");
+void func_8002E5B8(void) {
+    s32 *a = f_3099C_e(0);
+    s32 *b = f_309D0_e(0);
+    s32 name;
+    if (*a == *b && f_41F0C_e(0x10, 0x6E776F) != 0) {
+        name = 0x6E776F;
+    } else if (f_41F0C_e(0x10, 0x6E69616D) != 0) {
+        name = 0x6E69616D;
+    } else {
+        return;
+    }
+    f_2A228_e(name);
+    f_2B41C_e();
+    f_2E574_e(f_3C630_e(8, f_2E574_e));
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E660);
 

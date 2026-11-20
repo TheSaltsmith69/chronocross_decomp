@@ -575,7 +575,24 @@ void func_800540E8(Unk80051F24 *arg0) {
     cur->unk4C = hi;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80054130);
+typedef struct { u8 pad[0x4C]; s32 w4C; s32 w50; u8 pad2[0x6A - 0x54]; s16 h6A; } S54130;
+extern S54130 *D_8008BE50_w asm("D_8008BE50");
+void func_80054130(u8 **arg0) {
+    S54130 *b = D_8008BE50_w;
+    u8 *p;
+    s32 t;
+    s32 old;
+    b->h6A = *(*arg0)++;
+    if (b->h6A == 0) {
+        b->h6A = 0x100;
+    }
+    p = *arg0;
+    t = ((s8)p[1] << 20) | (p[0] << 12);
+    *arg0 = p + 2;
+    old = D_8008BE50_w->w4C & ~0xFFF;
+    D_8008BE50_w->w50 = (t - old) / D_8008BE50_w->h6A;
+    D_8008BE50_w->w4C = old;
+}
 
 void func_800541D8(u8 **arg0) {
     u8 *p = *arg0;

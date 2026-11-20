@@ -705,7 +705,27 @@ void func_80032A54(S32A54 *arg0) {
     D_8006B22E_b = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032AAC);
+typedef struct N32AAC { struct N32AAC *next; s32 unk4; void *a; void *b; void *c; } N32AAC;
+extern N32AAC *D_8006B210_z9 asm("D_8006B210");
+void f_3D504_z9(void *) asm("func_8003D504");
+void func_80032AAC(N32AAC *arg0) {
+    N32AAC *n;
+    for (n = arg0->next = D_8006B210_z9; n != NULL; n = n->next) {
+        if (n->a != NULL) {
+            f_3D504_z9(n->a);
+            n->a = NULL;
+        }
+        if (n->b != NULL) {
+            f_3D504_z9(n->b);
+            n->b = NULL;
+        }
+        if (n->c != NULL) {
+            f_3D504_z9(n->c);
+            n->c = NULL;
+        }
+    }
+    D_8006B210_z9 = arg0;
+}
 
 typedef struct Node80032B54 {
     struct Node80032B54 *next;
@@ -2067,7 +2087,22 @@ s16 func_8003BEA0(void *arg0) {
     return ((s16 *)func_80041F6C(arg0))[3];
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BEC4);
+typedef struct { u8 pad[8]; s16 h8; s16 hA; s16 hC; s16 hE; u32 b0 : 1; u32 b1 : 9; u32 b10 : 1; u32 rest : 21; } S3BEC4;
+void f_3B238_e(void *) asm("func_8003B238");
+void func_8003BEC4(S3BEC4 *arg0, s32 arg1) {
+    if (arg1 != 0) {
+        if (!arg0->b0) {
+            f_3B258_d(arg0);
+        }
+    } else if (arg0->b0) {
+        f_3B238_e(arg0);
+        if (arg0->b10) {
+            arg0->h8 = 0;
+            arg0->hC = 1;
+        }
+    }
+    arg0->b0 = arg1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BF6C);
 
