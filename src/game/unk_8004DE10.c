@@ -1014,7 +1014,39 @@ void func_80050DF8(void) {
     D_8008E404_s &= ~1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050E94);
+void func_80050E94(void) {
+    u32 m;
+    if (D_8008BEB0_z2[0] != 0) {
+        u32 bit;
+        u32 i;
+        S503A8 *p;
+        s32 ch;
+        m = D_8008BEB0_z2[0];
+        p = D_80089E40_w;
+        bit = 0x1000;
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && (p->unk28 & 0x2000000)) {
+                m &= ~bit;
+            }
+        }
+        bit = 0x1000;
+        ch = 12;
+        D_8008BEB0_z2[4] = m;
+        D_8008BEB0_z2[0] &= ~m;
+        while (m != 0) {
+            if (m & bit) {
+                f_4BDE0_z2(ch, 0, 0, 0);
+                f_4BE28_z2(ch, 0);
+                f_4BEA8_z2(ch, 0x7F, 1);
+                f_4BF28_z2(ch, 0x7F, 3);
+                m &= ~bit;
+            }
+            bit <<= 1;
+            ch++;
+        }
+    }
+    D_8008E404_z2 |= 2;
+}
 
 extern u32 D_8008BEC0_r asm("D_8008BEC0");
 extern u32 D_8008BEB0_r[] asm("D_8008BEB0");
