@@ -57,7 +57,37 @@ void func_80019510(void) {
     D_8006CE2C_b.lo = 0xB;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019550);
+typedef struct { u8 d[0x4000]; } B19550;
+typedef struct { u32 lo : 4; u32 hi : 4; u32 rest : 24; } W19550;
+extern u8 D_8006401C_y2 asm("D_8006401C");
+extern B19550 *D_8007240C_y2 asm("D_8007240C");
+extern B19550 D_80072680_y2 asm("D_80072680");
+extern s32 D_80072398_y2 asm("D_80072398");
+extern s32 D_80076684_y2 asm("D_80076684");
+extern W19550 D_8006CE2C_y2 asm("D_8006CE2C");
+void f_191D4_y2(void) asm("func_800191D4");
+s32 f_44DD4_y2(void) asm("func_80044DD4");
+void f_4AC00_y2(s32, s32) asm("func_8004AC00");
+s32 VSync_y2(s32) asm("VSync");
+s32 f_4A030_y2(void *) asm("func_8004A030");
+void f_3D504_y2(s32) asm("func_8003D504");
+void f_192E8_y2(void) asm("func_800192E8");
+void f_4A058_y2(s32) asm("func_8004A058");
+void func_80019550(void) {
+    D_8006401C_y2 = 0;
+    f_191D4_y2();
+    while (f_44DD4_y2() != 0) {
+    }
+    D_80072680_y2 = *D_8007240C_y2;
+    f_4AC00_y2(D_80072398_y2, 1);
+    VSync_y2(2);
+    D_80076684_y2 = f_4A030_y2(&D_80072680_y2);
+    f_3D504_y2(D_80072398_y2);
+    f_192E8_y2();
+    f_4A058_y2(D_80076684_y2);
+    D_8006CE2C_y2.hi = 5;
+    D_8006CE2C_y2.lo = 0xB;
+}
 
 extern u16 D_8006EBB6;
 extern u8 D_80064030[];

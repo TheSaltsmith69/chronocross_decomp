@@ -210,7 +210,31 @@ s32 func_8003D9E0(void) {
     return D_8006B434_z9 - 8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DA88);
+extern u32 *D_8007EE54_y2 asm("D_8007EE54");
+extern s32 D_8006B430_y2 asm("D_8006B430");
+extern s32 D_8006B434_y2 asm("D_8006B434");
+extern void *D_8006B438_y2 asm("D_8006B438");
+s32 func_8003DA88(void) {
+    u32 *p = D_8007EE54_y2;
+    D_8006B430_y2 = 0;
+    D_8006B434_y2 = 0;
+    while (p != NULL) {
+        s32 sz;
+        sz = (*p - (u32)p) & 0x7FFFFF;
+        if (*p == 0) {
+            sz = 0;
+        }
+        if (((p[1] >> 21) & 7) == 0) {
+            if (D_8006B434_y2 < sz) {
+                D_8006B438_y2 = p + 0x10;
+                D_8006B434_y2 = sz;
+            }
+            D_8006B430_y2 += sz;
+        }
+        p = (u32 *)*p;
+    }
+    return D_8006B430_y2;
+}
 
 extern u8 D_8006B3F4_b asm("D_8006B3F4");
 extern s8 D_8006B3EC_c asm("D_8006B3EC");

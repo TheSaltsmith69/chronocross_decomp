@@ -481,7 +481,22 @@ void func_8002CBF0(void) {
     f_2CA80_t(0x666F6F72);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CC14);
+typedef struct { s16 cur; s16 total; s16 from; s16 to; } F2CC14;
+extern s16 D_800D8688_y2 asm("D_800D8688");
+void func_8002CC14(F2CC14 *arg0) {
+    s16 v;
+    if (D_1F800010_y1 != 0) {
+        if (arg0->total != 0) {
+            v = arg0->from + (arg0->to - arg0->from) * arg0->cur / arg0->total;
+        }
+        arg0->cur += D_1F800010_y1;
+        if (arg0->total < arg0->cur) {
+            v = arg0->to;
+            f_33F20_y1(arg0);
+        }
+        D_800D8688_y2 = v;
+    }
+}
 
 extern void *D_8006AF58_p asm("D_8006AF58");
 void f_3D504_c(void *) asm("func_8003D504");
