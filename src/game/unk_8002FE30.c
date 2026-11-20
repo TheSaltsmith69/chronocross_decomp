@@ -697,7 +697,13 @@ s32 func_80032A08(s32 arg0) {
     N32A08 *n = D_8006B210_n; if (n == NULL) return 0; do { if (arg0 == 0 || n->unk18 == arg0) return 1; n = n->next; } while (n != NULL); return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032A54);
+typedef struct { s32 w[8]; } S32A54;
+extern S32A54 D_8007ED70_s asm("D_8007ED70");
+extern u8 D_8006B22E_b asm("D_8006B22E");
+void func_80032A54(S32A54 *arg0) {
+    D_8007ED70_s = *arg0;
+    D_8006B22E_b = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032AAC);
 
@@ -806,7 +812,20 @@ void func_80032D78(s32 arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032DD0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032E60);
+extern u16 D_8007ED58_h[] asm("D_8007ED58");
+extern u16 D_8007ED98_h[] asm("D_8007ED98");
+extern s32 D_8007ED90_w asm("D_8007ED90");
+extern s32 D_8006B23C_x asm("D_8006B23C");
+void func_80032E60(u16 *arg0, u16 *arg1, s32 arg2, s32 arg3) {
+    D_8007ED58_h[0] = arg0[0];
+    D_8007ED58_h[1] = arg0[1];
+    D_8007ED58_h[2] = arg0[2];
+    D_8007ED90_w = arg2;
+    D_8007ED98_h[0] = arg1[0];
+    D_8007ED98_h[1] = arg1[1];
+    D_8007ED98_h[2] = arg1[2];
+    D_8006B23C_x = arg3;
+}
 
 typedef struct {
     s16 vx, vy, vz, pad;
@@ -2064,7 +2083,16 @@ s32 func_8003C8CC(s16 *arg0, u16 *arg1) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C930);
+typedef struct { s32 t; s32 arg; void (*fn)(s32); } T3C930;
+extern s16 D_1F800010_h asm("D_1F800010");
+void f_33F20_d(void *) asm("func_80033F20");
+void func_8003C930(T3C930 *arg0) {
+    arg0->t -= D_1F800010_h;
+    if (arg0->t < 0) {
+        arg0->fn(arg0->arg);
+        f_33F20_d(arg0);
+    }
+}
 
 void SetFogNearFar(s32, s32, s32);
 extern s16 D_8007EDE8;

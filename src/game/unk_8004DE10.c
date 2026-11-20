@@ -1,9 +1,25 @@
 #include "common.h"
 #include "sound.h"
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004DE10);
+typedef struct { u8 pad[0x7E]; u16 h7E; u8 pad80[0x110 - 0x80]; s32 w110; s32 w114; } S4DE10;
+u16 func_8004DE10(s32 arg0, S4DE10 *arg1) {
+    if ((arg0 & 0x20) && (u32)(arg1->h7E - 0x20) < 0x40) {
+        arg1->w110 += 0x30000;
+        arg1->w114 += 0x30000;
+        arg1->h7E += 0x20;
+    }
+    return arg1->h7E;
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004DE64);
+typedef struct { u8 pad[0x7E]; u16 h7E; u8 pad80[0x110 - 0x80]; s32 w110; s32 w114; } S4DE64;
+u16 func_8004DE64(s32 arg0, S4DE64 *arg1) {
+    if ((arg0 & 0x20) && (u32)(arg1->h7E - 0x20) < 0x40) {
+        arg1->w110 -= 0x30000;
+        arg1->w114 -= 0x30000;
+        arg1->h7E -= 0x20;
+    }
+    return arg1->h7E;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004DEB8);
 
@@ -168,7 +184,27 @@ void func_8004ED00(s32 *arg0, Unk80051F24 *ch) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004ED48);
+typedef struct { u8 pad[0x10C]; u32 unk10C; u8 pad2[0x124 - 0x110]; } S4ED48;
+extern S4ED48 D_80089E40_s[] asm("D_80089E40");
+extern u32 D_8008BEB0_w asm("D_8008BEB0");
+void func_8004ED48(void) {
+    u32 m;
+    u32 bit;
+    S4ED48 *p;
+    if (D_8008BEB0_w != 0) {
+        m = D_8008BEB0_w;
+        bit = 0x1000;
+        p = D_80089E40_s;
+        do {
+            if (m & bit) {
+                m ^= bit;
+                p->unk10C |= 3;
+            }
+            p++;
+            bit <<= 1;
+        } while (m != 0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004ED9C);
 
@@ -353,7 +389,29 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800504E4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800505C4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8005074C);
+typedef struct {
+    u8 pad0[0x28];
+    u32 unk28;
+    u8 pad2C[0x54 - 0x2C];
+    s32 unk54;
+    u8 pad58[0x9A - 0x58];
+    s16 unk9A;
+    u8 pad9C[0x10C - 0x9C];
+    u32 unk10C;
+    u8 pad110[0x124 - 0x110];
+} S5074C;
+extern S5074C D_80089E40_t[] asm("D_80089E40");
+void func_8005074C(u8 *arg0) {
+    s32 i;
+    S5074C *p = D_80089E40_t;
+    for (i = 12; i != 0; i--, p++) {
+        if (!(p->unk28 & 0x2000000)) {
+            p->unk54 = *arg0 << 8;
+            p->unk9A = 0;
+            p->unk10C |= 0x10;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800507A4);
 
