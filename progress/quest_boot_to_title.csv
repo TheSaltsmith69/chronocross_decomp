@@ -403,7 +403,7 @@ order,seconds,addr,name,category,file,bytes,matched
 402,61.89,8003C8CC,func_8003C8CC,game,game/unk_8002FE30,100,1
 403,61.90,80043B30,func_80043B30,game,game/unk_8003FD00,988,0
 404,61.91,80037CA8,func_80037CA8,game,game/unk_8002FE30,448,1
-405,61.92,8003A4C0,func_8003A4C0,game,game/unk_8002FE30,2852,0
+405,61.92,8003A4C0,func_8003A4C0,game,game/unk_8002FE30,2852,1
 406,61.93,8003C7F4,func_8003C7F4,game,game/unk_8002FE30,216,1
 407,61.95,80026A6C,Square0,lib,lib/libgte/smp_00,40,0
 408,61.96,80027684,func_80027684,lib,lib/libgte/ratan,384,0
