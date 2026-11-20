@@ -421,7 +421,49 @@ void func_8004F5D8(s32 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004F688);
+void f_4EA90_y1(s32 *, u8 *, u8 *, s32) asm("func_8004EA90");
+void func_8004F688(s32 *arg0) {
+    u8 *h = (u8 *)arg0[0];
+    s32 *tbl;
+    s32 n;
+    u8 *base;
+    u16 *p;
+    u8 *a;
+    u8 *b;
+    arg0[4] = 0;
+    tbl = (s32 *)(h + 0x10);
+    n = *(s32 *)(h + 4);
+    base = (u8 *)tbl + n * 4;
+    p = (u16 *)(base + *(s32 *)(h + 0x10));
+    if (*p != 0xFFFF) {
+        a = (u8 *)(*p + (s32)p) + 4;
+    } else {
+        a = NULL;
+    }
+    p++;
+    if (*p != 0xFFFF) {
+        b = (u8 *)(*p + (s32)p) + 2;
+    } else {
+        b = NULL;
+    }
+    f_4EA90_y1(arg0, a, b, 0);
+    for (n--; n != 0; n--) {
+        tbl++;
+        p = (u16 *)(base + *tbl);
+        if (*p != 0xFFFF) {
+            a = (u8 *)(*p + (s32)p) + 4;
+        } else {
+            a = NULL;
+        }
+        p++;
+        if (*p != 0xFFFF) {
+            b = (u8 *)(*p + (s32)p) + 2;
+        } else {
+            b = NULL;
+        }
+        f_4EA90_y1(arg0, a, b, 1);
+    }
+}
 
 void func_8004E538(s32, s32);
 void func_8004F7A8(s32 *arg0) {

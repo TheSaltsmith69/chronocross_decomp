@@ -387,7 +387,27 @@ void func_8002C1BC(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002C1C8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002C334);
+typedef struct { u8 r, g, b, a; } C2C334;
+typedef struct { s16 cur; s16 total; C2C334 from; C2C334 to; } F2C334;
+extern s16 D_1F800010_y1 asm("D_1F800010");
+void f_33F20_y1(void *) asm("func_80033F20");
+void f_3C304_y1(s32, s32, s32) asm("func_8003C304");
+void func_8002C334(F2C334 *arg0) {
+    C2C334 c;
+    if (D_1F800010_y1 != 0) {
+        if (arg0->total != 0) {
+            c.r = arg0->from.r + (arg0->to.r - arg0->from.r) * arg0->cur / arg0->total;
+            c.g = arg0->from.g + (arg0->to.g - arg0->from.g) * arg0->cur / arg0->total;
+            c.b = arg0->from.b + (arg0->to.b - arg0->from.b) * arg0->cur / arg0->total;
+        }
+        arg0->cur += D_1F800010_y1;
+        if (arg0->total < arg0->cur) {
+            c = arg0->to;
+            f_33F20_y1(arg0);
+        }
+        f_3C304_y1(c.r, c.g, c.b);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002C460);
 
