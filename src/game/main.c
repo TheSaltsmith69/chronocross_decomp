@@ -515,7 +515,11 @@ void func_8001C164(void) {
     ChangeClearPAD(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C184);
+void func_8001C184(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5) {
+    arg0[0] = (arg1[0] * ((arg2[0] * arg4 + arg3[0] * arg5) >> 12)) >> 7;
+    arg0[1] = (arg1[1] * ((arg2[1] * arg4 + arg3[1] * arg5) >> 12)) >> 7;
+    arg0[2] = (arg1[2] * ((arg2[2] * arg4 + arg3[2] * arg5) >> 12)) >> 7;
+}
 
 void func_8001C244(u8 *arg0, u8 *arg1, u8 *arg2) {
     arg0[0] = (arg1[0] * arg2[0]) >> 7;

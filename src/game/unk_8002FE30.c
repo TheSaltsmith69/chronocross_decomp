@@ -1921,7 +1921,26 @@ void func_8003B610(void *arg0) {
     p[4] |= 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B660);
+typedef struct { u8 pad[8]; s16 h8; s16 hA; s16 hC; s16 hE; u32 b0 : 1; u32 b1 : 9; u32 b10 : 1; u32 rest : 21; } S3B660;
+void *f_4208C_z7(void *, s32, s32) asm("func_8004208C");
+S3B660 *f_41F6C_z7(void *) asm("func_80041F6C");
+void f_3B238_z7(void *) asm("func_8003B238");
+void func_8003B660(s32 arg0) {
+    void *p = NULL;
+    while ((p = f_4208C_z7(p, 10, arg0)) != NULL) {
+        S3B660 *q = f_41F6C_z7(p);
+        if (q->b0) {
+            f_3B238_z7(q);
+            if (q->b10) {
+                q->h8 = 0;
+                q->hC = 1;
+            }
+        }
+        q->h8 = 0;
+        q->hC = 1;
+        q->b0 = 0;
+    }
+}
 
 typedef struct { u8 pad[0x10]; u32 w10; } S3B720b;
 void *f_4208C_d(void *, s32, s32) asm("func_8004208C");
@@ -1942,7 +1961,32 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B7BC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B8C8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B9A8);
+extern s16 D_1F800010_z7 asm("D_1F800010");
+extern u8 D_1F800000_z7 asm("D_1F800000");
+s32 func_8003B9A8(u8 *arg0) {
+    s32 h = *(s16 *)(arg0 + 0x7C);
+    s32 pos;
+    s32 vel;
+    s32 n;
+    s32 acc;
+    if (h != 0 && h - D_1F800010_z7 <= 0) {
+        return 1;
+    }
+    pos = *(s32 *)(arg0 + 4);
+    vel = *(s32 *)(arg0 + 0x14);
+    acc = *(s32 *)(arg0 + 0x24);
+    for (n = D_1F800010_z7; n != 0; n--) {
+        pos += vel << D_1F800000_z7;
+        vel += acc;
+        if (*(s16 *)(arg0 + 0x84) != 0) {
+            vel = ((vel >> 6) * *(s16 *)(arg0 + 0x84)) >> 6;
+        }
+    }
+    if (((*(u32 *)(arg0 + 0x88) >> 4) & 1) && ((*(u16 *)(arg0 + 0x82) << D_1F800000_z7) << 16) < pos) {
+        return 1;
+    }
+    return 0;
+}
 
 s32 func_8003BA64(u8 *arg0) {
     u16 *p = *(u16 **)(arg0 + 0x14);
@@ -2215,7 +2259,21 @@ outer:
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C714);
+typedef struct { u8 pad[0xA]; s16 hA; s16 hC; s16 hE; u32 b0 : 3; u32 b3 : 6; u32 rest : 23; } S3C714;
+void f_34024_z7(void *) asm("func_80034024");
+s32 rand_z7(void) asm("rand");
+void func_8003C714(S3C714 *arg0) {
+    if (--arg0->hC == -1) {
+        s32 i;
+        for (i = 0; i <= arg0->hE; i++) {
+            f_34024_z7(arg0);
+        }
+        arg0->hC = arg0->hA;
+        if (arg0->b3 != 0) {
+            arg0->hC += (rand_z7() % arg0->b3) * 2;
+        }
+    }
+}
 
 void func_80043B30();
 void func_8003C7D0(s32 *arg0) {
