@@ -209,7 +209,7 @@ lib/unk_80029AA4,lib,80029AA4,13,0,5012,0
 lib/libsn/creat,lib,8002AE38,2,0,224,0
 lib/libsn/snwrite,lib,8002AF18,1,0,24,0
 lib/libgte/mtx_00a,lib,8002AF30,1,0,320,0
-game/unk_8002B070,game,8002B070,65,44,18416,5340
+game/unk_8002B070,game,8002B070,65,47,18416,6312
 lib/libgte/fgo_03,lib,8002F860,1,0,656,0
 lib/libgte/fgo_04,lib,8002FAF0,1,0,416,0
 lib/libgte/fgo_05,lib,8002FC90,1,0,416,0
