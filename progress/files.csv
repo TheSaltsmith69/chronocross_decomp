@@ -209,7 +209,7 @@ lib/unk_80029AA4,lib,80029AA4,13,0,5012,0
 lib/libsn/creat,lib,8002AE38,2,0,224,0
 lib/libsn/snwrite,lib,8002AF18,1,0,24,0
 lib/libgte/mtx_00a,lib,8002AF30,1,0,320,0
-game/unk_8002B070,game,8002B070,65,37,18416,4152
+game/unk_8002B070,game,8002B070,65,38,18416,4276
 lib/libgte/fgo_03,lib,8002F860,1,0,656,0
 lib/libgte/fgo_04,lib,8002FAF0,1,0,416,0
 lib/libgte/fgo_05,lib,8002FC90,1,0,416,0
@@ -219,7 +219,7 @@ game/unk_8003CB78,game,8003CB78,22,14,4572,1512
 lib/libgte/reg08,lib,8003DD54,1,0,32,0
 game/unk_8003DD74,game,8003DD74,20,12,8060,1968
 lib/libapi/a13,lib,8003FCF0,1,0,16,0
-game/unk_8003FD00,game,8003FD00,39,20,17040,5632
+game/unk_8003FD00,game,8003FD00,39,21,17040,5756
 game/unk_80043F90,game,80043F90,51,51,23648,23648
 lib/libcd/event,lib,80049BF0,5,0,336,0
 lib/libgte/mtx_04,lib,80049D40,1,0,272,0
@@ -240,12 +240,12 @@ game/unk_8004BD54,game,8004BD54,32,29,8220,5528
 lib/libspu/s_snc,lib,8004DD70,1,0,80,0
 lib/libspu/s_gvex,lib,8004DDC0,1,0,32,0
 lib/libspu/s_srmd,lib,8004DDE0,1,0,48,0
-game/unk_8004DE10,game,8004DE10,71,36,14516,5208
+game/unk_8004DE10,game,8004DE10,71,40,14516,5696
 lib/libspu/s_srmt,lib,800516C4,1,0,464,0
 lib/libspu/s_sra,lib,80051894,1,0,1232,0
 lib/libspu/s_crwa,lib,80051D64,1,0,416,0
 lib/libapi/a10,lib,80051F04,1,0,16,0
 lib/libspu/s_grmt,lib,80051F14,1,0,16,0
-game/unk_80051F24,game,80051F24,128,107,17692,10448
+game/unk_80051F24,game,80051F24,128,111,17692,10932
 lib/libspu/s_sia,lib,80056440,1,0,64,0
 lib/libgte/cmb_07,lib,80056480,1,0,176,0
