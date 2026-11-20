@@ -53,7 +53,15 @@ void func_8003CCB0(void) {
     D_1F800014 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003CCF8);
+typedef struct { s32 a, b; } P8CCF8;
+extern P8CCF8 *D_1F800014_p asm("D_1F800014");
+void f_AddPrim_a(void *, void *) asm("AddPrim");
+void func_8003CCF8(void *arg0, P8CCF8 *arg1) {
+    P8CCF8 *p = D_1F800014_p;
+    *p = *arg1;
+    D_1F800014_p = p + 1;
+    f_AddPrim_a(arg0, p);
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_8003CB78", D_800635E4);
 
@@ -181,7 +189,14 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003D9E0);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DA88);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DB34);
+extern u8 D_8006B3F4_b asm("D_8006B3F4");
+extern s8 D_8006B3EC_c asm("D_8006B3EC");
+u8 f_33B4B4_a(void) asm("func_8033B4B4");
+u8 func_8003DB34(void) {
+    if (D_8006B3F4_b != 0 && D_8006B3EC_c != 0) {
+        return f_33B4B4_a();
+    }
+}
 
 extern s32 D_8007EE4C;
 void func_8003DB78(s32 arg0) {

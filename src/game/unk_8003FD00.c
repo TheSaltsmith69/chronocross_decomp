@@ -69,7 +69,23 @@ void *func_80041F6C(Unk80041F6C *arg0) {
     return (void *)arg0->unkC;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041F94);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    u32 lo : 6;
+    u32 b6 : 1;
+    u32 b7 : 1;
+    u32 mid : 6;
+    u32 f14 : 17;
+    u32 top : 1;
+} Bf41F94;
+void func_80041F94(Bf41F94 *arg0) {
+    arg0->unk4 = 0x30;
+    arg0->f14 = 3;
+    arg0->lo = 7;
+    arg0->b6 = 0;
+    arg0->b7 = 0;
+}
 
 void DrawSync(s32);
 void func_80041820(s32);

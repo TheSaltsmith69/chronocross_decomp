@@ -73,7 +73,12 @@ void func_8004A0F0(s32 arg0, s32 arg1) {
     f_5134C_u(0x19);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A124);
+void func_8004A124(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1;
+    D_8008BEE0_a[2] = arg2 & 0x7F;
+    f_5134C_u(0x1A);
+}
 
 void func_8004A15C(s32 arg0, s32 arg1) {
     D_8008BEE0_a[0] = arg0;
@@ -157,7 +162,12 @@ void func_8004A5B0(s32 arg0, s32 arg1) {
     f_5134C_u(0xA9);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A5E4);
+void func_8004A5E4(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2 & 0x7F;
+    f_5134C_u(0xA0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A628);
 
@@ -218,7 +228,12 @@ void func_8004A8F4(s32 arg0, s32 arg1) {
     f_5134C_u(0xC4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A928);
+void func_8004A928(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1;
+    D_8008BEE0_a[2] = arg2 & 0x7F;
+    f_5134C_u(0xC5);
+}
 
 void func_8004A960(s32 arg0) {
     D_8008BEE0_t = arg0;
@@ -249,7 +264,12 @@ void func_8004AA18(s32 arg0, s32 arg1) {
     f_5134C_u(0xD1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AA4C);
+void func_8004AA4C(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    f_5134C_u(0xD2);
+}
 
 void func_8004AA88(s32 arg0) {
     D_8008BEE0_t = arg0 & 0xFF;
@@ -262,7 +282,12 @@ void func_8004AAB4(s32 arg0, s32 arg1) {
     f_5134C_u(0xD5);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AAE8);
+void func_8004AAE8(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    f_5134C_u(0xD6);
+}
 
 void func_8004AB24(s32 arg0) {
     D_8008BEE0_t = arg0 & 0xFF;
@@ -275,7 +300,12 @@ void func_8004AB50(s32 arg0, s32 arg1) {
     f_5134C_u(0xD9);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AB84);
+void func_8004AB84(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    f_5134C_u(0xDA);
+}
 
 void func_8004ABC0(void) {
     f_5134C_t(0xF0);

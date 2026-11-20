@@ -14,7 +14,14 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800191D4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_800192E8);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019510);
+typedef struct { u32 lo : 4; u32 hi : 4; u32 rest : 24; } Bf19510;
+extern Bf19510 D_8006CE2C_b asm("D_8006CE2C");
+void f_192E8_a(void) asm("func_800192E8");
+void func_80019510(void) {
+    f_192E8_a();
+    D_8006CE2C_b.hi = 0xA;
+    D_8006CE2C_b.lo = 0xB;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_80019550);
 
