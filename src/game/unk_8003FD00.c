@@ -192,7 +192,21 @@ Unk8006B490 *func_8004227C(u32 arg0, s32 arg1, u32 arg2) {
     return NULL;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800422E8);
+Unk8006B490 *func_800422E8(Unk8006B490 *arg0, u32 arg1, s32 arg2, u32 arg3) {
+    Unk8006B490 *n;
+    if (arg0 != NULL) {
+        n = arg0->next;
+    } else {
+        n = D_8006B490;
+    }
+    for (; n != NULL; n = n->next) {
+        u32 f = n->unk8;
+        if (((f >> 8) & 0x3F) == arg3 && (f & 0x3F) == arg1 && (arg2 == 0 || n->unk4 == arg2)) {
+            return n;
+        }
+    }
+    return NULL;
+}
 
 typedef struct {
     void *next;

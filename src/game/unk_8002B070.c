@@ -88,7 +88,29 @@ s32 func_8002B1CC(s32 a, s32 mode) {
     return v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B2D0);
+void *f_29B50_a(s32) asm("func_80029B50");
+void f_3F884_a(void *, s32) asm("func_8003F884");
+void f_41F94_a(void *) asm("func_80041F94");
+s32 f_29D44_a(s32, s32) asm("func_80029D44");
+void f_41EB4_a(void *, s32) asm("func_80041EB4");
+void f_40DD0_a(void *) asm("func_80040DD0");
+extern s32 D_803DE7B4_w asm("D_803DE7B4");
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    u32 lo : 6;
+    u32 rest : 26;
+} Bf2B2D0;
+Bf2B2D0 *func_8002B2D0(void) {
+    Bf2B2D0 *p = f_29B50_a(0x20);
+    f_3F884_a(p, 0x20);
+    f_41F94_a(p);
+    p->lo = 0x11;
+    p->unk4 = f_29D44_a(0x11, 0);
+    f_41EB4_a(p, D_803DE7B4_w);
+    f_40DD0_a(p);
+    return p;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/unk_8002B070", D_80062B04);
 
