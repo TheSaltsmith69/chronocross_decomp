@@ -408,7 +408,16 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CEB4);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E238);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E284);
+u8 *f_3C630_a(s32, void *) asm("func_8003C630");
+void func_8002C1C8(void);
+void func_8002E284(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    u8 *p = f_3C630_a(0x10, func_8002C1C8);
+    *(u16 *)(p + 4) = 0;
+    p[0xC] = arg0;
+    p[0xD] = arg1;
+    p[0xE] = arg2;
+    *(u16 *)(p + 6) = arg4;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E2EC);
 

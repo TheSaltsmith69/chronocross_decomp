@@ -107,7 +107,17 @@ void func_8004A2A8(s32 arg0) {
     f_5134C_u(0x30);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A2D4);
+typedef struct { u8 pad[0x28]; u32 unk28; u8 pad2[0x124 - 0x2C]; } S4A2D4;
+extern S4A2D4 D_80089E40_v[] asm("D_80089E40");
+extern u32 D_8008BEB0_v asm("D_8008BEB0");
+u32 func_8004A2D4(void) {
+    u32 m; u32 r; u32 bit; S4A2D4 *p;
+    m = D_8008BEB0_v;
+    if (!m) return 0;
+    p = D_80089E40_v; r = 0; bit = 0x1000;
+    do { if (m & bit) { r |= p->unk28; } bit <<= 1; p++; } while ((bit & 0xFFFFFF) != 0);
+    r &= 0xFFFFFF; return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A33C);
 
