@@ -40,6 +40,8 @@ NODIV_SRCS := src/game/main.c src/game/unk_8002B070.c \
               src/game/unk_8002FE30.c src/game/unk_8003CB78.c src/game/unk_8003DD74.c \
               src/game/unk_8003FD00.c
 $(NODIV_SRCS:%.c=$(BUILD)/%.o): MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
+# The field overlay has no divide-by-zero checks either.
+$(BUILD)/src/ov_%.o: MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
 
 ASFLAGS   := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_scripts/undefined_funcs_auto.txt \
@@ -47,15 +49,49 @@ LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_
 
 # Only the asm that the linker script actually uses (not asm/nonmatchings,
 # which is pulled into C files through INCLUDE_ASM).
-S_FILES   := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' 2>/dev/null)
-C_FILES   := $(shell find src -name '*.c' 2>/dev/null)
+S_FILES   := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' -not -path 'asm/ov_*' 2>/dev/null)
+C_FILES   := $(shell find src -name '*.c' -not -path 'src/ov_*' 2>/dev/null)
 BIN_FILES := $(shell find assets -name '*.bin' 2>/dev/null)
 O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES:%.bin=$(BUILD)/%.o)
 
-.PHONY: all split check clean progress
+.DEFAULT_GOAL := all
+
+# ---- Overlays (disc files loaded at runtime; see overlay_map.md) ----
+# Each one is split from iso/files/NNNN.bin (tools/extract_files.py), linked on
+# its own against the main EXE's symbols, and compared with the disc file.
+OVERLAYS      := ov_field
+ov_field_FILE := 0003
+
+define OVERLAY_RULES
+$(1)_S   := $$(shell find asm/$(1) -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
+$(1)_C   := $$(shell find src/$(1) -name '*.c' 2>/dev/null)
+$(1)_O   := $$($(1)_S:%.s=$(BUILD)/%.o) $$($(1)_C:%.c=$(BUILD)/%.o)
+$(1)_LDFLAGS := -EL -nostdlib --no-check-sections -T undefined_funcs.txt \
+                -T linker_scripts/$(1)_undefined_funcs_auto.txt \
+                -T linker_scripts/$(1)_undefined_syms_auto.txt \
+                -T linker_scripts/$(1).ld -Map $(BUILD)/$(1).map
+
+$(BUILD)/$(1).elf: $$($(1)_O) linker_scripts/$(1).ld
+	$$(LD) $$($(1)_LDFLAGS) -o $$@
+
+$(BUILD)/files/$$($(1)_FILE).bin: $(BUILD)/$(1).elf
+	@mkdir -p $$(dir $$@)
+	$$(OBJCOPY) -O binary --gap-fill 0x00 $$< $$@
+
+check-$(1): $(BUILD)/files/$$($(1)_FILE).bin
+	@sha1sum $$< iso/files/$$($(1)_FILE).bin
+	@cmp $$< iso/files/$$($(1)_FILE).bin && echo "OK: $$< matches" || (echo "MISMATCH: $(1)"; exit 1)
+
+split-$(1):
+	$$(PYTHON) -m splat split $(1).yaml
+endef
+$(foreach ov,$(OVERLAYS),$(eval $(call OVERLAY_RULES,$(ov))))
+
+.PHONY: all split check clean progress $(OVERLAYS:%=check-%) $(OVERLAYS:%=split-%)
 .DELETE_ON_ERROR:
 
-all: check
+# Overlays are checked too once they have been extracted into iso/files/.
+all: check $(foreach ov,$(OVERLAYS),$(if $(wildcard iso/files/$($(ov)_FILE).bin),check-$(ov)))
 
 split:
 	$(PYTHON) -m splat split $(BASENAME).yaml

@@ -31,6 +31,22 @@ make split   # disassemble with splat
 make         # rebuild and compare against the original
 ```
 
+## Overlays
+
+Most of the game's code is not in the EXE. It is loaded from disc at runtime;
+see [docs/overlays.md](docs/overlays.md). Each overlay is split and rebuilt on
+its own:
+
+| Overlay | Disc file | Load address | SHA1 |
+|---|---|---|---|
+| `ov_field` (field engine, title) | #3 | `0x800A3308` | `ed96f819aa8ba1982bda8b767cdff9164d1c2fa5` |
+
+```bash
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3   # extract disc file #3
+make split-ov_field                                          # disassemble it
+make                                                         # now also checks the overlay
+```
+
 ## Compiler
 
 Game code is built with **GCC 2.8.1 (PsyQ)** at `-O2 -G0`, piped through
@@ -61,6 +77,7 @@ from power-on to the title screen (opening movie skipped with START).
 ## Layout
 
 - `slus_010.41.yaml` – splat config describing how the EXE is split
+- `ov_field.yaml` – splat config for the field overlay (disc file #3)
 - `symbol_addrs.txt` – known function/data names
 - `undefined_funcs.txt` – hand-maintained external symbols
 - `asm/`, `assets/`, `build/` – generated, not committed
