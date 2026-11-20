@@ -374,7 +374,13 @@ s32 func_8001B788(s32 arg0) {
     return func_80044924(arg0 * 2 + 3) + 0xE100 >= temp;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001B7D4);
+void func_8001B7D4(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+    if (arg0 < 8) {
+        *arg1 = (u32)(*arg1 * 55) >> 6;
+        *arg2 = (u32)(*arg2 * 55) >> 6;
+        *arg3 = (u32)(*arg3 * 55) >> 6;
+    }
+}
 
 s32 func_80044DD4(void);
 u8 *func_800479AC(void);

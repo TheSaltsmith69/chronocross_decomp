@@ -373,7 +373,27 @@ void func_80019FE4(void) {
     func_8003D504(D_8006EB54);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_800191D4", func_8001A06C);
+void f_19ED8_a(s32) asm("func_80019ED8");
+void f_19A00_a(s32) asm("func_80019A00");
+void f_19DA0_a(void) asm("func_80019DA0");
+void f_197C0_a(s32) asm("func_800197C0");
+void f_3D504_f(void *) asm("func_8003D504");
+typedef struct { u8 pad[0x30AC]; u16 h30AC; u16 h30AE; } S1A06C;
+extern S1A06C D_8006EBC8_t asm("D_8006EBC8");
+extern void *D_8006EB4C_p asm("D_8006EB4C");
+extern void *D_8006EB50_p asm("D_8006EB50");
+extern void *D_8006EB54_p asm("D_8006EB54");
+void func_8001A06C(void) {
+    f_19ED8_a(0x7D);
+    f_19A00_a(0);
+    D_8006EBC8_t.h30AE = 0;
+    D_8006EBC8_t.h30AC = 0;
+    f_19DA0_a();
+    f_197C0_a(0);
+    f_3D504_f(D_8006EB4C_p);
+    f_3D504_f(D_8006EB50_p);
+    f_3D504_f(D_8006EB54_p);
+}
 
 typedef struct {
     s32 unk0;
