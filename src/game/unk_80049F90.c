@@ -86,7 +86,13 @@ void func_8004A15C(s32 arg0, s32 arg1) {
     f_5134C_u(0x12);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A18C);
+void func_8004A18C(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    D_8008BEE0_a[0] = arg0 & 0x3FF;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    D_8008BEE0_a[3] = arg3 & 0x7F;
+    f_5134C_u(0x20);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A1DC);
 

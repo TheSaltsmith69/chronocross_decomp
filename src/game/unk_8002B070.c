@@ -118,7 +118,19 @@ void func_8002B41C(void) {
     D_8006AF34_t++;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002B434);
+extern s32 D_8006AF34_w asm("D_8006AF34");
+extern u8 D_8006AF2C_b asm("D_8006AF2C");
+extern char D_80062B04_s[] asm("D_80062B04");
+void f_29DD8_a(char *) asm("func_80029DD8");
+void func_8002B434(void) {
+    s32 v = D_8006AF34_w - 1;
+    D_8006AF34_w = v;
+    if (v == 0) {
+        D_8006AF2C_b = 1;
+    } else if (v < 0) {
+        f_29DD8_a(D_80062B04_s);
+    }
+}
 
 extern u8 D_8006B479_b asm("D_8006B479");
 void f_2C130_a(void) asm("func_8002C130");

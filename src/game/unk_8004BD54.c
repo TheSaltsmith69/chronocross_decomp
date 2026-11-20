@@ -717,7 +717,16 @@ void func_8004D354(u32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004BD54", func_8004D434);
+extern s32 D_8008BE58_a[] asm("D_8008BE58");
+void func_8004D434(s32 *arg0) {
+    s32 v;
+    D_8008BE58_a[3] = v = arg0[0x15];
+    v >>= 16;
+    v *= D_8008BE58_a[0] >> 8;
+    v /= 127;
+    v <<= 8;
+    arg0[0x15] = v;
+}
 
 extern s32 D_8008BE64_t asm("D_8008BE64");
 void func_8004D484(u8 *arg0) {

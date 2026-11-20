@@ -53,7 +53,19 @@ void func_8001AA64(void) {
     D_8007E7AA = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001AAB8);
+s32 f_1B8B0_a(s32) asm("func_8001B8B0");
+extern u8 D_8006B43E_b asm("D_8006B43E");
+extern s32 D_800724DC_w asm("D_800724DC");
+extern s32 D_8007257C_w asm("D_8007257C");
+s32 func_8001AAB8(void) {
+    if (f_1B8B0_a(0) == 0) {
+        D_8006B43E_b = 0;
+        D_8007257C_w = D_800724DC_w;
+        return 1;
+    }
+    D_8006B43E_b = 0;
+    return 0;
+}
 
 void func_8001AB08(s32 arg0) {
     s32 var;

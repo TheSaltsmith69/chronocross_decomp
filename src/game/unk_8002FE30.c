@@ -1806,7 +1806,14 @@ void func_8003B594(void *arg0) {
     n->unk10 &= ~1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B610);
+void f_3B258_a(void *) asm("func_8003B258");
+void func_8003B610(void *arg0) {
+    u32 *p = func_80041F6C(arg0);
+    if (!(p[4] & 1)) {
+        f_3B258_a(p);
+    }
+    p[4] |= 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B660);
 
@@ -1822,7 +1829,18 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BA64);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BAF0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BB78);
+extern s32 D_1F800008_w asm("D_1F800008");
+extern s32 D_8006B244_x asm("D_8006B244");
+extern s32 D_8006B248_x asm("D_8006B248");
+extern s32 D_8006B258_x asm("D_8006B258");
+void f_3D504_b(void *) asm("func_8003D504");
+void func_8003BB78(s32 *arg0) {
+    D_1F800008_w = arg0[0];
+    D_8006B244_x = arg0[1];
+    D_8006B248_x = arg0[2];
+    D_8006B258_x--;
+    f_3D504_b(arg0);
+}
 
 typedef struct {
     u8 pad0[8];
@@ -1935,7 +1953,14 @@ void func_8003C22C(Unk8003C22C *o) {
     func_80033F20(o);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C304);
+void f_SetBackColor_a(s32, s32, s32) asm("SetBackColor");
+extern u8 D_8006B308_a[] asm("D_8006B308");
+void func_8003C304(s32 arg0, s32 arg1, s32 arg2) {
+    f_SetBackColor_a(arg0, arg1, arg2);
+    D_8006B308_a[0] = arg0;
+    D_8006B308_a[1] = arg1;
+    D_8006B308_a[2] = arg2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C354);
 
@@ -2050,5 +2075,12 @@ void func_8003C988(s32 arg0, s32 arg1, s32 arg2) {
     D_8007EDE2 = arg1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C9C8);
+void f_SetFarColor_a(s32, s32, s32) asm("SetFarColor");
+extern u8 D_8007EDE4_a[] asm("D_8007EDE4");
+void func_8003C9C8(s32 arg0, s32 arg1, s32 arg2) {
+    f_SetFarColor_a(arg0, arg1, arg2);
+    D_8007EDE4_a[0] = arg0;
+    D_8007EDE4_a[1] = arg1;
+    D_8007EDE4_a[2] = arg2;
+}
 
