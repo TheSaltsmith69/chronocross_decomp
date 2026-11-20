@@ -206,7 +206,14 @@ void func_8003F934(void) {
     D_8006B48C = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F940);
+void *f_41F0C_a(s32, s32) asm("func_80041F0C");
+void f_4A1DC_a(void *, s32, s32, s32) asm("func_8004A1DC");
+void func_8003F940(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    void *p = f_41F0C_a(0x16, arg0);
+    if (p != NULL) {
+        f_4A1DC_a(func_80041F6C(p), arg1, arg2, arg3);
+    }
+}
 
 extern s16 D_80086FBC[];
 extern s16 D_80086FB8[];

@@ -502,7 +502,17 @@ void func_8001C244(u8 *arg0, u8 *arg1, u8 *arg2) {
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C29C);
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C31C);
+void f_ApplyRotMatrix_a(void *, s32 *) asm("ApplyRotMatrix");
+void f_VectorNormal_a(s32 *, s32 *) asm("VectorNormal");
+void f_1C31C_def(u16 *, void *) asm("func_8001C31C");
+void f_1C31C_def(u16 *arg0, void *arg1) {
+    s32 v[4];
+    f_ApplyRotMatrix_a(arg1, v);
+    f_VectorNormal_a(v, v);
+    v[1] >>= 6;
+    v[0] >>= 6;
+    *arg0 = ((*(u16 *)&v[1] + 0xC0) << 8) | (*(u16 *)&v[0] + 0x40);
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C388);
 

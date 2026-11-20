@@ -337,7 +337,17 @@ void func_8002C9C0(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CA14);
+void *f_4208C_a(void *, s32, s32) asm("func_8004208C");
+void f_3B8C8_a(void *) asm("func_8003B8C8");
+void f_3BEC4_a(void *, s32) asm("func_8003BEC4");
+void *f_41F6C_ca(void *) asm("func_80041F6C");
+void func_8002CA14(s32 arg0) {
+    void *p = NULL;
+    while ((p = f_4208C_a(p, 10, arg0)) != NULL) {
+        f_3B8C8_a(p);
+        f_3BEC4_a(f_41F6C_ca(p), 1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CA80);
 
