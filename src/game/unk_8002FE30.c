@@ -1931,7 +1931,35 @@ void func_8003B2E8(void) {
     D_8006B30C_b = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B330);
+typedef struct { u8 pad[8]; s16 h8; s16 hA; s16 hC; s16 hE; u32 w10; } S3B330b;
+extern s32 D_8006B250_z3 asm("D_8006B250");
+void *f_4208C_z3(void *, s32, s32) asm("func_8004208C");
+S3B330b *f_41F6C_z3(void *) asm("func_80041F6C");
+void f_3B258_z3(void *) asm("func_8003B258");
+void f_3B238_z3(void *) asm("func_8003B238");
+void func_8003B330(void) {
+    void *p = NULL;
+    D_8006B250_z3 = 0;
+    while ((p = f_4208C_z3(p, 10, 0)) != NULL) {
+        S3B330b *q = f_41F6C_z3(p);
+        u32 w = q->w10;
+        u32 b2 = (w >> 2) & 1;
+        q->h8 = 0;
+        if (b2) {
+            if (!(w & 1)) {
+                f_3B258_z3(q);
+            }
+        } else if (w & 1) {
+            f_3B238_z3(q);
+            if ((q->w10 >> 10) & 1) {
+                q->h8 = 0;
+                q->hC = 1;
+            }
+        }
+        q->hC = 1;
+        q->w10 = (q->w10 & ~1) | b2;
+    }
+}
 
 extern s32 D_8006B258;
 extern s32 D_8006B24C;
@@ -2392,7 +2420,36 @@ void func_8003C4B8(u8 *arg0) {
     f_4A6D0_a(0, *(s16 *)(p + 0x7A), a);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C52C);
+u8 f_37E68_z3(void *) asm("func_80037E68");
+u8 *f_41F6C_z3b(void *) asm("func_80041F6C");
+void f_A3E3C_z3(void *, s32) asm("func_800A3E3C");
+extern s32 D_8007EE0C_z3 asm("D_8007EE0C");
+void func_8003C52C(u8 *arg0) {
+    u8 r;
+    u8 *a;
+    u8 *o;
+    r = f_37E68_z3(arg0);
+    a = arg0;
+    o = f_41F6C_z3b(*(void **)(a + 0x1C));
+    if (r == 0) {
+        *(u16 *)(o + 0x1C) = *(u16 *)(a + 0x7E);
+        if (*(u32 *)(a + 0x88) & 7) {
+            *(u16 *)(o + 0x12) |= 2;
+            *(u16 *)(o + 0x18) |= 0x62;
+            *(u16 *)(o + 0x18) |= ((a[0x88] & 7) - 1) << 5;
+        } else {
+            *(u16 *)(o + 0x12) &= ~2;
+            *(u16 *)(o + 0x18) &= ~2;
+        }
+        if ((*(u32 *)(a + 0x88) >> 12) & 1) {
+            *(u16 *)(o + 0x12) |= 0x8000;
+        } else {
+            *(u16 *)(o + 0x12) &= 0x7FFF;
+        }
+        *(s32 *)(o + 0x14) = *(s32 *)(a + 0x74);
+        f_A3E3C_z3(o, D_8007EE0C_z3);
+    }
+}
 
 typedef struct B8003C630 {
     s32 w;

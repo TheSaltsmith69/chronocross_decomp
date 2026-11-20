@@ -578,7 +578,48 @@ void func_8004FD34(s32 *arg0) {
     D_8008BE68_x = q;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004FDA4);
+typedef struct {
+    u8 pad0[0x28];
+    u32 w28;
+    u8 pad2C[0x50 - 0x2C];
+    s32 w50;
+    u8 pad54[0xA0 - 0x54];
+    s16 hA0;
+    u8 padA2[0xF0 - 0xA2];
+    s16 hF0;
+    u8 padF2[0x10C - 0xF2];
+    u32 w10C;
+    u8 pad110[0x124 - 0x110];
+} S4FDA4;
+extern S4FDA4 D_80089E40_z3[] asm("D_80089E40");
+extern u32 D_8008BEB0_z3[] asm("D_8008BEB0");
+void func_8004FDA4(s32 *arg0) {
+    S4FDA4 *p = D_80089E40_z3;
+    u32 m = D_8008BEB0_z3[0];
+    u32 bit = 0x1000;
+    u32 i;
+    if (arg0[1] != 0) {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && (p->w28 & arg0[1])) {
+                s32 v = *(u16 *)(arg0 + 2);
+                u32 w = p->w10C;
+                p->hA0 = 0;
+                p->hF0 = (v & 0x7F) << 8;
+                p->w10C = w | 3;
+            }
+        }
+    } else {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && p->w50 == arg0[0]) {
+                s32 v = *(u16 *)(arg0 + 2);
+                u32 w = p->w10C;
+                p->hA0 = 0;
+                p->hF0 = (v & 0x7F) << 8;
+                p->w10C = w | 3;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004FE8C);
 
