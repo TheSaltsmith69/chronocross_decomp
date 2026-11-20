@@ -92,7 +92,32 @@ u32 func_8004E084(u8 *arg0, u32 arg1) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E0D0);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004E464);
+extern u8 D_8006B5D4_z5[] asm("D_8006B5D4");
+extern u8 *D_8008E408_z5[] asm("D_8008E408");
+void f_4BF5C_z5(s32, s32, s32) asm("func_8004BF5C");
+void func_8004E464(u8 *arg0, u8 *arg1, u32 arg2) {
+    if (*(s32 *)(arg0 + 4) != 0 && (arg2 == 0 || arg2 == *(u16 *)(arg0 + 0x6E))) {
+        u32 i;
+        u8 **s;
+        *(s32 *)(arg0 + 0x1C) = -1;
+        for (i = 32; i != 0; i--) {
+            *(u16 *)(arg1 + 0x7A) = 3;
+            *(u16 *)(arg1 + 0x7C) = 1;
+            *(void **)arg1 = D_8006B5D4_z5;
+            arg1 += 0x124;
+        }
+        *(u16 *)(arg0 + 0x6E) = 0;
+        *(s32 *)(arg0 + 0x14) = 0;
+        *(s32 *)(arg0 + 0x10) = 0;
+        s = D_8008E408_z5;
+        for (i = 0; i < 24; i++, s++) {
+            if (*s == arg0) {
+                *s = NULL;
+                f_4BF5C_z5(i, 5, 3);
+            }
+        }
+    }
+}
 
 typedef struct {
     u8 pad0[0x28];
@@ -758,7 +783,22 @@ void func_80050AB0(s32 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050B18);
+extern u32 D_8008BEB0_z5[] asm("D_8008BEB0");
+extern u32 D_8008E398_z5[] asm("D_8008E398");
+void f_53EBC_z5(void *, u32) asm("func_80053EBC");
+void func_80050B18(void) {
+    S503A8 *p = D_80089E40_w;
+    u32 bit = 0x1000;
+    u32 i;
+    for (i = 0; i < 12; i++, p++, bit <<= 1) {
+        if ((D_8008BEB0_z5[0] & bit) && !(p->unk28 & 0x2000000)) {
+            D_8008BEB0_z5[3] |= bit;
+            f_53EBC_z5(p, bit);
+            *(u32 *)((u8 *)p + 0x34) = 0;
+        }
+    }
+    D_8008E398_z5[2] |= 0x110;
+}
 
 void f_4ED00_a(void *, void *) asm("func_8004ED00");
 void func_8004ED48(void);
