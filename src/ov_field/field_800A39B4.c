@@ -736,7 +736,29 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800B1E7C);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800B2690);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800B2864);
+s32 func_800B2864(s32 arg0, s32 arg1, s32 arg2) {
+    switch (arg0) {
+    case 0:
+    case 1:
+        if (arg1 == 0xC) {
+            return arg2 + 0x12E;
+        }
+        if (arg1 == 0x19) {
+            return arg2 + 0x1BB;
+        }
+        if (arg0 == 0) {
+            return arg2 + 0x102;
+        }
+        return arg2 + 0x12A;
+    case 2:
+        return arg2 + 0x12C;
+    case 3:
+        return arg2;
+    case 4:
+        return arg2 + 2;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800B28E0);
 
@@ -2275,7 +2297,15 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800C1F3C);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800C21E4);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800C2400);
+extern u8 D_8006B3F9;
+void func_8002FE30(const char *, ...);
+void func_800C2400(void) {
+    s32 v = func_800B5B34(func_800B5BEC(1));
+    if (D_8006B3F9 == 0) {
+        func_8002FE30("DEBUG=%xh %d \n", v, v);
+    }
+    *(s32 *)(D_1F800004 + 0x228) += 3;
+}
 
 extern s32 D_800E4908;
 void func_800B5B98(u16, s32);
