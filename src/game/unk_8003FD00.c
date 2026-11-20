@@ -262,7 +262,26 @@ void func_8004247C(Bf247C *arg0, s32 arg1) {
     arg0->b8 = arg1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800424AC);
+typedef struct S424AC { struct S424AC *next; s32 unk4; u32 b0 : 6; u32 b6 : 1; u32 b7 : 1; u32 b8 : 6; u32 b14 : 17; u32 b31 : 1; s32 unkC; } S424AC;
+extern S424AC *D_8006B490_z6 asm("D_8006B490");
+void f_3F884_z6(void *, s32) asm("func_8003F884");
+void func_800424AC(S424AC *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    f_3F884_z6(arg0, 0x10);
+    arg0->unkC = arg3;
+    arg0->b14 = 3;
+    arg0->b0 = 7;
+    arg0->b6 = 0;
+    arg0->b7 = 0;
+    arg0->unk4 = 0x30;
+    arg0->b0 = arg1;
+    arg0->b7 = 1;
+    arg0->unk4 = arg2;
+    arg0->next = D_8006B490_z6;
+    D_8006B490_z6 = arg0;
+    if (arg0->b8 == 0) {
+        arg0->b8 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8004257C);
 

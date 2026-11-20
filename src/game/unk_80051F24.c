@@ -549,7 +549,33 @@ void func_80053EBC(u8 *arg0, u32 arg1) {
     *(s32 *)(arg0 + 0x50) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80053F28);
+extern u8 *D_8008BE50_z6 asm("D_8008BE50");
+extern s32 D_8008BE18_z6 asm("D_8008BE18");
+extern u32 D_8008E398_z6[] asm("D_8008E398");
+void f_53EBC_z6(void *) asm("func_80053EBC");
+void func_80053F28(u8 *arg0, u32 arg1) {
+    if (*(u16 *)(arg0 + 0x78) == 0) {
+        arg1 = ~arg1;
+        if ((*(u32 *)(D_8008BE50_z6 + 4) &= arg1) == 0) {
+            D_8008BE18_z6 = 0;
+            *(u16 *)(D_8008BE50_z6 + 0x6E) = 0;
+            *(u32 *)D_8008BE50_z6 = 0;
+        }
+        {
+            u8 *b = D_8008BE50_z6;
+            *(u32 *)(b + 0x14) &= arg1;
+            *(u32 *)(b + 0x8) &= arg1;
+            *(u32 *)(b + 0xC) &= arg1;
+            *(u32 *)(b + 0x40) &= arg1;
+            *(u32 *)(b + 0x44) &= arg1;
+            *(u32 *)(b + 0x48) &= arg1;
+        }
+    } else {
+        f_53EBC_z6(arg0);
+    }
+    *(u32 *)(arg0 + 0x34) = 0;
+    D_8008E398_z6[2] |= 0x110;
+}
 
 void func_80053FFC(Unk80051F24 *arg0) {
     Unk80051F24 *ch = D_8008BE50;
