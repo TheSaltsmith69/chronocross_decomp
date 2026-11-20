@@ -11,14 +11,15 @@ import csv, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from progress import ROOT, load_text_files, elf_functions, c_status  # noqa: E402
+from progress import ROOT, MODULES, load_text_files, elf_functions, c_status  # noqa: E402
 
 
 def main():
     name = sys.argv[1]
     trace = ROOT / "progress" / "traces" / f"{name}.csv"
-    files = load_text_files()
-    funcs = elf_functions()
+    _, config, segment, elf, src_dir = MODULES[0]  # main EXE; the trace has no overlay code
+    files = load_text_files(config, segment)
+    funcs = elf_functions(elf)
     addrs = sorted(funcs)
 
     def locate(a):
@@ -26,7 +27,7 @@ def main():
             if start <= a < end:
                 nxt = next((x for x in addrs if x > a), end)
                 size = min(nxt, end) - a
-                asm = c_status(fname) if typ == "c" else None
+                asm = c_status(src_dir, fname) if typ == "c" else None
                 matched = asm is not None and funcs.get(a) not in asm
                 return fname, size, matched
         return "?", 0, False
