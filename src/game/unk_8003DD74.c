@@ -226,7 +226,29 @@ void func_8003F9AC(void) {
     D_80086FA8 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003DD74", func_8003F9D8);
+typedef struct { s16 x, y; } V2_3F9D8;
+extern V2_3F9D8 D_80086FBC_v asm("D_80086FBC");
+extern V2_3F9D8 D_80086FAC_v asm("D_80086FAC");
+extern V2_3F9D8 D_80086FB8_v asm("D_80086FB8");
+extern s32 D_80086FA8_w asm("D_80086FA8");
+void func_8003F9D8(s32 arg0, s32 arg1, s32 arg2) {
+    if (arg2 != 0) {
+        s32 sy, sx;
+        arg1 <<= 8;
+        sy = (arg1 - D_80086FBC_v.y) / arg2;
+        arg0 <<= 8;
+        sx = (arg0 - D_80086FBC_v.x) / arg2;
+        D_80086FAC_v.y = arg1;
+        D_80086FAC_v.x = arg0;
+        D_80086FA8_w = arg2;
+        D_80086FB8_v.y = sy;
+        D_80086FB8_v.x = sx;
+    } else {
+        D_80086FBC_v.y = arg1 << 8;
+        D_80086FBC_v.x = arg0 << 8;
+        D_80086FA8_w = 0;
+    }
+}
 
 void func_80022964(void);
 void func_80022974(void);

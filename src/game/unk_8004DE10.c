@@ -242,7 +242,19 @@ void func_8004F04C(s32 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004F0C8);
+typedef struct { u8 pad[0x6E]; u16 h6E; } S4F0C8;
+extern S4F0C8 D_8008AD48_s asm("D_8008AD48");
+extern S4F0C8 *D_8008BE50_m asm("D_8008BE50");
+void f_4ED9C_a(s32, s32) asm("func_8004ED9C");
+void f_4E0D0_a(s32, s32) asm("func_8004E0D0");
+void func_8004F0C8(s32 *arg0) {
+    if (D_8008AD48_s.h6E != 0 && D_8008AD48_s.h6E == arg0[2]) {
+        f_4ED9C_a(arg0[0], 0);
+    } else {
+        f_4E0D0_a(arg0[0], arg0[3]);
+        D_8008BE50_m->h6E = arg0[2];
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_8004F148);
 

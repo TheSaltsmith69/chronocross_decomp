@@ -266,7 +266,10 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800424AC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8004257C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80042928);
+void f_4257C_a(s32, s32, void *, s32, s32, s32, s32) asm("func_8004257C");
+void func_80042928(s16 arg0, s16 arg1, void *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+    f_4257C_a(arg0, arg1, func_80041F6C(arg2), arg3, arg4, arg5, arg6);
+}
 
 typedef struct { u16 h0; u16 cnt; u16 pad[4]; u16 offs[1]; } S429B4;
 s32 func_800429B4(void *arg0, s32 arg1) {
