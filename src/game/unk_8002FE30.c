@@ -2321,9 +2321,65 @@ again:
     } while (*(u16 *)e != 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C048);
+void func_8003C048(S3BF6C *arg0) {
+    u8 *e;
+    if (!(arg0->w10 & 1)) {
+        f_3B258_z5(arg0);
+    }
+    arg0->w10 |= 1;
+    if (D_1F800008_z5 == NULL) {
+        return;
+    }
+again:
+    e = D_1F800008_z5 + 4;
+    if (*(u16 *)e == 0) {
+        return;
+    }
+    do {
+        if (*(s32 *)e < 0 && *(void **)(e + 4) == func_80043B30) {
+            u8 *q = e + 0xC;
+            if (*(void **)(q + 0xC) == arg0) {
+                if (*(s16 *)(q + 0x7C) == 0) {
+                    f_3C22C_z5(q);
+                    goto again;
+                }
+                *(s16 *)(q + 0x7C) = 1;
+            }
+        }
+        e = (u8 *)((*(u16 *)e << 2) + (s32)D_1F800008_z5);
+    } while (*(u16 *)e != 0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003C138);
+S3BF6C *f_41F6C_z2(void *) asm("func_80041F6C");
+void func_8003C138(void *arg0) {
+    S3BF6C *o = f_41F6C_z2(arg0);
+    u8 *e;
+    if (!(o->w10 & 1)) {
+        f_3B258_z5(o);
+    }
+    o->w10 |= 1;
+    if (D_1F800008_z5 == NULL) {
+        return;
+    }
+again:
+    e = D_1F800008_z5 + 4;
+    if (*(u16 *)e == 0) {
+        return;
+    }
+    do {
+        if (*(s32 *)e < 0 && *(void **)(e + 4) == func_80043B30) {
+            u8 *q = e + 0xC;
+            if (*(void **)(q + 0xC) == o) {
+                if (*(s16 *)(q + 0x7C) == 0) {
+                    f_3C22C_z5(q);
+                    goto again;
+                }
+                *(s16 *)(q + 0x7C) = 1;
+            }
+        }
+        e = (u8 *)((*(u16 *)e << 2) + (s32)D_1F800008_z5);
+    } while (*(u16 *)e != 0);
+}
 
 typedef struct {
     u8 pad0[8];
