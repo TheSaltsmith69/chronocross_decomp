@@ -810,7 +810,26 @@ void func_80032D78(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032DD0);
+typedef struct N32DD0 { struct N32DD0 *next; s32 unk4; void *a; void *b; void *c; } N32DD0;
+extern N32DD0 *D_8006B210_m asm("D_8006B210");
+void f_3D504_g(void *) asm("func_8003D504");
+void func_80032DD0(void) {
+    N32DD0 *n;
+    for (n = D_8006B210_m; n != NULL; n = n->next) {
+        if (n->a != NULL) {
+            f_3D504_g(n->a);
+            n->a = NULL;
+        }
+        if (n->b != NULL) {
+            f_3D504_g(n->b);
+            n->b = NULL;
+        }
+        if (n->c != NULL) {
+            f_3D504_g(n->c);
+            n->c = NULL;
+        }
+    }
+}
 
 extern u16 D_8007ED58_h[] asm("D_8007ED58");
 extern u16 D_8007ED98_h[] asm("D_8007ED98");
@@ -1017,7 +1036,24 @@ s32 func_800339E8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800339F0);
+typedef struct { u8 *p; u8 mask; u8 pad[3]; s32 cur; s32 count; } Bits339F0;
+extern char D_80063428_s[] asm("D_80063428");
+void f_29DD8_b(char *) asm("func_80029DD8");
+s32 func_800339F0(Bits339F0 *arg0) {
+    s32 r;
+    if (arg0->mask == 0x80) {
+        if ((arg0->cur = *arg0->p++) == -1) {
+            f_29DD8_b(D_80063428_s);
+        }
+        arg0->count++;
+    }
+    r = arg0->cur & arg0->mask;
+    arg0->mask >>= 1;
+    if (arg0->mask == 0) {
+        arg0->mask = 0x80;
+    }
+    return r != 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80033A80);
 

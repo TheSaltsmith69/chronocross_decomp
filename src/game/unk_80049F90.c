@@ -94,7 +94,19 @@ void func_8004A18C(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     f_5134C_u(0x20);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A1DC);
+s32 f_4B280_a(s32) asm("func_8004B280");
+s32 f_4A2A8_a(s32) asm("func_8004A2A8");
+s32 func_8004A1DC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    if (f_4B280_a(arg0)) {
+        return f_4A2A8_a(0x18);
+    }
+        D_8008BEE0_a[0] = arg0;
+        D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+        D_8008BEE0_a[2] = arg2 & 0xFF;
+        D_8008BEE0_a[3] = arg3 & 0x7F;
+        f_5134C_u(0x24);
+    return arg0;
+}
 
 void func_8004A26C(s32 arg0, s32 arg1) {
     (&D_8008BEE0)[0] = arg0;
