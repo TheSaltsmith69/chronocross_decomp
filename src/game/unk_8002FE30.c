@@ -1591,7 +1591,43 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800399FC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80039C70);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A118);
+extern u8 *D_1F800008_z4 asm("D_1F800008");
+typedef struct { u32 w0; u32 link : 16; u32 mid : 15; u32 top : 1; } H3A118;
+typedef struct { u32 link : 16; u32 mid : 15; u32 top : 1; } G3A118;
+extern G3A118 *D_8006B244_z4 asm("D_8006B244");
+extern u8 D_8007EDEC_z4[] asm("D_8007EDEC");
+extern u8 D_8007EDF0_z4[] asm("D_8007EDF0");
+extern u8 D_8006B454_z4 asm("D_8006B454");
+extern u8 D_8006B30C_z4 asm("D_8006B30C");
+void f_32DD0_z4(void) asm("func_80032DD0");
+void f_3B330_z4(void) asm("func_8003B330");
+void f_328F0_z4(void) asm("func_800328F0");
+void f_29F04_z4(void) asm("func_80029F04");
+void func_8003A118(void) {
+    H3A118 *p;
+    f_32DD0_z4();
+    p = (H3A118 *)D_1F800008_z4;
+    if (p != NULL) {
+        G3A118 *q = D_8006B244_z4;
+        p->mid = 0;
+        p->link = ((u32)q - (u32)p) >> 2;
+        p->top = 0;
+        q->mid = 1;
+        q->link = 0;
+        q->top = 1;
+    }
+    f_3B330_z4();
+    f_328F0_z4();
+    f_29F04_z4();
+    D_8007EDEC_z4[0] = 0;
+    D_8007EDEC_z4[1] = 0;
+    D_8007EDEC_z4[2] = 0;
+    D_8007EDF0_z4[0] = 0;
+    D_8007EDF0_z4[1] = 0;
+    D_8007EDF0_z4[2] = 0;
+    D_8006B454_z4 = 0;
+    D_8006B30C_z4 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003A1F8);
 
@@ -2007,7 +2043,37 @@ void func_8003B720(s32 arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B7BC);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B8C8);
+typedef struct { u8 pad[0x10]; u32 w10; } S3B8C8;
+S3B8C8 *f_41F6C_z4(void *) asm("func_80041F6C");
+void f_3B258_z4(void *) asm("func_8003B258");
+void f_3C22C_z4(void *) asm("func_8003C22C");
+void func_80043B30(void);
+void func_8003B8C8(void *arg0) {
+    S3B8C8 *o = f_41F6C_z4(arg0);
+    u8 *e;
+    if (!(o->w10 & 1)) {
+        f_3B258_z4(o);
+    }
+    o->w10 |= 1;
+    if (D_1F800008_z4 == NULL) {
+        return;
+    }
+again:
+    e = D_1F800008_z4 + 4;
+    if (*(u16 *)e == 0) {
+        return;
+    }
+    do {
+        if (*(s32 *)e < 0 && *(void **)(e + 4) == func_80043B30) {
+            u8 *q = e + 0xC;
+            if (*(void **)(q + 0xC) == o) {
+                f_3C22C_z4(q);
+                goto again;
+            }
+        }
+        e = (u8 *)((*(u16 *)e << 2) + (s32)D_1F800008_z4);
+    } while (*(u16 *)e != 0);
+}
 
 extern s16 D_1F800010_z7 asm("D_1F800010");
 extern u8 D_1F800000_z7 asm("D_1F800000");

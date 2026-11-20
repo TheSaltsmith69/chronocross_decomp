@@ -630,7 +630,50 @@ void func_80050088(s32 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050150);
+typedef struct {
+    u8 pad0[0x28];
+    u32 w28;
+    u8 pad2C[0x50 - 0x2C];
+    s32 w50;
+    s32 w54;
+    u8 pad58[0x80 - 0x58];
+    s16 h80;
+    s16 h82;
+    u8 pad84[0x9A - 0x84];
+    s16 h9A;
+    u8 pad9C[0x10C - 0x9C];
+    u32 w10C;
+    u8 pad110[0x124 - 0x110];
+} S50150;
+extern u32 D_8008BEB0_z4[] asm("D_8008BEB0");
+extern S50150 D_80089E40_z4[] asm("D_80089E40");
+void func_80050150(s32 *arg0) {
+    S50150 *p = D_80089E40_z4;
+    u32 m = D_8008BEB0_z4[0];
+    u32 bit = 0x1000;
+    u32 i;
+    if (arg0[1] != 0) {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && (p->w28 & arg0[1])) {
+                s32 v = ((u8 *)arg0)[8];
+                u32 w = p->w10C;
+                p->h82 = 0;
+                p->h80 = v << 8;
+                p->w10C = w | 3;
+            }
+        }
+    } else {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && p->w50 == arg0[0]) {
+                s32 v = ((u8 *)arg0)[8];
+                u32 w = p->w10C;
+                p->h82 = 0;
+                p->h80 = v << 8;
+                p->w10C = w | 3;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050230);
 
@@ -662,7 +705,33 @@ void func_800503A8(u8 *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050420);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800504E4);
+void func_800504E4(s32 *arg0) {
+    S50150 *p = D_80089E40_z4;
+    u32 m = D_8008BEB0_z4[0];
+    u32 bit = 0x1000;
+    u32 i;
+    if (arg0[1] != 0) {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && (p->w28 & arg0[1])) {
+                s32 v = ((u8 *)arg0)[8];
+                u32 w = p->w10C;
+                p->h9A = 0;
+                p->w54 = v << 8;
+                p->w10C = w | 0x10;
+            }
+        }
+    } else {
+        for (i = 0; i < 12; i++, p++, bit <<= 1) {
+            if ((m & bit) && p->w50 == arg0[0]) {
+                s32 v = ((u8 *)arg0)[8];
+                u32 w = p->w10C;
+                p->h9A = 0;
+                p->w54 = v << 8;
+                p->w10C = w | 0x10;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_800505C4);
 

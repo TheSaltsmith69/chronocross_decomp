@@ -26,7 +26,29 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041AEC);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041C0C);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_80041E2C);
+s32 func_80041E2C(u8 arg0) {
+    switch (arg0) {
+    case 3:
+        return 0x23;
+    case 1:
+        return 0x22;
+    case 18:
+        return 0x21;
+    case 25:
+        return 0x1B;
+    case 26:
+        return 0x1C;
+    case 2:
+        return 0x1D;
+    case 11:
+        return 0x1E;
+    case 22:
+        return 0x1F;
+    case 5:
+        return 0x20;
+    }
+    return 0;
+}
 
 void func_80041EAC(s32 *arg0, s32 arg1) {
     arg0[1] = arg1;
