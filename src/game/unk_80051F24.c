@@ -260,7 +260,29 @@ void func_8005203C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80052518);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_800527BC);
+typedef struct { s32 v; s32 d; s32 n; } S527BC;
+typedef struct { u8 *p; s32 w4; u8 pad8[8]; s32 w10; s32 w14; u8 pad18[4]; s32 w1C; u8 pad20[0x6E - 0x20]; u16 h6E; } A527BC;
+extern S527BC D_8008BE58_s asm("D_8008BE58");
+void f_4ED00_a(void *, s32) asm("func_8004ED00");
+void func_800527BC(A527BC *arg0, s32 arg1) {
+    S527BC *s = &D_8008BE58_s;
+    if (s->n != 0) {
+        if (--s->n == 0) {
+            s32 t = arg0->w4;
+            arg0->h6E = 0;
+            arg0->w4 = 0;
+            arg0->w10 = 0;
+            arg0->w14 = 0;
+            arg0->w1C = t;
+        } else {
+            s32 nv = s->v + s->d;
+            if ((nv & 0xFFFF0000) != (s->v & 0xFFFF0000)) {
+                f_4ED00_a(arg0, arg1);
+            }
+            s->v = nv;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80052850);
 

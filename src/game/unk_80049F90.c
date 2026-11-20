@@ -543,7 +543,27 @@ void func_8004AEC0(s32 arg0, s32 arg1, s32 arg2) {
     f_4AC00_t(arg0, arg2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AEE0);
+extern u8 D_8008ABF0_m[] asm("D_8008ABF0");
+extern s32 D_8008E39C_w asm("D_8008E39C");
+s32 CdMix_a(void *) asm("CdMix");
+s32 func_8004AEE0(u32 arg0) {
+    if (D_8008E39C_w & 2) {
+        u8 *p = D_8008ABF0_m;
+        u8 v = (arg0 * 0xB570) >> 17;
+        p[3] = v;
+        p[1] = v;
+        p[2] = v;
+        p[0] = v;
+    } else {
+        u8 *p = D_8008ABF0_m;
+        p[2] = arg0;
+        p[0] = arg0;
+        p[3] = 0;
+        p[1] = 0;
+    }
+    CdMix_a(D_8008ABF0_m);
+    return 0;
+}
 
 void func_8004AF74(void) {
     func_8005134C(0xE2);

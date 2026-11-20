@@ -354,7 +354,27 @@ void func_8002BF30(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002BFC4);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002C130);
+extern void *D_8006AF4C_p asm("D_8006AF4C");
+extern u8 D_8006B238_b asm("D_8006B238");
+extern s16 D_800D8688_h asm("D_800D8688");
+extern u8 D_8007EAF8_b asm("D_8007EAF8");
+void f_2E238_a(s32, s32) asm("func_8002E238");
+void f_41C0C_a(void *) asm("func_80041C0C");
+void f_3D504_h(void *) asm("func_8003D504");
+void f_2BF30_a(void) asm("func_8002BF30");
+void func_8002C130(void) {
+    if (D_8006AF4C_p != NULL) {
+        f_2E238_a(2, 0);
+        f_41C0C_a(D_8006AF4C_p);
+        f_3D504_h(D_8006AF4C_p);
+        D_8006AF4C_p = NULL;
+        f_3D504_h((void *)0x801C5E00);
+        D_8006B238_b = 0;
+        D_800D8688_h = 100;
+    }
+    D_8007EAF8_b = 0;
+    f_2BF30_a();
+}
 
 extern s32 D_8006AF60_t asm("D_8006AF60");
 void func_8002C1B0(s32 arg0) {
