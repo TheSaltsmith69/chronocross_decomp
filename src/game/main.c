@@ -204,7 +204,24 @@ void func_8001AD30(void) {
     D_8007E7A8 = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001B058);
+extern s32 D_80072398_m asm("D_80072398");
+extern s32 D_8007240C_m asm("D_8007240C");
+extern s32 D_8007E7C0_m[] asm("D_8007E7C0");
+void f_4582C_m(s32) asm("func_8004582C");
+s32 f_44924_m(s32) asm("func_80044924");
+s32 f_3D8F4_m(s32, s32, s32) asm("func_8003D8F4");
+void f_46698_m(void *, s32) asm("func_80046698");
+void func_8001B058(void) {
+    f_4582C_m(6);
+    D_8007E7C0_m[1] = D_80072398_m = f_3D8F4_m(f_44924_m(0xE), 0, 2);
+    D_8007E7C0_m[0] = 0xE;
+    D_8007E7C0_m[3] = D_8007240C_m = f_3D8F4_m(f_44924_m(0xD), 0, 2);
+    D_8007E7C0_m[2] = 0xD;
+    D_8007E7C0_m[5] = 0;
+    D_8007E7C0_m[4] = 0;
+    f_46698_m(D_8007E7C0_m, 0);
+    f_4582C_m(5);
+}
 
 extern u16 D_8007E69E;
 void func_8001B0F8(s32 arg0) {

@@ -946,7 +946,24 @@ void func_80033080(Unk80033080 *o) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_800331AC);
+void func_800331AC(N32DD0 *arg0) {
+    N32DD0 *n;
+    for (n = D_8006B210_m; n != NULL; n = n->next) {
+        if (n->a != NULL) {
+            f_3D504_g(n->a);
+            n->a = NULL;
+        }
+        if (n->b != NULL) {
+            f_3D504_g(n->b);
+            n->b = NULL;
+        }
+        if (n->c != NULL) {
+            f_3D504_g(n->c);
+            n->c = NULL;
+        }
+    }
+    D_8006B210_m = arg0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003324C);
 
@@ -1886,7 +1903,20 @@ void func_8003B610(void *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B660);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B720);
+typedef struct { u8 pad[0x10]; u32 w10; } S3B720b;
+void *f_4208C_d(void *, s32, s32) asm("func_8004208C");
+S3B720b *f_41F6C_d(void *) asm("func_80041F6C");
+void f_3B258_d(void *) asm("func_8003B258");
+void func_8003B720(s32 arg0) {
+    void *p = NULL;
+    while ((p = f_4208C_d(p, 10, arg0)) != NULL) {
+        S3B720b *q = f_41F6C_d(p);
+        if (!(q->w10 & 1)) {
+            f_3B258_d(q);
+        }
+        q->w10 = (q->w10 & ~1) | 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B7BC);
 
@@ -2013,7 +2043,25 @@ void func_8003BD2C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BD34);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003BE00);
+extern u8 *D_1F800008_c asm("D_1F800008");
+void *func_8003BE00(u8 *arg0, void *arg1) {
+    u8 *e;
+    if (D_1F800008_c == NULL) {
+        return NULL;
+    }
+    if (arg0 == NULL) {
+        e = D_1F800008_c + 4;
+    } else {
+        e = (u8 *)((*(u16 *)(arg0 - 0xC) << 2) + (s32)D_1F800008_c);
+    }
+    while (*(u16 *)e != 0) {
+        if (*(s32 *)e < 0 && *(void **)(e + 4) == arg1) {
+            return e + 0xC;
+        }
+        e = (u8 *)((*(u16 *)e << 2) + (s32)D_1F800008_c);
+    }
+    return NULL;
+}
 
 s16 func_8003BEA0(void *arg0) {
     return ((s16 *)func_80041F6C(arg0))[3];

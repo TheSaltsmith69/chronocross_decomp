@@ -996,7 +996,24 @@ void func_80055140(u8 *arg0) {
 void func_8005515C(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055164);
+extern u16 D_8008BED8_h asm("D_8008BED8");
+void func_80055164(u8 *arg0) {
+    u32 v = *(*(u8 **)arg0)++;
+    if (*(u16 *)(arg0 + 0x78) == 0) {
+        if (v & 0xC0) {
+            u8 *b = D_8008BE50_z;
+            *(u16 *)(b + 0x72) = (*(u16 *)(b + 0x72) + (v & 0x3F)) & 0x3F;
+        } else {
+            *(u16 *)(D_8008BE50_z + 0x72) = v;
+        }
+    } else if (v & 0xC0) {
+        u16 *h = (u16 *)D_8008BEB0_a;
+        h[20] = (h[20] + (v & 0x3F)) & 0x3F;
+    } else {
+        D_8008BED8_h = v;
+    }
+    D_8008E398_a[2] |= 0x10;
+}
 
 void func_80055200(u8 *arg0) {
     s32 v = *(*(u8 **)arg0)++;

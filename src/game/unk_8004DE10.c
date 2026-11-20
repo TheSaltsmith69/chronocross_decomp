@@ -654,7 +654,35 @@ void func_80050CF4(u16 *arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050D08);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050DF8);
+extern S503A8 D_80087980_r[] asm("D_80087980");
+extern u32 D_8008E398_s[] asm("D_8008E398");
+extern u32 D_8008E404_s asm("D_8008E404");
+void func_80050DF8(void) {
+    u32 m;
+    u32 bit;
+    S503A8 *p;
+    if (*(u32 *)(D_8008BE50_q + 0x20) != 0) {
+        m = *(u32 *)(D_8008BE50_q + 0x20);
+        bit = 1;
+        p = D_80087980_r;
+        do {
+            if (m & bit) {
+                m &= ~bit;
+                p->unk10C |= 0x2B13;
+            }
+            bit <<= 1;
+            p++;
+        } while (m != 0);
+        {
+            u8 *b = D_8008BE50_q;
+            u32 t = *(u32 *)(b + 0x20);
+            *(u32 *)(b + 0x20) = 0;
+            *(u32 *)(b + 4) = t;
+        }
+        D_8008E398_s[2] |= 0x100;
+    }
+    D_8008E404_s &= ~1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8004DE10", func_80050E94);
 
