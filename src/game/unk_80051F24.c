@@ -711,7 +711,13 @@ INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055164);
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055200);
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80051F24", func_80055244);
+void func_80055244(u8 *arg0) {
+    u8 *p = *(u8 **)arg0;
+    s32 v = *p;
+    *(u8 **)arg0 = p + 1;
+    *(u32 *)(arg0 + 0x10C) |= 0x1000;
+    *(u16 *)(arg0 + 0x11A) = (*(u16 *)(arg0 + 0x11A) & 0xFF0F) | (v << 4);
+}
 
 void func_80055278(u8 **arg0) {
     u32 v = *(*arg0)++;

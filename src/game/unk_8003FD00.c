@@ -208,7 +208,20 @@ void func_80042364(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_8004247C);
+typedef struct Bf247C {
+    struct Bf247C *next;
+    s32 unk4;
+    u32 lo : 8;
+    u32 b8 : 6;
+    u32 hi : 18;
+} Bf247C;
+extern Bf247C *D_8006B490_b asm("D_8006B490");
+void func_8004247C(Bf247C *arg0, s32 arg1) {
+    Bf247C *head = D_8006B490_b;
+    D_8006B490_b = arg0;
+    arg0->next = head;
+    arg0->b8 = arg1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8003FD00", func_800424AC);
 
