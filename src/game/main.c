@@ -450,7 +450,11 @@ s32 func_8001BF94(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/main", func_8001C09C);
+typedef struct { u8 pad[0x2DD8]; s32 bits[2]; } S1C09C;
+extern S1C09C D_8006EBC8_s asm("D_8006EBC8");
+s32 func_8001C09C(s32 arg0) {
+    if (arg0 < 0x2C) { S1C09C *p = &D_8006EBC8_s; s32 *w = &p->bits[arg0 >> 5]; s32 m = 1 << (arg0 & 0x1F); if (*w & m) return 0; } return -1;
+}
 
 extern u8 D_80062444[];
 extern u8 D_80062468[];

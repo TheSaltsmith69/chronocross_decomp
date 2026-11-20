@@ -691,7 +691,11 @@ void func_800329B8(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032A08);
+typedef struct N32A08 { struct N32A08 *next; u8 pad[0x14]; s32 unk18; } N32A08;
+extern N32A08 *D_8006B210_n asm("D_8006B210");
+s32 func_80032A08(s32 arg0) {
+    N32A08 *n = D_8006B210_n; if (n == NULL) return 0; do { if (arg0 == 0 || n->unk18 == arg0) return 1; n = n->next; } while (n != NULL); return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_80032A54);
 
@@ -1739,7 +1743,17 @@ s32 func_8003B2B0(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B2E8);
+void f_3D504_a(void *) asm("func_8003D504");
+extern s32 D_8006B240_w asm("D_8006B240");
+extern s32 D_8006B244_w asm("D_8006B244");
+extern u8 D_8006B30C_b asm("D_8006B30C");
+void func_8003B2E8(void) {
+    f_3D504_a(D_1F800008_b);
+    D_1F800008_b = 0;
+    D_8006B240_w = 0;
+    D_8006B244_w = 0;
+    D_8006B30C_b = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002FE30", func_8003B330);
 

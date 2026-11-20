@@ -169,7 +169,13 @@ void func_8004A5E4(s32 arg0, s32 arg1, s32 arg2) {
     f_5134C_u(0xA0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A628);
+void func_8004A628(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2;
+    D_8008BEE0_a[3] = arg3 & 0x7F;
+    f_5134C_u(0xA1);
+}
 
 void func_8004A670(s32 arg0) {
     D_8008BEE0_t = arg0 & 0xFF;
@@ -182,9 +188,20 @@ void func_8004A69C(s32 arg0, s32 arg1) {
     f_5134C_u(0xAB);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A6D0);
+void func_8004A6D0(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    f_5134C_u(0xA2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A714);
+void func_8004A714(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2;
+    D_8008BEE0_a[3] = arg3 & 0xFF;
+    f_5134C_u(0xA3);
+}
 
 void func_8004A75C(s32 arg0) {
     D_8008BEE0_t = arg0 & 0xFF;
@@ -197,9 +214,20 @@ void func_8004A788(s32 arg0, s32 arg1) {
     f_5134C_u(0xAD);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A7BC);
+void func_8004A7BC(s32 arg0, s32 arg1, s32 arg2) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2 & 0xFF;
+    f_5134C_u(0xA4);
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004A800);
+void func_8004A800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    D_8008BEE0_a[0] = arg0;
+    D_8008BEE0_a[1] = arg1 & 0xFFFFFF;
+    D_8008BEE0_a[2] = arg2;
+    D_8008BEE0_a[3] = arg3 & 0xFF;
+    f_5134C_u(0xA5);
+}
 
 void func_8004A848(s32 arg0, s32 arg1) {
     D_8008BEE0_a[0] = arg0;
@@ -453,7 +481,18 @@ void func_8004AFC4(s32 arg0, s32 arg1) {
     func_8005134C(0xE5);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_80049F90", func_8004AFFC);
+void f_SpuSetTransferMode_a(s32) asm("SpuSetTransferMode");
+void f_SpuSetTransferStartAddr_a(s32) asm("SpuSetTransferStartAddr");
+extern u8 D_8006B4FC_u[] asm("D_8006B4FC");
+void f_4B2E8_a(void *, s32) asm("func_8004B2E8");
+void f_4B374_a(void) asm("func_8004B374");
+s32 func_8004AFFC(s32 arg0) {
+    f_SpuSetTransferMode_a(0);
+    f_SpuSetTransferStartAddr_a(0x1010);
+    f_4B2E8_a(D_8006B4FC_u, 0x40);
+    f_4B374_a();
+    return arg0;
+}
 
 extern u8 D_8006B4FC[];
 void func_8005134C(s32);
