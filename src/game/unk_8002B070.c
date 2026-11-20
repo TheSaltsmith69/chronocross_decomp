@@ -523,7 +523,27 @@ void func_8002CD14(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CD70);
+typedef struct { s16 cur; s16 total; C2C334 from; C2C334 to; u8 **obj; } F2CD70;
+void func_8002CD70(F2CD70 *arg0) {
+    C2C334 c;
+    u8 *o;
+    if (D_1F800010_y1 != 0) {
+        o = *arg0->obj;
+        if (arg0->total != 0) {
+            c.r = arg0->from.r + (arg0->to.r - arg0->from.r) * arg0->cur / arg0->total;
+            c.g = arg0->from.g + (arg0->to.g - arg0->from.g) * arg0->cur / arg0->total;
+            c.b = arg0->from.b + (arg0->to.b - arg0->from.b) * arg0->cur / arg0->total;
+        }
+        arg0->cur += D_1F800010_y1;
+        if (arg0->total < arg0->cur) {
+            c = arg0->to;
+            f_33F20_y1(arg0);
+        }
+        o[0x2C] = c.r;
+        o[0x2D] = c.g;
+        o[0x2E] = c.b;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002CEB4);
 
@@ -540,9 +560,57 @@ void func_8002E284(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     *(u16 *)(p + 6) = arg4;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E2EC);
+extern C2C334 D_8007EDF0_y3 asm("D_8007EDF0");
+extern u8 D_8007EDE1_y3 asm("D_8007EDE1");
+extern C2C334 D_8007EDEC_y3 asm("D_8007EDEC");
+extern u8 D_8007EDE0_y3 asm("D_8007EDE0");
+void f_2C1C8_y3(void *) asm("func_8002C1C8");
+u8 *f_3BE00_y3(u8 *, void (*)(void *)) asm("func_8003BE00");
+u8 *f_2E284_y3(s32, s32, s32, s32, s32) asm("func_8002E284");
+void f_33F20_y3(void *) asm("func_80033F20");
+void func_8002E2EC(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    u8 *p = NULL;
+again:
+    while ((p = f_3BE00_y3(p, f_2C1C8_y3)) != NULL) {
+        if (*(u32 *)p & 1) {
+            f_33F20_y3(p);
+            goto again;
+        }
+    }
+    if (D_8007EDF0_y3.r == arg0 && D_8007EDF0_y3.g == arg1 && D_8007EDF0_y3.b == arg2 &&
+        (D_8007EDE1_y3 == arg3 || arg3 == -1)) {
+        return;
+    }
+    p = f_2E284_y3(arg0, arg1, arg2, arg3, arg4);
+    *(u32 *)p |= 1;
+    *(C2C334 *)(p + 8) = D_8007EDF0_y3;
+    if (arg3 != -1) {
+        D_8007EDE1_y3 = arg3;
+    }
+    f_2C1C8_y3(p);
+}
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8002B070", func_8002E430);
+void func_8002E430(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    u8 *p = NULL;
+again:
+    while ((p = f_3BE00_y3(p, f_2C1C8_y3)) != NULL) {
+        if (!(*(u32 *)p & 1)) {
+            f_33F20_y3(p);
+            goto again;
+        }
+    }
+    if (D_8007EDEC_y3.r == arg0 && D_8007EDEC_y3.g == arg1 && D_8007EDEC_y3.b == arg2 &&
+        (D_8007EDE0_y3 == arg3 || arg3 == -1)) {
+        return;
+    }
+    p = f_2E284_y3(arg0, arg1, arg2, arg3, arg4);
+    *(u32 *)p &= ~1;
+    *(C2C334 *)(p + 8) = D_8007EDEC_y3;
+    if (arg3 != -1) {
+        D_8007EDE0_y3 = arg3;
+    }
+    f_2C1C8_y3(p);
+}
 
 u8 f_2A040_a(s32) asm("func_8002A040");
 void f_2B434_a(void) asm("func_8002B434");
