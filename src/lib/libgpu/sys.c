@@ -69,7 +69,28 @@ s32 StoreImage(void *rect, u32 *p) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", MoveImage);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearOTag);
+typedef struct { unsigned addr : 24; unsigned len : 8; } TAG_c;
+typedef struct { void *f[16]; } GPUFN_T;
+extern u8 D_80063DE2;
+extern s32 (*D_80063DDC_T)(char *, ...) asm("D_80063DDC");
+extern char D_800566D0[];
+extern u32 D_80063EA0;
+extern u8 D_80063E8C[];
+u32 *ClearOTag(u32 *ot, s32 n) {
+    u32 *t;
+    if (D_80063DE2 >= 2) {
+        D_80063DDC_T(D_800566D0, ot, n);
+    }
+    while (--n) {
+        ((TAG_c *)ot)->len = 0;
+        ((TAG_c *)ot)->addr = (u32)(ot + 1);
+        ot++;
+    }
+    t = &D_80063EA0;
+    *t = ((u32)D_80063E8C & 0xFFFFFF) | 0x04000000;
+    *ot = (u32)t & 0xFFFFFF;
+    return ot;
+}
 
 typedef struct { void *f[16]; } GPUFN_R;
 extern GPUFN_R *D_80063DD8_R asm("D_80063DD8");
@@ -186,7 +207,26 @@ u32 func_80013450(void) {
     return *D_80063EE8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013468);
+extern volatile u32 *D_80063F04_t asm("D_80063F04");
+extern volatile u32 *D_80063F00_t asm("D_80063F00");
+extern volatile u32 *D_80063EF8_t asm("D_80063EF8");
+extern volatile u32 *D_80063EFC_t asm("D_80063EFC");
+void func_800144E4(void);
+s32 func_80014518(void);
+s32 func_80013468(u32 *a, s32 n) {
+    *D_80063F04_t |= 0x08000000;
+    *D_80063F00_t = 0;
+    *D_80063EF8_t = (u32)&a[n - 1];
+    *D_80063EFC_t = n;
+    *D_80063F00_t = 0x11000002;
+    func_800144E4();
+    while (*D_80063F00_t & 0x01000000) {
+        if (func_80014518()) {
+            return -1;
+        }
+    }
+    return n;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013548);
 
@@ -261,9 +301,57 @@ s32 func_8001465C(s32 mode) {
     return 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", LoadImage2);
+typedef struct { void *f[16]; } GPUFN_L2;
+extern GPUFN_L2 *D_80063DD8_L2 asm("D_80063DD8");
+extern char D_80056794[];
+extern volatile u32 *D_80063EF4_l asm("D_80063EF4");
+extern volatile u32 *D_80063EE8_l asm("D_80063EE8");
+extern s32 D_80063F1C_l asm("D_80063F1C");
+extern s32 D_80063F20_l asm("D_80063F20");
+void func_80012018_L2(char *, void *) asm("func_80012018");
+s32 VSync_l(s32) asm("VSync");
+s32 func_80014518(void);
+void DMACallback_l(s32, void *) asm("DMACallback");
+void _GPU_ResetCallback(void);
+s32 LoadImage2(void *r, u32 *p) {
+    func_80012018_L2(D_80056794, r);
+    D_80063F1C_l = VSync_l(-1) + 0xF0;
+    D_80063F20_l = 0;
+    while ((*D_80063EF4_l & 0x01000000) || !(*D_80063EE8_l & 0x04000000)) {
+        if (func_80014518()) {
+            return -1;
+        }
+    }
+    DMACallback_l(2, _GPU_ResetCallback);
+    ((void (*)(void *, u32 *))D_80063DD8_L2->f[8])(r, p);
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", StoreImage2);
+typedef struct { void *f[16]; } GPUFN_S2;
+extern GPUFN_S2 *D_80063DD8_S2 asm("D_80063DD8");
+extern char D_800566B8[];
+extern volatile u32 *D_80063EF4_l asm("D_80063EF4");
+extern volatile u32 *D_80063EE8_l asm("D_80063EE8");
+extern s32 D_80063F1C_l asm("D_80063F1C");
+extern s32 D_80063F20_l asm("D_80063F20");
+void func_80012018_S2(char *, void *) asm("func_80012018");
+s32 VSync_l(s32) asm("VSync");
+s32 func_80014518(void);
+void DMACallback_l(s32, void *) asm("DMACallback");
+void _GPU_ResetCallback(void);
+s32 StoreImage2(void *r, u32 *p) {
+    func_80012018_S2(D_800566B8, r);
+    D_80063F1C_l = VSync_l(-1) + 0xF0;
+    D_80063F20_l = 0;
+    while ((*D_80063EF4_l & 0x01000000) || !(*D_80063EE8_l & 0x04000000)) {
+        if (func_80014518()) {
+            return -1;
+        }
+    }
+    DMACallback_l(2, _GPU_ResetCallback);
+    ((void (*)(void *, u32 *))D_80063DD8_S2->f[7])(r, p);
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", MoveImage2);
 
