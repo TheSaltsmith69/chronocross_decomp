@@ -28,7 +28,7 @@ lib/libgpu/break,lib,80010D74,3,1,544,96
 lib/libgpu/e00,lib,80010F94,1,1,240,240
 lib/libgpu/e01,lib,80011084,1,1,112,112
 lib/libgpu/e02,lib,800110F4,1,1,112,112
-lib/libgpu/e03,lib,80011164,1,0,192,0
+lib/libgpu/e03,lib,80011164,1,1,192,192
 lib/libgpu/e04,lib,80011224,1,1,64,64
 lib/libgpu/p00,lib,80011264,1,1,64,64
 lib/libgpu/p01,lib,800112A4,1,1,32,32
@@ -72,13 +72,13 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,1,160,160
 lib/libgpu/param,lib,80011A44,6,6,496,496
-lib/libgpu/sys,lib,80011C34,54,25,12080,2260
+lib/libgpu/sys,lib,80011C34,54,28,12080,2920
 lib/libpad/padcmd,lib,80014B64,20,14,3072,784
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,2,1584,244
 lib/libpad/padmain,lib,80016254,13,4,3536,244
 lib/libpad/padportd,lib,80017024,8,3,1632,108
-lib/libpad/padseqd,lib,80017684,5,2,1216,108
+lib/libpad/padseqd,lib,80017684,5,3,1216,332
 lib/libpad/padseqm,lib,80017B44,5,1,2704,52
 lib/libpad/waitrc2,lib,800185D4,2,1,192,160
 lib/libmath/sqrt,lib,80018694,1,0,320,0
@@ -202,7 +202,7 @@ lib/libsnd/ut_roff,lib,800287B4,1,0,32,0
 lib/libspu/s_ini,lib,800287D4,2,1,352,120
 lib/libspu/spu,lib,80028934,14,7,2880,528
 lib/libspu/s_dcb,lib,80029474,1,1,48,48
-lib/libspu/s_sr,lib,800294A4,1,0,208,0
+lib/libspu/s_sr,lib,800294A4,1,1,208,208
 lib/libspu/s_m_util,lib,80029574,3,0,1328,0
 lib/unk_80029AA4,lib,80029AA4,13,0,5012,0
 lib/libsn/creat,lib,8002AE38,2,0,224,0
