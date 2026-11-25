@@ -15,7 +15,17 @@ void *startIntrVSync(void) {
     return func_800282C8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr_vb", func_8002825C);
+extern s32 D_8006AD38_c asm("D_8006AD38");
+extern void (*D_8006AD18_c[8])(void) asm("D_8006AD18");
+void func_8002825C(void) {
+    s32 i;
+    D_8006AD38_c++;
+    for (i = 0; i < 8; i++) {
+        if (D_8006AD18_c[i] != 0) {
+            D_8006AD18_c[i]();
+        }
+    }
+}
 
 extern s32 D_8006AD18[];
 void func_800282C8(s32 i, s32 f) {

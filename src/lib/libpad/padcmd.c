@@ -11,7 +11,22 @@ void _padSetCmd(u8 *p, s32 cmd, u8 *buf, s32 len) {
     p[0x36] = len;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padSendAtLoadInfo);
+void func_800156D8_s(u8 *) asm("func_800156D8");
+void func_800156EC_s(u8 *, s32) asm("func_800156EC");
+void func_8001572C_s(u8 *, s32) asm("func_8001572C");
+void _padSendAtLoadInfo(u8 *p) {
+    switch (p[0x46]) {
+    case 2:
+        func_800156D8_s(p);
+        break;
+    case 3:
+        func_800156EC_s(p, p[0xE4]);
+        break;
+    case 4:
+        func_8001572C_s(p, p[0x47]);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padRecvAtLoadInfo);
 

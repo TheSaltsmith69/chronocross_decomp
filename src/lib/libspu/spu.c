@@ -10,7 +10,21 @@ INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_Fr_);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_t);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_Fw);
+extern s32 D_8006AE2C_w asm("D_8006AE2C");
+extern u16 D_8006AE28_w asm("D_8006AE28");
+extern s32 D_8006AE38;
+void _spu_t_w(s32, ...) asm("_spu_t");
+void func_80028BB4_w(void *, s32) asm("func_80028BB4");
+s32 _spu_Fw(void *addr, s32 size) {
+    if (D_8006AE2C_w == 0) {
+        _spu_t_w(2, D_8006AE28_w << D_8006AE38);
+        _spu_t_w(1);
+        _spu_t_w(3, addr, size);
+    } else {
+        func_80028BB4_w(addr, size);
+    }
+    return size;
+}
 
 extern u16 D_8006AE28_q asm("D_8006AE28");
 extern s32 D_8006AE38;

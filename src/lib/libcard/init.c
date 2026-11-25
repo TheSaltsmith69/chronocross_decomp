@@ -1,6 +1,32 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libcard/init", InitCARD);
+void ChangeClearPAD_i(s32) asm("ChangeClearPAD");
+s32 VSync_i(s32) asm("VSync");
+s32 func_80022964_i(void) asm("func_80022964");
+s32 func_80022974_i(void) asm("func_80022974");
+s32 ReadInitPadFlag_i(void) asm("ReadInitPadFlag");
+void InitCARD2_i(s32) asm("InitCARD2");
+void _copy_memcard_patch_i(void) asm("_copy_memcard_patch");
+void func_80018F10_i(void) asm("func_80018F10");
+void func_80018FA4_i(void) asm("func_80018FA4");
+void func_80018E34_i(void) asm("func_80018E34");
+void InitCARD(s32 val) {
+    s32 s;
+    ChangeClearPAD_i(0);
+    VSync_i(0);
+    s = func_80022964_i();
+    if (ReadInitPadFlag_i() == 0) {
+        val = 0;
+    }
+    InitCARD2_i(val);
+    _copy_memcard_patch_i();
+    func_80018F10_i();
+    func_80018FA4_i();
+    func_80018E34_i();
+    if (s == 1) {
+        func_80022974_i();
+    }
+}
 
 s32 func_80022964_q(void) asm("func_80022964");
 s32 func_80022974_q(void) asm("func_80022974");

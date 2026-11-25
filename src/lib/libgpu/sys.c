@@ -65,7 +65,17 @@ void DrawPrim(u8 *p) {
     D_80063DD8_d->f[5](p + 4, n);
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", DrawOTag);
+typedef struct { void *f[16]; } GPUFN_O;
+extern GPUFN_O *D_80063DD8_O asm("D_80063DD8");
+extern u8 D_80063DE2;
+extern s32 (*D_80063DDC_O)(char *, ...) asm("D_80063DDC");
+extern char D_80056700[];
+void DrawOTag(u32 *ot) {
+    if (D_80063DE2 >= 2) {
+        D_80063DDC_O(D_80056700, ot);
+    }
+    ((void (*)(void *, u32 *, s32, s32))D_80063DD8_O->f[2])(D_80063DD8_O->f[6], ot, 0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", PutDrawEnv);
 
@@ -92,7 +102,14 @@ u32 GetODE(void) {
     return D_80063DD8->status() >> 31;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", SetDrawArea);
+typedef struct { s16 x, y, w, h; } RECT_da;
+u32 func_80013284_a(s32, s32) asm("func_80013284");
+u32 func_8001331C_a(s32, s32) asm("func_8001331C");
+void SetDrawArea(u32 *p, RECT_da *r) {
+    ((u8 *)p)[3] = 2;
+    p[1] = func_80013284_a(r->x, r->y);
+    p[2] = func_8001331C_a((s16)(r->x + r->w - 1), (s16)(r->y + r->h - 1));
+}
 
 u32 func_800133B4_s(s32, s32) asm("func_800133B4");
 void SetDrawOffset(u8 *p, s16 *ofs) {
@@ -118,7 +135,18 @@ u32 func_800133B4(u16 x, u16 y) {
     return 0xe5000000 | ((y & 0x7ff) << 11) | (x & 0x7ff);
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_800133D0);
+typedef struct { s16 x, y, w, h; } RECT_gt;
+u32 func_800133D0(RECT_gt *tw) {
+    s32 pat[4];
+    if (tw) {
+        pat[0] = (tw->x & 0xFF) >> 3;
+        pat[2] = ((-tw->w) & 0xFF) >> 3;
+        pat[1] = (tw->y & 0xFF) >> 3;
+        pat[3] = ((-tw->h) & 0xFF) >> 3;
+        return 0xE2000000 | (pat[1] << 15) | (pat[0] << 10) | (pat[3] << 5) | pat[2];
+    }
+    return 0;
+}
 
 extern volatile u32 *D_80063EE8;
 u32 func_80013450(void) {

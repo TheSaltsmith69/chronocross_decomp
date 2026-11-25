@@ -67,7 +67,26 @@ def simple_li(args):
     return -0x8000 <= n <= 0xFFFF or (n & 0xFFFF) == 0
 
 
-lines = sys.stdin.read().split('\n')
+# `lbu $3,sym($2)`: ASPSX builds the address in the destination register
+# (lui $3 / addu $3,$3,$2 / lbu $3,%lo(sym)($3)); maspsx would use $at.
+SYM_LOAD = re.compile(r'^\t(lw|lh|lhu|lb|lbu)\t(\$\d+),([A-Za-z_.][\w.]*(?:[+-]\d+)?)\((\$\d+)\)\s*(?:#.*)?$')
+
+
+def expand_sym_loads(lines):
+    res = []
+    for line in lines:
+        m = SYM_LOAD.match(line)
+        if m and m.group(2) != m.group(4) and m.group(2) != '$0':
+            op, rd, sym, rb = m.groups()
+            res += ['\tlui\t%s,%%hi(%s)' % (rd, sym),
+                    '\taddu\t%s,%s,%s' % (rd, rd, rb),
+                    '\t%s\t%s,%%lo(%s)(%s)' % (op, rd, sym, rd)]
+        else:
+            res.append(line)
+    return res
+
+
+lines = expand_sym_loads(sys.stdin.read().split('\n'))
 out = []
 reorder = True
 for line in lines:
