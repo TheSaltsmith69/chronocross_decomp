@@ -23,7 +23,7 @@ lib/libc2/strlen,lib,800109E4,1,0,64,0
 lib/libc2/strstr,lib,80010A24,1,0,112,0
 lib/libc2/strtok,lib,80010A94,1,0,288,0
 lib/libc2/strtoul,lib,80010BB4,1,0,336,0
-lib/libc2/todigit,lib,80010D04,1,0,112,0
+lib/libc2/todigit,lib,80010D04,1,1,112,112
 lib/libgpu/break,lib,80010D74,3,1,544,96
 lib/libgpu/e00,lib,80010F94,1,1,240,240
 lib/libgpu/e01,lib,80011084,1,1,112,112
@@ -65,15 +65,15 @@ lib/libgpu/p31,lib,80011744,1,1,32,32
 lib/libgpu/p32,lib,80011764,1,1,48,48
 lib/libgpu/p33,lib,80011794,1,1,48,48
 lib/libgpu/p34,lib,800117C4,1,1,96,96
-lib/libgpu/p35,lib,80011824,1,0,112,0
+lib/libgpu/p35,lib,80011824,1,1,112,112
 lib/libgpu/p36,lib,80011894,1,1,64,64
-lib/libgpu/p38,lib,800118D4,1,0,112,0
+lib/libgpu/p38,lib,800118D4,1,1,112,112
 lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,0,160,0
 lib/libgpu/param,lib,80011A44,6,4,496,236
-lib/libgpu/sys,lib,80011C34,54,17,12080,892
-lib/libpad/padcmd,lib,80014B64,20,12,3072,484
+lib/libgpu/sys,lib,80011C34,54,20,12080,1260
+lib/libpad/padcmd,lib,80014B64,20,13,3072,616
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,1,1584,72
 lib/libpad/padmain,lib,80016254,13,4,3536,244
@@ -99,7 +99,7 @@ lib/libcard/a92,lib,80018DD4,1,0,16,0
 lib/libcard/a93,lib,80018DE4,1,0,16,0
 lib/libcard/card,lib,80018DF4,1,1,64,64
 lib/libcard/patch,lib,80018E34,6,0,544,0
-lib/libcard/init,lib,80019054,3,2,256,112
+lib/libcard/init,lib,80019054,3,3,256,256
 lib/libcard/end,lib,80019154,1,0,128,0
 game/unk_800191D4,game,800191D4,18,16,5340,4272
 game/main,game,8001A6B0,73,49,33316,7988
@@ -136,7 +136,7 @@ lib/libapi/patch,lib,80023024,3,0,160,0
 lib/libapi/chclrpad,lib,800230C4,1,0,112,0
 lib/libcd/sys,lib,80023134,21,17,1552,488
 lib/libcd/bios,lib,80023744,14,0,6000,0
-lib/libcd/s_002,lib,80024EB4,2,0,400,0
+lib/libcd/s_002,lib,80024EB4,2,1,400,140
 lib/libgte/geo_00,lib,80025044,2,0,208,0
 lib/libgte/geo_01,lib,80025114,1,0,160,0
 lib/libgte/geo_03,lib,800251B4,3,0,864,0
@@ -187,7 +187,7 @@ lib/libetc/intr,lib,80027AF4,18,10,1760,404
 lib/libapi/a23,lib,800281D4,1,0,16,0
 lib/libapi/a24,lib,800281E4,1,0,16,0
 lib/libapi/a25,lib,800281F4,1,0,16,0
-lib/libetc/intr_vb,lib,80028204,4,2,288,132
+lib/libetc/intr_vb,lib,80028204,4,3,288,240
 lib/libetc/intr_dma,lib,80028324,4,1,672,76
 lib/libetc/vmode,lib,800285C4,1,1,20,20
 lib/unk_800285D8,lib,800285D8,1,0,28,0
@@ -199,8 +199,8 @@ lib/libsn/read,lib,80028654,1,0,192,0
 lib/libsn/snread,lib,80028714,1,0,24,0
 lib/libsn/_fixusdf,lib,8002872C,1,0,136,0
 lib/libsnd/ut_roff,lib,800287B4,1,0,32,0
-lib/libspu/s_ini,lib,800287D4,2,0,352,0
-lib/libspu/spu,lib,80028934,14,6,2880,396
+lib/libspu/s_ini,lib,800287D4,2,1,352,120
+lib/libspu/spu,lib,80028934,14,7,2880,528
 lib/libspu/s_dcb,lib,80029474,1,1,48,48
 lib/libspu/s_sr,lib,800294A4,1,0,208,0
 lib/libspu/s_m_util,lib,80029574,3,0,1328,0
