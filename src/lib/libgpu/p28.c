@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p28", func_800116D4);
+/* SetLineG2 */
+void func_800116D4(u8 *p) {
+    p[3] = 4;
+    p[7] = 0x50;
+}

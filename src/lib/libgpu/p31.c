@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p31", SetLineF4);
+void SetLineF4(u8 *p) {
+    p[3] = 6;
+    p[7] = 0x4C;
+    *(u32 *)(p + 0x18) = 0x55555555;
+}

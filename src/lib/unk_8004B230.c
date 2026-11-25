@@ -2,7 +2,9 @@
 
 INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B230);
 
-INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B280);
+s32 func_8004B280(s32 *p) {
+    return *p + 0xB0BEB4BF;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B294);
 

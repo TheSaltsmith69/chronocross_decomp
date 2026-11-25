@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p16", func_80011554);
+/* SetPolyF4 */
+void func_80011554(u8 *p) {
+    p[3] = 5;
+    p[7] = 0x28;
+}

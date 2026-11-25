@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p19", func_800115B4);
+/* SetPolyGT4 */
+void func_800115B4(u8 *p) {
+    p[3] = 12;
+    p[7] = 0x3C;
+}

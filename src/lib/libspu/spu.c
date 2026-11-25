@@ -22,8 +22,13 @@ INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FgetRXXa);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetPCR);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", func_800293BC);
+extern volatile u32 *D_8006AE24;
+void func_800293BC(void) {
+    *D_8006AE24 = (*D_8006AE24 & 0xF0FFFFFF) | 0x20000000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", func_800293E4);
+void func_800293E4(void) {
+    *D_8006AE24 = (*D_8006AE24 & 0xF0FFFFFF) | 0x22000000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_Fw1ts);

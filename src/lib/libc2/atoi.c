@@ -2,4 +2,8 @@
 
 INCLUDE_ASM("asm/nonmatchings/lib/libc2/atoi", atoi);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libc2/atoi", func_80010220);
+/* atol */
+s32 atoi(char *);
+s32 func_80010220(char *s) {
+    return atoi(s);
+}

@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p22", func_80011614);
+/* SetSprt */
+void func_80011614(u8 *p) {
+    p[3] = 4;
+    p[7] = 0x64;
+}

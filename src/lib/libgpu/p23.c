@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p23", func_80011634);
+/* SetTile1 */
+void func_80011634(u8 *p) {
+    p[3] = 2;
+    p[7] = 0x68;
+}

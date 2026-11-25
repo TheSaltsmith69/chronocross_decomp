@@ -79,7 +79,9 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013284);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_8001331C);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_800133B4);
+u32 func_800133B4(u16 x, u16 y) {
+    return 0xe5000000 | ((y & 0x7ff) << 11) | (x & 0x7ff);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_800133D0);
 
@@ -110,7 +112,10 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013CAC);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013CF4);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013D24);
+void func_80013D48(s32, s32, s32, s32);
+void func_80013D24(s32 a, s32 b, s32 c) {
+    func_80013D48(a, b, 0, c);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013D48);
 

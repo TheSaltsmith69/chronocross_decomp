@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p27", func_800116B4);
+/* SetLineF2 */
+void func_800116B4(u8 *p) {
+    p[3] = 3;
+    p[7] = 0x40;
+}

@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p17", func_80011574);
+/* SetPolyFT4 */
+void func_80011574(u8 *p) {
+    p[3] = 9;
+    p[7] = 0x2C;
+}

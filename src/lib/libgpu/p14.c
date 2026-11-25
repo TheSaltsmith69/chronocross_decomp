@@ -1,3 +1,7 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p14", func_80011514);
+/* SetPolyG3 */
+void func_80011514(u8 *p) {
+    p[3] = 6;
+    p[7] = 0x30;
+}
