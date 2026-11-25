@@ -4,7 +4,21 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", PadEnableCom);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", _padSetVsyncParam);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", func_80016398);
+extern volatile u32 *D_80063FC8_p asm("D_80063FC8");
+extern void (*D_80063F90_p)(void) asm("D_80063F90");
+s32 func_80016398(void) {
+    volatile u32 *r = D_80063FC8_p;
+    if (!(r[1] & 1)) {
+        return 0;
+    }
+    if (!(r[0] & 1)) {
+        return 0;
+    }
+    if (D_80063F90_p != 0) {
+        D_80063F90_p();
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", func_80016400);
 

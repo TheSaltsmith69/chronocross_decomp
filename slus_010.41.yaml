@@ -294,6 +294,7 @@ segments:
       - [0x3C3F4, c, lib/libspu/s_sic]  # 8004BBF4
       - [0x3C434, c, lib/libspu/s_cb]  # 8004BC34
       - [0x3C464, c, lib/libspu/s_r]  # 8004BC64
+      - [0x3C4C4, c, lib/libspu/s_w]  # 8004BCC4
       - [0x3C524, c, lib/libspu/s_stc]  # 8004BD24
       - [0x3C554, c, game/unk_8004BD54]  # 8004BD54
       - [0x3E570, c, lib/libspu/s_snc]  # 8004DD70

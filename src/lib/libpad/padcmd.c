@@ -27,7 +27,19 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80014F80);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80015028);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padSetActAlign);
+extern s32 (*D_80063F84_p)(u8 *) asm("D_80063F84");
+void func_800154A4_p(void) asm("func_800154A4");
+void func_80015488_p(void) asm("func_80015488");
+s32 _padSetActAlign(u8 *p, void *data) {
+    if (D_80063F84_p(p) != 0) {
+        return 0;
+    }
+    p[0x46] = 1;
+    *(void **)(p + 0x14) = func_80015488_p;
+    *(void **)(p + 0x20) = data;
+    *(void **)(p + 0x18) = func_800154A4_p;
+    return 1;
+}
 
 void func_80015488(u8 *p) {
     p[0x37] = 0x4D;
@@ -41,7 +53,18 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padSetMainMode);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80015604);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80015658);
+extern void (*D_80063F6C_p)(void) asm("D_80063F6C");
+s32 func_80015658(u8 *p) {
+    if (p[0x53] != 0) {
+        if (p[0x46] == 2) {
+            return 1;
+        }
+        p[0x46] = 0xFE;
+    } else {
+        D_80063F6C_p();
+    }
+    return 0;
+}
 
 void _padCmdParaMode(u8 *p, s32 mode) {
     p[0x37] = 0x43;
