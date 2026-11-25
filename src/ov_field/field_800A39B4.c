@@ -444,7 +444,50 @@ void func_800A74F0(void) {
     ResetSpadStack();
 }
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A75EC);
+typedef union { s32 w; struct { s16 lo, hi; } h; } U_a75;
+typedef struct {
+    u8 p[0x38]; U_a75 c[3]; s32 d[3]; u8 q[2]; s16 f52; s32 f54;
+} S_a75;
+typedef struct { u8 p[0x16C]; S_a75 s[1]; } G_a75;
+extern G_a75 D_800E3A50_a75 asm("D_800E3A50");
+void func_800A75EC(s32 i) {
+    if (D_800E3A50_a75.s[i].f52 == 0) {
+        return;
+    }
+    if (D_800E3A50_a75.s[i].f54 <= 0) {
+        S_a75 *p = &D_800E3A50_a75.s[i];
+        D_800E3A50_a75.s[i].f54 = 0;
+        if (p == 0) {
+            return;
+        }
+        if (D_800E3A50_a75.s[i].c[0].h.hi == 0 && D_800E3A50_a75.s[i].c[1].h.hi == 0 && D_800E3A50_a75.s[i].c[2].h.hi == 0) {
+            D_800E3A50_a75.s[i].f52 = 0;
+        }
+        return;
+    }
+    D_800E3A50_a75.s[i].c[0].w += D_800E3A50_a75.s[i].d[0];
+    if ((D_800E3A50_a75.s[i].c[0].w >> 16) >= 0x100) {
+        D_800E3A50_a75.s[i].c[0].w = 0xFF0000;
+    }
+    if (D_800E3A50_a75.s[i].c[0].w < 0) {
+        D_800E3A50_a75.s[i].c[0].w = 0;
+    }
+    D_800E3A50_a75.s[i].c[1].w += D_800E3A50_a75.s[i].d[1];
+    if ((D_800E3A50_a75.s[i].c[1].w >> 16) >= 0x100) {
+        D_800E3A50_a75.s[i].c[1].w = 0xFF0000;
+    }
+    if (D_800E3A50_a75.s[i].c[1].w < 0) {
+        D_800E3A50_a75.s[i].c[1].w = 0;
+    }
+    D_800E3A50_a75.s[i].c[2].w += D_800E3A50_a75.s[i].d[2];
+    if ((D_800E3A50_a75.s[i].c[2].w >> 16) >= 0x100) {
+        D_800E3A50_a75.s[i].c[2].w = 0xFF0000;
+    }
+    if (D_800E3A50_a75.s[i].c[2].w < 0) {
+        D_800E3A50_a75.s[i].c[2].w = 0;
+    }
+    D_800E3A50_a75.s[i].f54--;
+}
 
 extern s16 D_800E3A0A;
 extern s8 D_800E41D4;
@@ -2966,7 +3009,40 @@ void func_800BC190(void) {
     D_1F800004_bc1->pc += 3;
 }
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800BC254);
+typedef struct { u8 p[0xF4]; s16 fF4; s16 fF6; u8 q[0x278 - 0xF8]; } A_bc2;
+extern A_bc2 *D_800E257C_bc2 asm("D_800E257C");
+typedef struct { u8 p[0x124]; s16 f124; } D_bc2;
+typedef struct { u8 p[0x38]; u32 f38; u8 q[0xD8 - 0x3C]; D_bc2 *fD8; u8 r[0x274 - 0xDC]; u32 f274; } B_bc2;
+typedef struct { u8 p[0x74]; B_bc2 *a; } G_bc2;
+extern G_bc2 D_800E2508_bc2 asm("D_800E2508");
+extern s16 D_800E41D6;
+extern s32 D_800E6470;
+extern s32 D_800E6480;
+s32 func_800C6BA4(s32);
+void func_800BC254(void) {
+    s32 n, v;
+    if (D_800E41D6 != 0) {
+        D_800E6480 = 1;
+        return;
+    }
+    n = func_800C6BA4(1);
+    if (n != 0xFF) {
+        G_bc2 *g;
+        v = func_800B5C1C(2);
+        if (v == 0xFF) {
+            D_800E257C_bc2[n].fF6 = -1;
+        } else {
+            D_800E257C_bc2[n].fF4 = v;
+        }
+        g = &D_800E2508_bc2;
+        if (!(g->a[n].f38 & 0x4000)) {
+            g->a[n].fD8->f124 = 0;
+            g->a[n].f274 &= ~0x100;
+        }
+        D_800E6470++;
+    }
+    *(s32 *)(D_1F800004 + 0x228) += 4;
+}
 
 typedef struct { u8 p[0x23C]; u8 b23C; u8 b23D; u8 b23E; u8 q[0x278 - 0x23F]; } A_bc3;
 typedef struct { u8 p[0x74]; A_bc3 *a; } S_bc3;
@@ -6486,7 +6562,44 @@ void func_800DA6E0(void) {
     CdControl(9, 0, 0);
 }
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800DA720);
+typedef struct { s16 h; u8 p[6]; } T_da7;
+typedef struct {
+    u8 p[8]; s32 f8; void *fC[2]; u8 q[4]; T_da7 t[3]; u8 z[4];
+    R800D6C58 r; u8 s[0x44 - 0x3C]; s32 f44;
+} S_da7;
+extern S_da7 D_800E65F8_da7 asm("D_800E65F8");
+extern u8 D_800E66BC;
+extern u8 D_800E6758;
+extern s32 D_800E6760;
+extern s32 D_800E675C;
+void func_800DAC58(s32, s32);
+void func_800A3C78(void *, s32);
+void LoadImage(R800D6C58 *, void *);
+void func_800DA720(void) {
+    S_da7 *s;
+    R800D6C58 r;
+    if (D_800E66BC == 0 && D_800E6758 != 0) {
+        func_800DAC58(0xFF, 0);
+        D_800E6758 = 0;
+    }
+    if (D_800E6760 == 2) {
+        r.x = D_800E65F8_da7.r.x + 0xE4;
+        r.y = D_800E65F8_da7.r.y + 0x50;
+        r.w = D_800E65F8_da7.r.w;
+        r.h = D_800E65F8_da7.r.h;
+        LoadImage(&r, D_800E65F8_da7.fC[D_800E65F8_da7.f44]);
+    } else {
+        LoadImage(&D_800E65F8_da7.r, D_800E65F8_da7.fC[D_800E65F8_da7.f44]);
+    }
+    s = &D_800E65F8_da7;
+    s->r.x += s->r.w;
+    s->f44 = 1 - s->f44;
+    if (s->r.x >= s->t[s->f8].h) {
+        *(volatile s32 *)&D_800E675C = 0;
+    } else {
+        func_800A3C78(s->fC[s->f44], s->r.w * s->r.h / 2);
+    }
+}
 
 extern s32 D_800E6754;
 extern s32 D_800E6794;
