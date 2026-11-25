@@ -67,7 +67,11 @@ INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", func_80028078);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", func_80028118);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", func_80028190);
+void func_80028190(s32 *p, s32 n) {
+    while (--n != -1) {
+        *p++ = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", func_800281B4);
 

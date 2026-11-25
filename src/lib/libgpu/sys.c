@@ -244,4 +244,8 @@ void _GPU_ResetCallback(void) {
     DMACallback(2, func_80013FF8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80014B3C);
+void func_80014B3C(u8 *p, s32 c, s32 n) {
+    while (--n != -1) {
+        *p++ = c;
+    }
+}

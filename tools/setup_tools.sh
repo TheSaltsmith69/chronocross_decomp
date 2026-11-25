@@ -5,15 +5,15 @@ set -euo pipefail
 
 OLD_GCC_TAG=0.17
 MASPSX_COMMIT=4ffa8b5106f9780d5d4aa7609f184949433ddbbc
-VERSIONS="2.7.2 2.8.0 2.8.1"
+VERSIONS="2.7.2-psx 2.8.0-psx 2.8.1-psx 2.7.2-cdk"
 
 cd "$(dirname "$0")"
 
 for v in $VERSIONS; do
-  dir="gcc-$v-psx"
+  dir="gcc-$v"
   if [ -x "$dir/cc1" ]; then echo "$dir already present"; continue; fi
   mkdir -p "$dir"
-  url="https://github.com/decompals/old-gcc/releases/download/$OLD_GCC_TAG/gcc-$v-psx.tar.gz"
+  url="https://github.com/decompals/old-gcc/releases/download/$OLD_GCC_TAG/gcc-$v.tar.gz"
   echo "Downloading $url"
   curl -fsSL "$url" | tar -xz -C "$dir"
 done

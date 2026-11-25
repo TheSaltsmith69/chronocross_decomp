@@ -86,7 +86,40 @@ def expand_sym_loads(lines):
     return res
 
 
-lines = expand_sym_loads(sys.stdin.read().split('\n'))
+# This gcc 2.7.2 build reserves stack space it never uses in some leaf
+# functions with loops (`.frame $sp,16 # vars= 16, regs= 0/0`); the
+# original compiler did not. Drop such a frame when nothing else in the
+# function touches $sp.
+FRAME = re.compile(r'^\t\.frame\t\$sp,(\d+),\$31\t\t# vars= (\d+), regs= 0/0, args= 0, extra= 0$')
+
+
+def drop_unused_frames(lines):
+    res = []
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith('\t.ent\t'):
+            j = i
+            while j < len(lines) and not lines[j].startswith('\t.end\t'):
+                j += 1
+            body = lines[i:j + 1]
+            fr = [k for k, l in enumerate(body) if FRAME.match(l)]
+            if fr:
+                n = FRAME.match(body[fr[0]]).group(1)
+                adj = {'\tsubu\t$sp,$sp,%s' % n, '\taddu\t$sp,$sp,%s' % n}
+                others = [l for l in body if '$sp' in l and l not in adj and not l.startswith('\t.frame')]
+                if n != '0' and not others:
+                    body = [l for l in body if l not in adj]
+                    body = [re.sub(r'^\t\.frame\t\$sp,\d+,\$31\t\t# vars= \d+',
+                                   '\t.frame\t$sp,0,$31\t\t# vars= 0', l) for l in body]
+            res += body
+            i = j + 1
+        else:
+            res.append(lines[i])
+            i += 1
+    return res
+
+
+lines = expand_sym_loads(drop_unused_frames(sys.stdin.read().split('\n')))
 out = []
 reorder = True
 for line in lines:

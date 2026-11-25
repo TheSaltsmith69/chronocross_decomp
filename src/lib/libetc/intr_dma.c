@@ -17,4 +17,8 @@ INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr_dma", func_80028370);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr_dma", func_800284F0);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr_dma", func_8002859C);
+void func_8002859C(s32 *p, s32 n) {
+    while (--n != -1) {
+        *p++ = 0;
+    }
+}
