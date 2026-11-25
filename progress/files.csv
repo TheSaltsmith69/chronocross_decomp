@@ -250,4 +250,4 @@ game/unk_80051F24,game,80051F24,128,120,17692,12332
 lib/libspu/s_sia,lib,80056440,1,1,64,64
 lib/libgte/cmb_07,lib,80056480,1,0,176,0
 ov_field/libpress,ov_field,800A39B4,19,15,2800,1536
-ov_field/field_800A39B4,ov_field,800A44A4,763,556,245888,68452
+ov_field/field_800A39B4,ov_field,800A44A4,763,564,245888,71368
