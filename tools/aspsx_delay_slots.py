@@ -141,4 +141,40 @@ for line in lines:
                     '\t.set\tmacro', '\t.set\treorder']
             continue
     out.append(line)
-sys.stdout.write('\n'.join(out))
+
+
+def reads(op, args):
+    r = regs(args)
+    d = dest_reg(op, args)
+    if d is not None and r and r[0] == d:
+        r = r[1:]
+    return r
+
+
+# Load delay across a label: for `lw $3,x` / `$L:` / `lhu $2,4($3)` ASPSX
+# puts the nop before the label, maspsx after it (inside a loop, that
+# moves the branch target). Write the nop out explicitly.
+final = []
+reorder = True
+for i, line in enumerate(out):
+    final.append(line)
+    s = line.strip()
+    if s in ('.set\tnoreorder', '.set noreorder'):
+        reorder = False
+    elif s in ('.set\treorder', '.set reorder'):
+        reorder = True
+    p = parse(line) if reorder else None
+    if not p or p[0] not in LOADS:
+        continue
+    d = dest_reg(*p)
+    j = i + 1
+    saw_label = False
+    while j < len(out) and (out[j].strip() == '' or out[j].lstrip().startswith('#')
+                            or out[j].strip().endswith(':')):
+        saw_label = saw_label or out[j].strip().endswith(':')
+        j += 1
+    if saw_label and j < len(out):
+        q = parse(out[j])
+        if q and d in reads(*q):
+            final.append('\tnop')
+sys.stdout.write('\n'.join(final))

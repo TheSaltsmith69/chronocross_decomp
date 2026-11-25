@@ -34,9 +34,22 @@ s32 CdSetDebug(s32 level) {
     return old;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libcd/sys", CdComstr);
+extern char *D_800642A4[];
+extern char D_8006251C[];
+char *CdComstr(u8 com) {
+    if (com >= 0x1C) {
+        return D_8006251C;
+    }
+    return D_800642A4[com];
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libcd/sys", CdIntstr);
+extern char *D_80064324[];
+char *CdIntstr(u8 intr) {
+    if (intr >= 7) {
+        return D_8006251C;
+    }
+    return D_80064324[intr];
+}
 
 s32 CD_sync(s32, u8 *);
 s32 CdSync(s32 mode, u8 *result) {

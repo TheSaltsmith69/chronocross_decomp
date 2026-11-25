@@ -110,7 +110,12 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013C6C);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013CAC);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013CF4);
+extern volatile u32 *D_80063EE8_f asm("D_80063EE8");
+extern volatile u32 *D_80063EE4;
+u32 func_80013CF4(u32 x) {
+    *D_80063EE8_f = x | 0x10000000;
+    return *D_80063EE4 & 0xFFFFFF;
+}
 
 void func_80013D48(s32, s32, s32, s32);
 void func_80013D24(s32 a, s32 b, s32 c) {
@@ -125,7 +130,13 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80014258);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_800143A8);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_800144E4);
+s32 VSync(s32);
+extern s32 D_80063F1C;
+extern s32 D_80063F20;
+void func_800144E4(void) {
+    D_80063F1C = VSync(-1) + 0xF0;
+    D_80063F20 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80014518);
 

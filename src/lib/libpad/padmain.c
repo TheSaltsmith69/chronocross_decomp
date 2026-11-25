@@ -29,4 +29,8 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", func_80016CE8);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", func_80016F60);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padmain", _padWaitRXready);
+extern volatile u16 *D_80063FCC;
+void _padWaitRXready(void) {
+    while (!(D_80063FCC[2] & 2)) {
+    }
+}

@@ -1,3 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/s_stc", func_8004BD24);
+extern s32 D_8006AE48;
+void func_8004BD24(s32 v) {
+    if (v != D_8006AE48) {
+        D_8006AE48 = v;
+    }
+}

@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", ResetCallback);
+typedef s32 (*IFN_a)();
+extern IFN_a *D_8006ACF8_a asm("D_8006ACF8");
+s32 ResetCallback(void) {
+    return D_8006ACF8_a[3]();
+}
 
 typedef struct { void *f0; s32 (*dma)(s32, void *); s32 (*intr)(s32, void *); } IntrFuncs;
 extern IntrFuncs *D_8006ACF8;
@@ -12,13 +16,30 @@ s32 DMACallback(s32 i, void *f) {
     return D_8006ACF8->dma(i, f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", VSyncCallback);
+typedef s32 (*IFN_e)();
+extern IFN_e *D_8006ACF8_e asm("D_8006ACF8");
+s32 VSyncCallback(void *f) {
+    return D_8006ACF8_e[5](4, f);
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", VSyncCallbacks);
+typedef s32 (*IFN_c)();
+extern IFN_c *D_8006ACF8_c asm("D_8006ACF8");
+s32 VSyncCallbacks(s32 i, void *f) {
+    return D_8006ACF8_c[5](i, f);
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", func_80027BE8);
+/* StopCallback */
+typedef s32 (*IFN_d)();
+extern IFN_d *D_8006ACF8_d asm("D_8006ACF8");
+s32 func_80027BE8(void) {
+    return D_8006ACF8_d[4]();
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libetc/intr", RestartCallback);
+typedef s32 (*IFN_b)();
+extern IFN_b *D_8006ACF8_b asm("D_8006ACF8");
+s32 RestartCallback(void) {
+    return D_8006ACF8_b[6]();
+}
 
 extern u16 D_80069C72;
 s32 CheckCallback(void) {
