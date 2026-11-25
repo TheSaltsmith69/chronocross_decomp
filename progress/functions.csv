@@ -1411,7 +1411,7 @@ func_800B1834,800B1834,ov_field/field_800A39B4,ov_field,188,1
 func_800B18F0,800B18F0,ov_field/field_800A39B4,ov_field,200,1
 func_800B19B8,800B19B8,ov_field/field_800A39B4,ov_field,1220,0
 func_800B1E7C,800B1E7C,ov_field/field_800A39B4,ov_field,2068,0
-func_800B2690,800B2690,ov_field/field_800A39B4,ov_field,468,0
+func_800B2690,800B2690,ov_field/field_800A39B4,ov_field,468,1
 func_800B2864,800B2864,ov_field/field_800A39B4,ov_field,124,1
 func_800B28E0,800B28E0,ov_field/field_800A39B4,ov_field,604,0
 func_800B2B3C,800B2B3C,ov_field/field_800A39B4,ov_field,1792,0
@@ -1539,7 +1539,7 @@ func_800BAB04,800BAB04,ov_field/field_800A39B4,ov_field,104,1
 func_800BAB6C,800BAB6C,ov_field/field_800A39B4,ov_field,104,0
 func_800BABD4,800BABD4,ov_field/field_800A39B4,ov_field,200,1
 func_800BAC9C,800BAC9C,ov_field/field_800A39B4,ov_field,124,1
-func_800BAD18,800BAD18,ov_field/field_800A39B4,ov_field,488,0
+func_800BAD18,800BAD18,ov_field/field_800A39B4,ov_field,488,1
 func_800BAF00,800BAF00,ov_field/field_800A39B4,ov_field,104,1
 func_800BAF68,800BAF68,ov_field/field_800A39B4,ov_field,104,1
 func_800BAFD0,800BAFD0,ov_field/field_800A39B4,ov_field,104,1
@@ -1667,7 +1667,7 @@ func_800BFBC4,800BFBC4,ov_field/field_800A39B4,ov_field,92,1
 func_800BFC20,800BFC20,ov_field/field_800A39B4,ov_field,1064,0
 func_800C0048,800C0048,ov_field/field_800A39B4,ov_field,68,1
 func_800C008C,800C008C,ov_field/field_800A39B4,ov_field,608,0
-func_800C02EC,800C02EC,ov_field/field_800A39B4,ov_field,488,0
+func_800C02EC,800C02EC,ov_field/field_800A39B4,ov_field,488,1
 func_800C04D4,800C04D4,ov_field/field_800A39B4,ov_field,388,0
 func_800C0658,800C0658,ov_field/field_800A39B4,ov_field,596,0
 func_800C08AC,800C08AC,ov_field/field_800A39B4,ov_field,72,1
@@ -1812,12 +1812,12 @@ func_800CAA58,800CAA58,ov_field/field_800A39B4,ov_field,92,1
 func_800CAAB4,800CAAB4,ov_field/field_800A39B4,ov_field,264,0
 func_800CABBC,800CABBC,ov_field/field_800A39B4,ov_field,540,0
 func_800CADD8,800CADD8,ov_field/field_800A39B4,ov_field,732,0
-func_800CB0B4,800CB0B4,ov_field/field_800A39B4,ov_field,492,0
+func_800CB0B4,800CB0B4,ov_field/field_800A39B4,ov_field,492,1
 func_800CB2A0,800CB2A0,ov_field/field_800A39B4,ov_field,668,0
 func_800CB53C,800CB53C,ov_field/field_800A39B4,ov_field,688,0
 func_800CB7EC,800CB7EC,ov_field/field_800A39B4,ov_field,500,0
 func_800CB9E0,800CB9E0,ov_field/field_800A39B4,ov_field,648,0
-func_800CBC68,800CBC68,ov_field/field_800A39B4,ov_field,476,0
+func_800CBC68,800CBC68,ov_field/field_800A39B4,ov_field,476,1
 func_800CBE44,800CBE44,ov_field/field_800A39B4,ov_field,140,0
 func_800CBED0,800CBED0,ov_field/field_800A39B4,ov_field,80,1
 func_800CBF20,800CBF20,ov_field/field_800A39B4,ov_field,200,0
@@ -1958,7 +1958,7 @@ func_800D6F08,800D6F08,ov_field/field_800A39B4,ov_field,2484,0
 func_800D78BC,800D78BC,ov_field/field_800A39B4,ov_field,144,1
 func_800D794C,800D794C,ov_field/field_800A39B4,ov_field,116,1
 func_800D79C0,800D79C0,ov_field/field_800A39B4,ov_field,116,1
-func_800D7A34,800D7A34,ov_field/field_800A39B4,ov_field,476,0
+func_800D7A34,800D7A34,ov_field/field_800A39B4,ov_field,476,1
 func_800D7C10,800D7C10,ov_field/field_800A39B4,ov_field,1484,0
 func_800D81DC,800D81DC,ov_field/field_800A39B4,ov_field,412,1
 func_800D8378,800D8378,ov_field/field_800A39B4,ov_field,2500,0
