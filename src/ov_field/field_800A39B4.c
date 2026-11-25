@@ -54,7 +54,10 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3F64);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3FF8);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A408C);
+s32 func_800A408C(void) {
+    extern s32 *D_800E1478;
+    return *D_800E1478;
+}
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A40A4);
 
@@ -76,9 +79,18 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4AC4);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4C4C);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4DB0);
+void func_800A4DB0(void) {
+    void func_8003F63C(void);
+    extern u16 D_8007E9F0;
+    if ((D_8007E9F0 & 0x90F) == 0x90F) {
+        func_8003F63C();
+    }
+}
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4DE4);
+void func_800A4DE4(void) {
+    extern s32 D_800E2238;
+    func_8003D504(D_800E2238);
+}
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4E0C);
 
