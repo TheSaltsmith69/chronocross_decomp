@@ -72,7 +72,7 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,0,160,0
 lib/libgpu/param,lib,80011A44,6,4,496,236
-lib/libgpu/sys,lib,80011C34,54,20,12080,1260
+lib/libgpu/sys,lib,80011C34,54,22,12080,1652
 lib/libpad/padcmd,lib,80014B64,20,13,3072,616
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,1,1584,72
@@ -182,7 +182,7 @@ lib/libgte/rmat_00,lib,80027274,1,0,512,0
 lib/libgte/rmat_01,lib,80027474,1,0,528,0
 lib/libgte/ratan,lib,80027684,1,0,384,0
 lib/libgte/patchgte,lib,80027804,2,0,224,0
-lib/libetc/vsync,lib,800278E4,2,0,528,0
+lib/libetc/vsync,lib,800278E4,2,1,528,152
 lib/libetc/intr,lib,80027AF4,18,10,1760,404
 lib/libapi/a23,lib,800281D4,1,0,16,0
 lib/libapi/a24,lib,800281E4,1,0,16,0
