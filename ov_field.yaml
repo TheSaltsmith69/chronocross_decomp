@@ -52,7 +52,10 @@ segments:
     vram: 0x800A3308
     subsegments:
       - [0x0, rodata, rodata_800A3308]
-      - [0x4, .rodata, field_800A39B4]
-      - [0x6AC, c, field_800A39B4]
+      - [0x4, .rodata, libpress]
+      - [0x54, .rodata, field_800A39B4]
+      # PsyQ libpress (MDEC decoding), built with gcc 2.7.2 (see Makefile)
+      - [0x6AC, c, libpress]
+      - [0x119C, c, field_800A39B4]
       - [0x3D21C, data, data_800E0524]
   - [0x43800]

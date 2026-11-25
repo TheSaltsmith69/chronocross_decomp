@@ -15,56 +15,6 @@ extern u8 *D_1F800004;
 typedef struct { u16 h0; u16 a[20]; u16 b[20]; u16 h52; u16 h54; } S800E6910;
 extern S800E6910 D_800E6910;
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A39B4);
-
-void ResetCallback(void);
-void func_800A3D58(s32);
-
-/* PsyQ libpress DecDCTReset */
-void func_800A3AA4(s32 mode) {
-    if (mode == 0) {
-        ResetCallback();
-    }
-    func_800A3D58(mode);
-}
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3AD8);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3B64);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3BFC);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3C78);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3C98);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3CD4);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3D10);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3D34);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3D58);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3E48);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3ED8);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3F64);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A3FF8);
-
-s32 func_800A408C(void) {
-    extern s32 *D_800E1478;
-    return *D_800E1478;
-}
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A40A4);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4124);
-
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4154);
-
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A44A4);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800A4518);
@@ -3462,7 +3412,13 @@ void func_800BE0BC(void) {
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800BE1DC);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800BE2BC);
+extern u16 D_800E39BC;
+void func_800BE2BC(void) {
+    u8 *c = D_1F800004;
+    s32 pc = *(s32 *)(c + 0x228);
+    D_800E39BC = 0;
+    *(s32 *)(c + 0x228) = pc + 1;
+}
 
 void func_800BE2E0(s32 arg0) {
     if ((u16)(func_800B5BEC(1) & arg0) != 0) {

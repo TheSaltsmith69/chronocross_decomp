@@ -42,6 +42,10 @@ NODIV_SRCS := src/game/main.c src/game/unk_8002B070.c \
 $(NODIV_SRCS:%.c=$(BUILD)/%.o): MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
 # The field overlay has no divide-by-zero checks either.
 $(BUILD)/src/ov_%.o: MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
+# The PsyQ libpress object at the start of the field overlay was compiled
+# with gcc 2.7.2 (unfilled jr delay slots), not the game's 2.8.1.
+$(BUILD)/src/ov_field/libpress.o: CC1 := tools/gcc-2.7.2-psx/cc1
+$(BUILD)/src/ov_field/libpress.o: FIXALIGN := $(PYTHON) tools/aspsx_delay_slots.py
 
 ASFLAGS   := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 LDFLAGS   := -EL -nostdlib --no-check-sections -T undefined_funcs.txt -T linker_scripts/undefined_funcs_auto.txt \
