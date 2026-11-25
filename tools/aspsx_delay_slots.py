@@ -17,13 +17,14 @@ instruction is left where it is when:
   - the jump is a jal and the instruction uses $31;
   - moving it would leave a load right before a jump that reads the loaded
     register (e.g. `lw $31` followed by `j $31`).
-For `la`, only its final addiu moves into the slot.
+For `la` and stores to a symbol, only the final instruction moves into the
+slot. A `move` that the branch reads is propagated into the branch.
 Reads stdin, writes stdout.
 """
 import re
 import sys
 
-JUMP = re.compile(r'^\t(j|jal|jr)\t(\S+)$')
+JUMP = re.compile(r'^\t(j|jal|jr|beq|bne|beqz|bnez|bgez|bltz|blez|bgtz)\t(\S+)$')
 INSN = re.compile(r'^\t([a-z][a-z0-9.]*)\t?(.*)$')
 LOADS = {'lw', 'lh', 'lhu', 'lb', 'lbu', 'lwl', 'lwr', 'lwc2', 'ulw', 'ulh', 'ulhu'}
 NO_MOVE = LOADS | {'j', 'jal', 'jr', 'jalr', 'b', 'beq', 'bne', 'beqz', 'bnez', 'blez',
@@ -31,6 +32,8 @@ NO_MOVE = LOADS | {'j', 'jal', 'jr', 'jalr', 'b', 'beq', 'bne', 'beqz', 'bnez', 
                    'mflo', 'mfhi', 'mtlo', 'mthi', 'mfc0', 'mtc0', 'mfc2', 'mtc2',
                    'cfc2', 'ctc2', 'syscall', 'break', 'nop', 'rem', 'remu'}
 REG = re.compile(r'\$(\d+|sp|fp|ra)')
+# `sw $4,sym` / `sb $4,sym($2)` / `sw $4,sym+8`: stores the assembler expands
+SYM_STORE = re.compile(r'^\t(sw|sh|sb)\t(\$\d+),([A-Za-z_.][\w.]*(?:[+-]\d+)?)(?:\((\$\d+)\))?\s*(?:#.*)?$')
 
 
 def regs(text):
@@ -91,14 +94,22 @@ for line in lines:
             elif op == 'li' and not simple_li(args):
                 ok = False
             elif d is not None and d in jreads:
-                ok = False
+                # ASPSX propagates a copy into the branch: `move $2,$4; bgez $2,L`
+                # becomes `bgez $4,L` with the move in the delay slot
+                src = regs(args)[1:] if op == 'move' else []
+                if src and src[0] != d:
+                    line = re.sub(r'\$%s\b' % d, '$' + src[0], line)
+                else:
+                    ok = False
             elif jop == 'jal' and '31' in regs(args):
                 ok = False
             else:
                 # the instruction that would end up next to the jump
                 w = k - 1
-                while w >= 0 and (out[w].strip() == '' or out[w].lstrip().startswith('#')):
-                    w -= 1
+                while w >= 0 and (out[w].strip() == '' or out[w].lstrip().startswith('#') or
+                                  (out[w].lstrip().startswith('.') and
+                                   not out[w].lstrip().startswith('.set'))):
+                    w -= 1  # comments and .frame/.mask/... directives
                 wp = parse(out[w]) if w >= 0 else None
                 if wp is None and w >= 0 and not out[w].strip().endswith(':'):
                     ok = False  # a directive: leave things alone
@@ -107,10 +118,23 @@ for line in lines:
         if ok:
             op, args = prev
             moved = out[k]
+            sm = SYM_STORE.match(out[k])
             if op == 'la':
                 r, sym = [a.strip() for a in args.split(',', 1)]
                 out[k] = '\tlui\t%s,%%hi(%s)' % (r, sym)
                 moved = '\taddiu\t%s,%s,%%lo(%s)' % (r, r, sym)
+            elif sm:
+                # a store to a symbol is a macro (lui $at [+ addu $at,base]);
+                # only the final store goes into the slot
+                sop, r, sym, base = sm.groups()
+                pre = ['\tlui\t$1,%%hi(%s)' % sym]
+                if base:
+                    pre.append('\taddu\t$1,$1,%s' % base)
+                out[k:k + 1] = pre
+                moved = '\t%s\t%s,%%lo(%s)($1)' % (sop, r, sym)
+                out += ['\t.set\tnoreorder', '\t.set\tnomacro', line, moved,
+                        '\t.set\tmacro', '\t.set\treorder']
+                continue
             else:
                 del out[k]
             out += ['\t.set\tnoreorder', '\t.set\tnomacro', line, moved,
