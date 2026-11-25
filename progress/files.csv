@@ -72,7 +72,7 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,1,160,160
 lib/libgpu/param,lib,80011A44,6,6,496,496
-lib/libgpu/sys,lib,80011C34,54,28,12080,2920
+lib/libgpu/sys,lib,80011C34,54,31,12080,3480
 lib/libpad/padcmd,lib,80014B64,20,14,3072,784
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,2,1584,244
