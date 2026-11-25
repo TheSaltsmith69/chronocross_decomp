@@ -94,7 +94,7 @@ def module_files(ov, config, segment, elf, src_dir):
             size = (fa[i + 1] if i + 1 < len(fa) else end) - a
             fname = funcs.get(a, f"func_{a:08X}")
             matched = asm_names is not None and fname not in asm_names
-            entries.append((fname, size, matched))
+            entries.append((fname, size, matched, a))
         report_files.append({
             "file": f"{ov}/{name}" if ov else name,
             "category": ov or category(name),
@@ -104,6 +104,8 @@ def module_files(ov, config, segment, elf, src_dir):
             "bytes": sum(e[1] for e in entries),
             "bytes_matched": sum(e[1] for e in entries if e[2]),
             "matched": [e[0] for e in entries if e[2]],
+            "functions": [{"name": e[0], "addr": f"{e[3]:08X}", "bytes": e[1], "matched": e[2]}
+                          for e in entries],
         })
     return report_files
 
@@ -112,6 +114,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", help="write report JSON here")
     ap.add_argument("--files-csv", help="write one row per code file here")
+    ap.add_argument("--funcs-csv", help="write one row per function here")
     ap.add_argument("--history", help="add this commit's totals to this history CSV")
     args = ap.parse_args()
 
@@ -161,6 +164,15 @@ def main():
                 w.writerow([f["file"], f["category"], f["start"], f["funcs"], f["funcs_matched"],
                             f["bytes"], f["bytes_matched"]])
         print("wrote", args.files_csv)
+    if args.funcs_csv:
+        with open(args.funcs_csv, "w", newline="") as fh:
+            w = csv.writer(fh)
+            w.writerow(["function", "addr", "file", "category", "bytes", "matched"])
+            for f in report_files:
+                for fn in f["functions"]:
+                    w.writerow([fn["name"], fn["addr"], f["file"], f["category"], fn["bytes"],
+                                1 if fn["matched"] else 0])
+        print("wrote", args.funcs_csv)
     if args.history:
         update_history(Path(args.history), report)
 
