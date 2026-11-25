@@ -18,7 +18,15 @@ INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetRXX);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetRXXa);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FgetRXXa);
+extern u16 *D_8006AE10_n asm("D_8006AE10");
+extern s32 D_8006AE38;
+s32 _spu_FgetRXXa(s32 reg, s32 mode) {
+    u16 v = D_8006AE10_n[reg];
+    if (mode == -1) {
+        return v;
+    }
+    return v << D_8006AE38;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetPCR);
 

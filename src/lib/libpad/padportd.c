@@ -16,7 +16,16 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padportd", func_800172F0);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padportd", func_800173AC);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padportd", func_80017628);
+extern u8 D_8006E880[];
+s32 func_80017628(u8 *p) {
+    s32 i;
+    for (i = 0; i < 2; i++) {
+        if (p == D_8006E880 + i * 0xF0) {
+            return (i + 1) * 0x10;
+        }
+    }
+    return 0xFF;
+}
 
 extern u8 D_8006E880[];
 u8 *func_80017660(s32 port) {

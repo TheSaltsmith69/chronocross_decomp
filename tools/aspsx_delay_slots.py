@@ -107,9 +107,8 @@ for line in lines:
                 # the instruction that would end up next to the jump
                 w = k - 1
                 while w >= 0 and (out[w].strip() == '' or out[w].lstrip().startswith('#') or
-                                  (out[w].lstrip().startswith('.') and
-                                   not out[w].lstrip().startswith('.set'))):
-                    w -= 1  # comments and .frame/.mask/... directives
+                                  out[w].lstrip().startswith('.')):
+                    w -= 1  # comments and directives (incl. the end of a noreorder block)
                 wp = parse(out[w]) if w >= 0 else None
                 if wp is None and w >= 0 and not out[w].strip().endswith(':'):
                     ok = False  # a directive: leave things alone

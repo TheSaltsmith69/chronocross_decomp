@@ -12,7 +12,12 @@ INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B2B8);
 
 INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B2E8);
 
-INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B338);
+void func_8004B2B8(void);
+s32 SpuRead(void *, s32);
+void func_8004B338(void *addr, s32 size) {
+    func_8004B2B8();
+    SpuRead(addr, size);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B374);
 

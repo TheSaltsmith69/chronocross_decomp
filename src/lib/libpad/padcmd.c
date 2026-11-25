@@ -15,7 +15,11 @@ INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padSendAtLoadInfo);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padRecvAtLoadInfo);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", _padGetActSize);
+s32 _padGetActSize(u8 *p) {
+    s32 a = ((p[0xE3] + 1) >> 1) << 2;
+    s32 b = ((p[0xE9] * 5 + 3) & 0xFFC) + 4;
+    return a + b + *(u16 *)(p + 0xEC);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80014EAC);
 

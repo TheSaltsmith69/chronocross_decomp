@@ -64,7 +64,12 @@ u32 GetODE(void) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", SetDrawArea);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", SetDrawOffset);
+u32 func_800133B4_s(s32, s32) asm("func_800133B4");
+void SetDrawOffset(u8 *p, s16 *ofs) {
+    p[3] = 2;
+    *(u32 *)(p + 4) = func_800133B4_s(ofs[0], ofs[1]);
+    *(u32 *)(p + 8) = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", SetDrawEnv);
 

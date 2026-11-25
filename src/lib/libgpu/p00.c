@@ -1,3 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/p00", GetTPage);
+u16 GetTPage(s32 tp, s32 abr, s32 x, s32 y) {
+    return ((tp & 3) << 7) | ((abr & 3) << 5) | ((y & 0x100) >> 4) | ((x & 0x3ff) >> 6) | ((y & 0x200) << 2);
+}
