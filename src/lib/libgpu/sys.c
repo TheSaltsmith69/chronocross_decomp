@@ -13,7 +13,22 @@ s32 GetGraphDebug(void) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", DrawSyncCallback);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", SetDispMask);
+typedef struct { u8 ver, x, lvl, y; } GENV_m;
+extern volatile GENV_m D_80063DE0_m asm("D_80063DE2-2");
+extern s32 (*D_80063DDC_g)(char *, ...) asm("D_80063DDC");
+typedef struct { void *f[16]; } GPUFN_dm;
+extern GPUFN_dm *D_80063DD8_dm asm("D_80063DD8");
+extern char D_80056648[];
+void func_80014B3C(u8 *, s32, s32);
+void SetDispMask(s32 mask) {
+    if (D_80063DE0_m.lvl >= 2) {
+        D_80063DDC_g(D_80056648, mask);
+    }
+    if (mask == 0) {
+        func_80014B3C((u8 *)&D_80063DE0_m + 0x6C, -1, 0x14);
+    }
+    ((void (*)(u32))D_80063DD8_dm->f[4])(mask ? 0x03000000 : 0x03000001);
+}
 
 typedef struct { void *f[16]; } GPUFN_D;
 extern GPUFN_D *D_80063DD8_D asm("D_80063DD8");
@@ -131,9 +146,46 @@ void DrawOTag(u32 *ot) {
     ((void (*)(void *, u32 *, s32, s32))D_80063DD8_O->f[2])(D_80063DD8_O->f[6], ot, 0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", PutDrawEnv);
+typedef struct { u8 ver, x, lvl, y; } GENV_p;
+extern volatile GENV_p D_80063DE0_p asm("D_80063DE2-2");
+extern s32 (*D_80063DDC_g)(char *, ...) asm("D_80063DDC");
+typedef struct { void *f[16]; } GPUFN_pd;
+extern GPUFN_pd *D_80063DD8_pd asm("D_80063DD8");
+extern char D_80056714[];
+void func_80012FF4_p(void *, void *) asm("func_80012FF4");
+void *memcpy(void *, void *, s32);
+u8 *PutDrawEnv(u8 *env) {
+    GPUFN_pd *g;
+    if (D_80063DE0_p.lvl >= 2) {
+        D_80063DDC_g(D_80056714, env);
+    }
+    func_80012FF4_p(env + 0x1C, env);
+    g = D_80063DD8_pd;
+    *(u32 *)(env + 0x1C) |= 0xFFFFFF;
+    ((void (*)(void *, void *, s32, s32))g->f[2])(g->f[6], env + 0x1C, 0x40, 0);
+    memcpy((u8 *)&D_80063DE0_p + 0x10, env, 0x5C);
+    return env;
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", DrawOTagEnv);
+typedef struct { u8 ver, x, lvl, y; } GENV_o;
+extern volatile GENV_o D_80063DE0_o asm("D_80063DE2-2");
+extern s32 (*D_80063DDC_g)(char *, ...) asm("D_80063DDC");
+typedef struct { void *f[16]; } GPUFN_od;
+extern GPUFN_od *D_80063DD8_od asm("D_80063DD8");
+extern char D_8005672C[];
+void func_80012FF4_o(void *, void *) asm("func_80012FF4");
+void *memcpy(void *, void *, s32);
+void DrawOTagEnv(u32 *ot, u8 *env) {
+    GPUFN_od *g;
+    if (D_80063DE0_o.lvl >= 2) {
+        D_80063DDC_g(D_8005672C, ot, env);
+    }
+    func_80012FF4_o(env + 0x1C, env);
+    g = D_80063DD8_od;
+    *(u32 *)(env + 0x1C) = (*(u32 *)(env + 0x1C) & 0xFF000000) | ((u32)ot & 0xFFFFFF);
+    ((void (*)(void *, void *, s32, s32))g->f[2])(g->f[6], env + 0x1C, 0x40, 0);
+    memcpy((u8 *)&D_80063DE0_o + 0x10, env, 0x5C);
+}
 
 extern u8 D_80063DF0[];
 void *memcpy(void *, void *, s32);
