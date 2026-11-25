@@ -3646,7 +3646,44 @@ s32 func_800BF748(s32 arg0, s32 *out) {
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800BF798);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800BF90C);
+typedef struct { u8 p[0x2D]; u8 f2D; u8 q[0xCC - 0x2E]; } P_bf9;
+extern P_bf9 D_8006EBC8_bf9[] asm("D_8006EBC8");
+extern s32 D_800E6480;
+s32 func_800BDC54(void);
+void func_800BF798(s32, s32);
+typedef struct { u8 p[0x228]; s32 pc; } C_bf9;
+extern C_bf9 *D_1F800004_bf9 asm("D_1F800004");
+void func_800BF90C(void) {
+    s32 v, n, r;
+    P_bf9 *p;
+    if (func_800BDC54() == -1) {
+        D_800E6480 = 1;
+        return;
+    }
+    v = func_800B5C1C(3);
+    n = func_800BAA90(func_800B5C1C(1));
+    if (n != 0xFF) {
+        { P_bf9 *base = D_8006EBC8_bf9; p = base + n; }
+        if (p->f2D != v) {
+            r = func_800BAA38(n);
+            if (r != -1) {
+                if (D_800E5464 == 0) {
+                    p->f2D = v;
+                    DrawSync(0);
+                    D_800E5464 = 1;
+                    func_800BF798(n, r);
+                    D_800E6480 = 1;
+                    D_1F800004_bf9->pc += 5;
+                } else {
+                    D_800E6480 = 1;
+                }
+                return;
+            }
+            p->f2D = v;
+        }
+    }
+    D_1F800004_bf9->pc += 6;
+}
 
 typedef struct { u8 p[0x2D]; u8 b2D; u8 q[0xCC - 0x2E]; } S8006EBC8_cc;
 extern S8006EBC8_cc D_8006EBC8_cc[] asm("D_8006EBC8");
@@ -5564,7 +5601,36 @@ void func_800CECE4(void) {
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800CED44);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800CEE8C);
+extern u8 D_800E1D10_2[][8] asm("D_800E1D10");
+extern u8 D_800E1D10[];
+void func_800CF664(s32 v, u8 *out);
+u8 *func_800CEE8C(s32 a, s32 b) {
+    s32 x = func_800B5B34(a * 2 + 0x1A);
+    s32 add, c, i, j;
+    func_800CF664(x, D_800E1D10_2[a + b]);
+    if (b == 0) {
+        add = 0xD0;
+        c = 0xF6;
+    } else {
+        add = 0x28;
+        c = 0x23;
+    }
+    j = 0;
+    for (i = 0; i < 4; i++) {
+        if (D_800E1D10_2[a + b][i + 1] != 0) {
+            break;
+        }
+        j++;
+    }
+    for (i = 0; i < 5; i++) {
+        D_800E1D10_2[a + b][i + 1] += add;
+    }
+    if (x < 0) {
+        D_800E1D10_2[a + b][j] = c;
+        return &D_800E1D10_2[a + b][j];
+    }
+    return &D_800E1D10_2[a + b][j + 1];
+}
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PFT4_cef;
 extern PFT4_cef D_800E6510_cef[] asm("D_800E6510");
