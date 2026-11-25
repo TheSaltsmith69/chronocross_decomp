@@ -17,7 +17,13 @@ s32 func_8004B280(s32 *p) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B294);
 
-INCLUDE_ASM("asm/nonmatchings/lib/unk_8004B230", func_8004B2B8);
+extern volatile s32 D_8008BE20_v asm("D_8008BE20");
+void func_8004BD24(void *);
+void func_8004B294(void);
+void func_8004B2B8(void) {
+    D_8008BE20_v = 1;
+    func_8004BD24(func_8004B294);
+}
 
 extern volatile s32 D_8008BE20_v asm("D_8008BE20");
 void func_8004BD24(void *);

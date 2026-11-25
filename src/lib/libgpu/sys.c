@@ -71,7 +71,24 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", MoveImage);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearOTag);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearOTagR);
+typedef struct { void *f[16]; } GPUFN_R;
+extern GPUFN_R *D_80063DD8_R asm("D_80063DD8");
+extern u8 D_80063DE2;
+extern s32 (*D_80063DDC_R)(char *, ...) asm("D_80063DDC");
+extern char D_800566E8[];
+extern u32 D_80063EA0;
+extern u8 D_80063E8C[];
+u32 *ClearOTagR(u32 *ot, s32 n) {
+    u32 *t;
+    if (D_80063DE2 >= 2) {
+        D_80063DDC_R(D_800566E8, ot, n);
+    }
+    ((void (*)(u32 *, s32))D_80063DD8_R->f[11])(ot, n);
+    t = &D_80063EA0;
+    *t = ((u32)D_80063E8C & 0xFFFFFF) | 0x04000000;
+    *ot = (u32)t & 0xFFFFFF;
+    return ot;
+}
 
 typedef struct { void (*f[16])(); } GPUFN_d;
 extern GPUFN_d *D_80063DD8_d asm("D_80063DD8");

@@ -119,7 +119,11 @@ def drop_unused_frames(lines):
     return res
 
 
-lines = expand_sym_loads(drop_unused_frames(sys.stdin.read().split('\n')))
+src = sys.stdin.read()
+# The SN Systems cc1 (cygnus-2.7.2-970404): for its `lw $31 / addu $sp / j $31`
+# epilogues ASPSX still moves the addu into the slot, with a nop for the load.
+CDK = 'cygnus-2.7.2-970404' in src
+lines = expand_sym_loads(drop_unused_frames(src.split('\n')))
 out = []
 reorder = True
 for line in lines:
@@ -129,6 +133,7 @@ for line in lines:
     elif s == '.set\treorder' or s == '.set reorder':
         reorder = True
     jm = JUMP.match(line) if reorder else None
+    hazard_nop = False
     if jm:
         # the previous real instruction, with nothing but comments in between
         k = len(out) - 1
@@ -165,10 +170,19 @@ for line in lines:
                 if wp is None and w >= 0 and not out[w].strip().endswith(':'):
                     ok = False  # a directive: leave things alone
                 elif wp and wp[0] in LOADS and dest_reg(*wp) in jreads:
-                    ok = False
+                    if CDK and jop == 'j' and jreads == ['31']:
+                        hazard_nop = True
+                    else:
+                        ok = False
         if ok:
             op, args = prev
             moved = out[k]
+            if hazard_nop:
+                out[k] = '\tnop'
+                out += ['\t.set\tnoreorder', '\t.set\tnomacro', line, moved,
+                        '\t.set\tmacro', '\t.set\treorder']
+                hazard_nop = False
+                continue
             sm = SYM_STORE.match(out[k])
             if op == 'la':
                 r, sym = [a.strip() for a in args.split(',', 1)]

@@ -4,7 +4,7 @@ extern void *D_80063F80;
 extern void *D_80063F84;
 extern void *D_80063F88;
 void func_80017B78(void);
-void func_8001851C(void);
+s32 func_8001851C();
 void func_80017DE8(void);
 void _padInitMtapSeq(void) {
     D_80063F80 = func_80017B78;
