@@ -1304,7 +1304,7 @@ func_800A550C,800A550C,ov_field/field_800A39B4,ov_field,108,1
 func_800A5578,800A5578,ov_field/field_800A39B4,ov_field,60,1
 func_800A55B4,800A55B4,ov_field/field_800A39B4,ov_field,168,1
 func_800A565C,800A565C,ov_field/field_800A39B4,ov_field,176,1
-func_800A570C,800A570C,ov_field/field_800A39B4,ov_field,424,0
+func_800A570C,800A570C,ov_field/field_800A39B4,ov_field,424,1
 func_800A58B4,800A58B4,ov_field/field_800A39B4,ov_field,136,1
 func_800A593C,800A593C,ov_field/field_800A39B4,ov_field,236,1
 func_800A5A28,800A5A28,ov_field/field_800A39B4,ov_field,236,1
@@ -1332,13 +1332,13 @@ func_800A89EC,800A89EC,ov_field/field_800A39B4,ov_field,68,1
 func_800A8A30,800A8A30,ov_field/field_800A39B4,ov_field,208,1
 func_800A8B00,800A8B00,ov_field/field_800A39B4,ov_field,164,1
 func_800A8BA4,800A8BA4,ov_field/field_800A39B4,ov_field,152,1
-func_800A8C3C,800A8C3C,ov_field/field_800A39B4,ov_field,440,0
+func_800A8C3C,800A8C3C,ov_field/field_800A39B4,ov_field,440,1
 func_800A8DF4,800A8DF4,ov_field/field_800A39B4,ov_field,116,1
 func_800A8E68,800A8E68,ov_field/field_800A39B4,ov_field,56,1
 func_800A8EA0,800A8EA0,ov_field/field_800A39B4,ov_field,48,1
 func_800A8ED0,800A8ED0,ov_field/field_800A39B4,ov_field,2656,0
-func_800A9930,800A9930,ov_field/field_800A39B4,ov_field,460,0
-func_800A9AFC,800A9AFC,ov_field/field_800A39B4,ov_field,436,0
+func_800A9930,800A9930,ov_field/field_800A39B4,ov_field,460,1
+func_800A9AFC,800A9AFC,ov_field/field_800A39B4,ov_field,436,1
 func_800A9CB0,800A9CB0,ov_field/field_800A39B4,ov_field,1300,0
 func_800AA1C4,800AA1C4,ov_field/field_800A39B4,ov_field,516,0
 func_800AA3C8,800AA3C8,ov_field/field_800A39B4,ov_field,148,1
@@ -1825,8 +1825,8 @@ func_800CBFE8,800CBFE8,ov_field/field_800A39B4,ov_field,80,1
 func_800CC038,800CC038,ov_field/field_800A39B4,ov_field,376,1
 func_800CC1B0,800CC1B0,ov_field/field_800A39B4,ov_field,84,1
 func_800CC204,800CC204,ov_field/field_800A39B4,ov_field,92,1
-func_800CC260,800CC260,ov_field/field_800A39B4,ov_field,400,0
-func_800CC3F0,800CC3F0,ov_field/field_800A39B4,ov_field,420,0
+func_800CC260,800CC260,ov_field/field_800A39B4,ov_field,400,1
+func_800CC3F0,800CC3F0,ov_field/field_800A39B4,ov_field,420,1
 func_800CC594,800CC594,ov_field/field_800A39B4,ov_field,164,1
 func_800CC638,800CC638,ov_field/field_800A39B4,ov_field,196,1
 func_800CC6FC,800CC6FC,ov_field/field_800A39B4,ov_field,188,1
