@@ -33,7 +33,13 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearOTag);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearOTagR);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", DrawPrim);
+typedef struct { void (*f[16])(); } GPUFN_d;
+extern GPUFN_d *D_80063DD8_d asm("D_80063DD8");
+void DrawPrim(u8 *p) {
+    s32 n = p[3];
+    D_80063DD8_d->f[15](0);
+    D_80063DD8_d->f[5](p + 4, n);
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", DrawOTag);
 
@@ -113,7 +119,16 @@ INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013C58);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013C6C);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013CAC);
+extern volatile u32 *D_80063EE8_r asm("D_80063EE8");
+extern volatile u32 *D_80063EEC_r asm("D_80063EEC");
+extern volatile u32 *D_80063EF0_r asm("D_80063EF0");
+extern volatile u32 *D_80063EF4_r asm("D_80063EF4");
+void func_80013CAC(u32 x) {
+    *D_80063EE8_r = 0x04000002;
+    *D_80063EEC_r = x;
+    *D_80063EF0_r = 0;
+    *D_80063EF4_r = 0x01000401;
+}
 
 extern volatile u32 *D_80063EE8_f asm("D_80063EE8");
 extern volatile u32 *D_80063EE4;

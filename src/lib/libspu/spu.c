@@ -14,7 +14,15 @@ INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_Fw);
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_Fr);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetRXX);
+extern u16 *D_8006AE10_n asm("D_8006AE10");
+extern s32 D_8006AE38;
+void _spu_FsetRXX(s32 reg, u32 val, s32 mode) {
+    if (mode == 0) {
+        D_8006AE10_n[reg] = val;
+    } else {
+        D_8006AE10_n[reg] = val >> D_8006AE38;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetRXXa);
 
@@ -28,7 +36,15 @@ s32 _spu_FgetRXXa(s32 reg, s32 mode) {
     return v << D_8006AE38;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libspu/spu", _spu_FsetPCR);
+extern u32 *D_8006AE20_r asm("D_8006AE20");
+void _spu_FsetPCR(s32 on) {
+    *D_8006AE20_r &= 0xFFF8FFFF;
+    if (on) {
+        *D_8006AE20_r |= 0x30000;
+    } else {
+        *D_8006AE20_r |= 0x50000;
+    }
+}
 
 extern volatile u32 *D_8006AE24;
 void func_800293BC(void) {

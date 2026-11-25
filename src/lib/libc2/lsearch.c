@@ -1,3 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/lib/libc2/lsearch", lsearch);
+char *lsearch(char *key, char *base, s32 *nelp, s32 width, s32 (*compar)(char *, char *)) {
+    while (compar(key, base) != 0) {
+        base += width;
+    }
+    return base;
+}
