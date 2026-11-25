@@ -15,7 +15,7 @@ lib/libc2/putchar,lib,800104B4,3,1,608,60
 lib/libc2/puts,lib,80010714,1,1,96,96
 lib/libc2/rand,lib,80010774,2,2,64,64
 lib/libc2/setjmp,lib,800107B4,2,0,128,0
-lib/libc2/strcat,lib,80010834,1,0,176,0
+lib/libc2/strcat,lib,80010834,1,1,176,176
 lib/libc2/strchr,lib,800108E4,1,1,64,64
 lib/libc2/strcmp,lib,80010924,1,1,112,112
 lib/libc2/strcpy,lib,80010994,1,1,80,80
@@ -72,10 +72,10 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,1,160,160
 lib/libgpu/param,lib,80011A44,6,6,496,496
-lib/libgpu/sys,lib,80011C34,54,24,12080,2088
+lib/libgpu/sys,lib,80011C34,54,25,12080,2260
 lib/libpad/padcmd,lib,80014B64,20,14,3072,784
 lib/libpad/padentry,lib,80015764,11,0,1216,0
-lib/libpad/padif,lib,80015C24,5,1,1584,72
+lib/libpad/padif,lib,80015C24,5,2,1584,244
 lib/libpad/padmain,lib,80016254,13,4,3536,244
 lib/libpad/padportd,lib,80017024,8,3,1632,108
 lib/libpad/padseqd,lib,80017684,5,2,1216,108
@@ -227,7 +227,7 @@ lib/libgte/smp_01,lib,80049E90,5,0,256,0
 game/unk_80049F90,game,80049F90,68,68,4624,4624
 lib/libspu/s_stsa,lib,8004B1A0,1,1,96,96
 lib/libspu/s_stm,lib,8004B200,1,1,48,48
-lib/unk_8004B230,lib,8004B230,12,6,1716,484
+lib/unk_8004B230,lib,8004B230,12,7,1716,532
 lib/libapi/counter,lib,8004B8E4,5,0,368,0
 lib/libspu/s_m_init,lib,8004BA54,1,1,96,96
 lib/libspu/s_si,lib,8004BAB4,1,0,320,0
