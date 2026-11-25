@@ -38,7 +38,27 @@ s32 _padGetActSize(u8 *p) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80014EAC);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80014F80);
+void func_800156EC_f(u8 *, s32) asm("func_800156EC");
+void func_8001570C_f(u8 *, s32) asm("func_8001570C");
+void func_8001572C_f(u8 *, s32) asm("func_8001572C");
+void func_8001574C_f(u8 *) asm("func_8001574C");
+void func_80014F80(u8 *p) {
+    switch (p[0x46]) {
+    case 2:
+        func_800156EC_f(p, p[0x47]);
+        break;
+    case 3:
+        func_8001570C_f(p, p[0x47]);
+        break;
+    case 4:
+        if (p[0x48] == 0) {
+            func_8001572C_f(p, p[0x47]);
+        } else {
+            func_8001574C_f(p);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libpad/padcmd", func_80015028);
 

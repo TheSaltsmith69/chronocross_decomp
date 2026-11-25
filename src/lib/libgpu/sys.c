@@ -228,7 +228,21 @@ void func_800144E4(void) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80014518);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_8001465C);
+extern volatile u32 *D_80063EE8_q asm("D_80063EE8");
+extern volatile u32 *D_80063EE4_q asm("D_80063EE4");
+s32 func_8001465C(s32 mode) {
+    *D_80063EE8_q = 0x10000007;
+    if ((*D_80063EE4_q & 0xFFFFFF) != 2) {
+        *D_80063EE4_q = (*D_80063EE8_q & 0x3FFF) | 0xE1001000;
+        *D_80063EE4_q;
+        return 0;
+    }
+    if (!(mode & 8)) {
+        return 1;
+    }
+    *D_80063EE8_q = 0x09000001;
+    return 2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", LoadImage2);
 

@@ -47,7 +47,7 @@ $(BUILD)/src/ov_%.o: MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=
 # tools/aspsx_delay_slots.py reproduces.
 $(BUILD)/src/lib/%.o: CC1 := tools/gcc-2.7.2-psx/cc1
 # Objects built with the SN Systems cygnus-2.7.2-970404 cc1 instead
-LIB_CDK := libc2/strcmp libc2/memmove
+LIB_CDK := libc2/strcmp libc2/memmove unk_8004B230
 $(LIB_CDK:%=$(BUILD)/src/lib/%.o): CC1 := tools/gcc-2.7.2-cdk/cc1
 $(BUILD)/src/lib/%.o: CFLAGS := -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -fsigned-char
 $(BUILD)/src/lib/%.o: FIXALIGN := $(PYTHON) tools/aspsx_delay_slots.py
