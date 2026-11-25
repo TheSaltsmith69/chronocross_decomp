@@ -9,7 +9,7 @@ lib/libc2/exit,lib,80010324,1,0,16,0
 lib/libc2/itoa,lib,80010334,1,1,64,64
 lib/libc2/lsearch,lib,80010374,1,1,96,96
 lib/libc2/memcpy,lib,800103D4,1,1,64,64
-lib/libc2/memmove,lib,80010414,1,0,112,0
+lib/libc2/memmove,lib,80010414,1,1,112,112
 lib/libc2/memset,lib,80010484,1,1,48,48
 lib/libc2/putchar,lib,800104B4,3,1,608,60
 lib/libc2/puts,lib,80010714,1,1,96,96
@@ -17,7 +17,7 @@ lib/libc2/rand,lib,80010774,2,2,64,64
 lib/libc2/setjmp,lib,800107B4,2,0,128,0
 lib/libc2/strcat,lib,80010834,1,0,176,0
 lib/libc2/strchr,lib,800108E4,1,1,64,64
-lib/libc2/strcmp,lib,80010924,1,0,112,0
+lib/libc2/strcmp,lib,80010924,1,1,112,112
 lib/libc2/strcpy,lib,80010994,1,1,80,80
 lib/libc2/strlen,lib,800109E4,1,0,64,0
 lib/libc2/strstr,lib,80010A24,1,0,112,0
@@ -72,7 +72,7 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,0,160,0
 lib/libgpu/param,lib,80011A44,6,4,496,236
-lib/libgpu/sys,lib,80011C34,54,22,12080,1652
+lib/libgpu/sys,lib,80011C34,54,23,12080,1692
 lib/libpad/padcmd,lib,80014B64,20,13,3072,616
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,1,1584,72
@@ -183,12 +183,12 @@ lib/libgte/rmat_01,lib,80027474,1,0,528,0
 lib/libgte/ratan,lib,80027684,1,0,384,0
 lib/libgte/patchgte,lib,80027804,2,0,224,0
 lib/libetc/vsync,lib,800278E4,2,1,528,152
-lib/libetc/intr,lib,80027AF4,18,10,1760,404
+lib/libetc/intr,lib,80027AF4,18,11,1760,440
 lib/libapi/a23,lib,800281D4,1,0,16,0
 lib/libapi/a24,lib,800281E4,1,0,16,0
 lib/libapi/a25,lib,800281F4,1,0,16,0
 lib/libetc/intr_vb,lib,80028204,4,3,288,240
-lib/libetc/intr_dma,lib,80028324,4,1,672,76
+lib/libetc/intr_dma,lib,80028324,4,2,672,116
 lib/libetc/vmode,lib,800285C4,1,1,20,20
 lib/unk_800285D8,lib,800285D8,1,0,28,0
 lib/libsn/open,lib,800285F4,1,0,32,0
