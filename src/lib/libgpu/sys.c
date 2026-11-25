@@ -29,9 +29,25 @@ s32 DrawSync(s32 mode) {
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80012018);
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearImage);
+typedef struct { void *f[16]; } GPUFN_C;
+extern GPUFN_C *D_80063DD8_C asm("D_80063DD8");
+extern char D_80056694[];
+void func_80012018_C(char *, void *) asm("func_80012018");
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b) {
+    func_80012018_C(D_80056694, rect);
+    return ((s32 (*)(void *, void *, s32, u32))D_80063DD8_C->f[2])(D_80063DD8_C->f[3], rect, 8,
+                                                                    (b << 16) | (g << 8) | r);
+}
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", ClearImage2);
+typedef struct { void *f[16]; } GPUFN_C2;
+extern GPUFN_C2 *D_80063DD8_C2 asm("D_80063DD8");
+extern char D_800566A0[];
+void func_80012018_C2(char *, void *) asm("func_80012018");
+s32 ClearImage2(void *rect, u8 r, u8 g, u8 b) {
+    func_80012018_C2(D_800566A0, rect);
+    return ((s32 (*)(void *, void *, s32, u32))D_80063DD8_C2->f[2])(D_80063DD8_C2->f[3], rect, 8,
+                                                                     0x80000000 | (b << 16) | (g << 8) | r);
+}
 
 typedef struct { void *f[16]; } GPUFN_L;
 extern GPUFN_L *D_80063DD8_L asm("D_80063DD8");
