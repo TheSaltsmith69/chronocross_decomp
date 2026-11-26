@@ -1174,7 +1174,33 @@ void func_800B06D4(u8 *p) {
     }
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800B0718);
+s32 func_800B0718(u8 *a0) {
+    u8 *q = *(u8 **)(a0 + 0x108);
+    u16 x = *(u16 *)(q + 2);
+    s16 xs = *(s16 *)(q + 2);
+    s32 y = *(u16 *)(q + 4);
+    s16 ys = *(s16 *)(q + 4);
+    u8 *t = 0;
+    u8 *p;
+    /* drop any task already running for this actor with the same parameters */
+    while ((t = func_8009CB34(t, func_800B06D4))) {
+        u8 *nx = *(u8 **)(t + 4);
+        p = t;
+        if (*(u8 **)(p + 0xC) == a0 && *(s16 *)(p + 0x14) == xs && *(s16 *)(p + 0x16) == ys) {
+            func_8009CA60(t);
+            t = nx;
+        }
+    }
+    p = func_8009C9F4(a0, func_800B06D4);
+    *(u8 **)(p + 0xC) = a0;
+    *(s16 *)(p + 0x10) = 0;
+    *(s16 *)(p + 0x12) = 0;
+    *(s16 *)(p + 0x14) = x;
+    *(s16 *)(p + 0x16) = y;
+    *(s16 *)(p + 0x18) = *(s16 *)(q + 6);
+    *(s16 *)(p + 0x1A) = *(s16 *)(q + 8);
+    return 5;
+}
 
 void func_800B06D4();
 s32 func_800B0828(u8 *a0) {
