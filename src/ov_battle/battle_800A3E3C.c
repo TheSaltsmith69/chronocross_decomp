@@ -2241,7 +2241,34 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BBF74);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BC130);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BC274);
+void func_80011554(u8 *);
+void func_80011474(u8 *, s32);
+void AddPrim_c(void *, void *) asm("AddPrim");
+void SetDrawTPage(u8 *, s32, s32, s32);
+void func_800BC274(s32 x, s32 y, s32 w, s32 h) {
+    u8 *p = D_1F800014;
+    D_1F800014 = p + 0x18;
+    func_80011554(p);
+    *(s16 *)(p + 0x8) = x;
+    *(s16 *)(p + 0xA) = y;
+    *(s16 *)(p + 0xC) = x + w;
+    *(s16 *)(p + 0xE) = y;
+    *(s16 *)(p + 0x10) = x;
+    *(s16 *)(p + 0x12) = y + h;
+    *(s16 *)(p + 0x14) = x + w;
+    *(s16 *)(p + 0x16) = y + h;
+    p[4] = 0x50;
+    p[5] = 0x50;
+    p[6] = 0x50;
+    func_80011474(p, 1);
+    AddPrim_c(D_80086FB4 + 0x4070, p);
+    {
+        u8 *t = D_1F800014;
+        D_1F800014 = t + 8;
+        SetDrawTPage(t, 0, 0, 0x40);
+        AddPrim_c(D_80086FB4 + 0x4070, t);
+    }
+}
 
 extern s32 D_800DAB08[];
 extern s32 D_800DA620;
@@ -2686,7 +2713,34 @@ void func_800C3D98(void) {
     func_800BC77C();
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C3E60);
+s32 VSync_i(s32) asm("VSync");
+typedef struct { s16 h[4]; } S3E60;
+extern u8 D_800D92E0;
+extern u8 D_800D92E1;
+extern S3E60 D_800DABC8;
+extern S3E60 D_800DDD28;
+extern s16 D_8007EDF8;
+extern s16 D_8007EDFA;
+void PutDispEnv(u8 *);
+void PutDrawEnv(u8 *);
+void DrawOTag(u8 *);
+void func_800C3E60(void) {
+    s32 a = VSync_i(1);
+    s32 b;
+    DrawSync_(0);
+    D_800D92E0 = 1;
+    D_800D92E1 = 0;
+    D_800DABC8 = *(S3E60 *)(D_80086FB4 + 0x5C);
+    b = VSync_i(1);
+    D_8007EDF8 = a;
+    D_8007EDFA = b;
+    ((void (*)(s32))func_800AA188)(0);
+    PutDispEnv(D_80086FB4 + 0x5C);
+    PutDrawEnv(D_80086FB4);
+    D_800DDD28 = *(S3E60 *)D_80086FB4;
+    DrawOTag(D_80086FB4 + 0x406C);
+    DrawOTag(D_80086FB4 + 0x408C);
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C3F5C);
 
@@ -3014,7 +3068,25 @@ void func_800C8190(void) {
     D_800DAF20.bE6 = 5;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C81B0);
+extern s32 D_80071C78;
+typedef struct { u8 pad0[0x101]; u8 b101; u8 pad1[4]; s16 h106; u8 pad2[0x3E]; s16 h146[3]; } SC81B0;
+extern SC81B0 D_800DAF20_c8 asm("D_800DAF20");
+void func_800C81B0(void) {
+    if ((D_80071C78 & 3) && (D_80071C78 & 2)) {
+        s32 i;
+        for (i = 2; i >= 0; i--) {
+            if (D_800DAF20_c8.h146[i] >= 80) {
+                s32 k;
+                if (D_800DB078[D_800DAF20_c8.b101].w1B0 & 0x2000) k = (i * 500) / 40;
+                else k = i * 10;
+                if (D_800DB078[D_800DAF20_c8.b101].h19E >= k + 10) {
+                    D_800DAF20_c8.h106 = i;
+                    return;
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C82AC);
 
