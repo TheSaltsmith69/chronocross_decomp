@@ -52,6 +52,26 @@ with `fullbuild.sh`, which compares the real bytes.
 Expect a draft to compile and get the logic right, then need the usual pass for
 types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio).
 
+## Local LLM loop
+
+`llm_iterate.py` hands unmatched functions to a local model over an OpenAI-compatible chat
+API (Strata by default: `LLM_BASE_URL=http://127.0.0.1:18500/v1`, key in `STRATA_API_KEY` or
+`LLM_API_KEY`, `LLM_MODEL` optional). Each round the model gets the target asm, the object's
+exact compiler setup (cc1 flags, whether `--expand-div` applies), the declarations the code
+uses, the best C so far and its diff; its answer is compiled and scored and the best is kept.
+
+| Command | What it does |
+|---|---|
+| `llm_iterate.py --parked ov_battle [--rounds 8] [--skip-done]` | The overlay's parked list (functions with a saved candidate in `permuter/queue.txt` first, others start from an m2c draft) |
+| `llm_iterate.py --queue FILE` / `llm_iterate.py FUNC...` | A queue of `CANDS.c FUNC [IDX]` lines, or named functions |
+| `llm_iterate.py --dry-run FUNC` | Builds the first prompt into `permuter/llm/FUNC/prompt.txt` without calling the model |
+
+It works in a separate copy of the repo (`~/chronocross-llm`, refreshed before each function)
+because `trycc.py` edits source files while it compiles, so it can run alongside other work.
+From WSL it sends requests through Windows' `curl.exe` (a server on Windows' 127.0.0.1 isn't
+reachable from WSL). Results: `permuter/llm/FUNC/` (each round, `best.c`) and
+`permuter/llm/summary.txt`. A MATCH is a trycc match: lock it with a full build as usual.
+
 ## Permuter (register-allocation near-misses)
 
 For functions whose logic matches but registers or instruction order don't, run

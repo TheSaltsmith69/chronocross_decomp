@@ -82,7 +82,9 @@ def declared_name(decl):
     return m[-1] if m else None
 
 
-def context(func):
+def context(func, keep_aliases=False):
+    """keep_aliases: leave asm("...") labels as they are (declarations exactly as the
+    source has them, for code that is compiled in that file rather than parsed by m2c)."""
     src, before = find_source(func)
     pre = subprocess.run(CPP, input=before, capture_output=True, text=True, cwd=os.path.dirname(src))
     if pre.returncode:
@@ -99,6 +101,8 @@ def context(func):
         t = re.sub(r"__attribute__\s*\(\(.*?\)\)", "", t)
         t = re.sub(r"\b__inline__\b|\binline\b", "", t)
         items.append(t if t.endswith(";") else t + ";")
+    if keep_aliases:
+        return "\n".join(items) + "\n"
 
     # asm-labelled aliases: rename to the real symbol unless it is declared directly
     direct = set()
