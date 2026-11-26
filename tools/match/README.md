@@ -63,8 +63,10 @@ uses, the best C so far and its diff. It then has the compiler: each reply may c
 back as the next message, until a match or the budget runs out (`--compiles` 40, `--minutes` 30
 per function, whichever comes first). Every reply ends with a HANDOFF note; when the history
 passes ~35% of `--ctx` tokens the conversation restarts from the best code plus those notes.
-The system prompt lists the gcc 2.8.1 patterns that matched functions here; extend it as
-new ones turn up. `--rounds N` is the older mode (N independent single-answer rounds).
+The system prompt lists the gcc 2.8.1 patterns that matched functions here, plus the lines of
+`tools/match/llm_tips.md` (add a line there when a new trick matches something). The first
+prompt also shows up to `--examples` (2) already-matched functions from the same overlay whose
+opcode sequence is most like the target's (similarity >= 0.5), e.g. a matched twin. `--rounds N` is the older mode (N independent single-answer rounds).
 The system prompt tells it the compiler is the checker (a compile is ~1 s, so send variants
 rather than reasoning about whether they'll match). `--think TOKENS` (default 4000) cuts a reply
 whose thinking runs past that before any answer: the request is hung up and re-sent with the end
@@ -75,6 +77,7 @@ server to turn thinking off throughout (`chat_template_kwargs.enable_thinking=fa
 |---|---|
 | `llm_iterate.py --parked ov_battle [--compiles 40] [--minutes 30] [--skip-done]` | The overlay's parked list (functions with a saved candidate in `permuter/queue.txt` first, others start from an m2c draft) |
 | `llm_iterate.py --queue FILE` / `llm_iterate.py FUNC...` | A queue of `CANDS.c FUNC [IDX]` lines, or named functions |
+| `llm_iterate.py --permuted [FUNC...]` | Functions with permuter results (`permuter/nonmatchings/`), lowest score first, each starting from its best `output-*/source.c`; the model is told the code is permuter output. With `--skip-done`, a function reruns only when the permuter has a newer best |
 | `llm_iterate.py --dry-run FUNC` | Builds the first prompt into `permuter/llm/FUNC/prompt.txt` without calling the model |
 
 It works in a separate copy of the repo (`~/chronocross-llm`, refreshed before each function)
@@ -93,11 +96,19 @@ fetches it; `.venv/bin/pip install toml Levenshtein`).
 |---|---|
 | `permute.py CANDS.c FUNC [IDX]` | Imports one candidate variant into `permuter/nonmatchings/FUNC/` (gitignored). `compile.sh` is the object's real Makefile recipe, so per-object flags such as `--expand-div` apply |
 | `permuter.py permuter/nonmatchings/FUNC -j16` | Runs it interactively (from `tools/decomp-permuter/`) |
-| `permute_all.sh QUEUE [MINUTES] [JOBS] [all]` | Runs a queue of `CANDS.c FUNC [IDX]` lines unattended, MINUTES each; best scores go to `permuter/summary.txt`. The console shows each function's base score, every improvement (with the compile that found it) and a status line updated on every compile (count, rate, latest and best score, errors, time left), plus a permanent line each minute; `all` prints one line per compile instead (`permwatch.py`) |
+| `permute_all.sh QUEUE [MINUTES] [JOBS] [all] [fresh] [stall=M]` | Runs a queue of `CANDS.c FUNC [IDX]` lines unattended, MINUTES each; best scores go to `permuter/summary.txt`. A function that goes M minutes (default 5) without beating its best is stopped and moved to the back of the line with the rest of its time. `permuter/resume.txt` lets a stopped run restart on the function it was on (`fresh` ignores it). The console shows each function's base score, every improvement (with the compile that found it) and a status line updated on every compile (count, rate, latest and best score, errors, time left), plus a permanent line each minute; `all` prints one line per compile instead (`permwatch.py`) |
 
 Results are in `output-SCORE-N/source.c` (score 0 = full match). The randomizer often finds
 odd-looking code that only fixes registers by accident; turn it into something sensible, then
-check it with `try.sh` and lock it as usual. Settings are in `tools/permuter_settings.toml`.
+check it with `try.sh` and lock it as usual. Settings are in `tools/permuter_settings.toml`;
+`tools/match/permuter_weights.toml` sets the randomization weights (copied into each job's
+`settings.toml` before every run) and switches off the changes that produce wrong C (function and
+global types, float literals, deleted statements).
+
+`refill_queue.py [--ov ov_battle] [--limit N] [--min-ratio 0.3] [--dry-run]` keeps the queue fed:
+it drafts the parked functions that have no saved C yet with `decomp.py`, scores them in its own
+copy of the repo (`~/chronocross-refill`) and appends the ones that compile to
+`permuter/queue.txt`, best first (log: `permuter/refill.log`).
 
 ## When a function won't match
 

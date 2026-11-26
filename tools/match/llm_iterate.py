@@ -26,6 +26,11 @@ model is told the code came from the permuter, which makes random changes that c
 wrong C. With --skip-done, a function is skipped only if the LLM already started from that same
 permuter output (permuter/llm/<func>/permuted_from.txt); a newer permuter result runs it again.
 
+Each first prompt also carries up to --examples already-matched functions (default 2) whose
+assembly is most like the target's (same overlay, opcode-sequence similarity >= 0.5), as
+models for types, struct aliases and statement shape, and the extra tips in
+tools/match/llm_tips.md (edit that file to teach the model new tricks; no code change needed).
+
 Results: permuter/llm/<func>/ (every round, best.c) and permuter/llm/summary.txt.
 A MATCH there is a trycc match (relocations masked), so it still needs locking with a
 full build in this checkout.
@@ -395,7 +400,7 @@ SYSTEM = HEAD + ROUND_RULES + SYSTEM_BODY
 
 
 def session_system(k):
-    return HEAD + SESSION_RULES.format(k=k) + SYSTEM_BODY
+    return HEAD + SESSION_RULES.format(k=k) + SYSTEM_BODY + extra_tips()
 
 
 NOTES_MAX = 9000        # characters of earlier rounds' handoffs kept in the prompt
@@ -409,13 +414,117 @@ def notes_text(notes):
     return "\n\n".join(entries)
 
 
+# ---------------------------------------------------------------- similar matched functions
+
+N_EXAMPLES = 2
+EXAMPLE_MIN = 0.5
+EXAMPLE_LINES = 70
+_OPS = {}
+
+
+def asm_ops(path):
+    """Opcode sequence of a splat .s file (cached)."""
+    if path not in _OPS:
+        ops = []
+        for l in open(path, errors="replace"):
+            l = re.sub(r"^\s*/\* [0-9A-F]+ [0-9A-F]+ [0-9A-F]+ \*/\s*", "", l).strip()
+            m = re.match(r"([a-z][a-z0-9.]*)\b", l)
+            if m and not l.startswith(("glabel", "endlabel", "nonmatching", "jlabel", "dlabel")) and ":" not in m.group(1):
+                ops.append(m.group(1))
+        _OPS[path] = ops
+    return _OPS[path]
+
+
+def c_definition(func, srcs):
+    """FUNC's C text in one of SRCS (with the declarations just above it in its block), or None."""
+    for src in srcs:
+        t = open(src).read()
+        sp = func_span(t, func)
+        if not sp:
+            continue
+        lines = t[: sp[0]].splitlines()
+        k = len(lines)
+        while k > 0 and lines[k - 1].strip() and not lines[k - 1].startswith(("INCLUDE_ASM", "INCLUDE_RODATA", "}")):
+            k -= 1
+        text = "\n".join(lines[k:]) + ("\n" if lines[k:] else "") + t[sp[0]: sp[1]]
+        tl = text.splitlines()
+        if len(tl) > EXAMPLE_LINES:
+            return None             # too long to be a useful example
+        return text.strip("\n")
+    return None
+
+
+_EXAMPLES = {}
+
+
+def similar_examples(func):
+    """[(similarity, name, C)] of the matched functions in FUNC's module most like it."""
+    if func in _EXAMPLES:
+        return _EXAMPLES[func]
+    import difflib
+    out = []
+    try:
+        tpath = glob.glob(f"{WORK}/asm/*/nonmatchings/*/{func}.s")[0]
+        module = tpath[len(WORK) + 5:].split("/")[0]            # e.g. ov_battle, or game for main
+        srcs = sorted(glob.glob(f"{WORK}/src/{module}/**/*.c", recursive=True)) or \
+            sorted(glob.glob(f"{WORK}/src/**/*.c", recursive=True))
+        pending = set()
+        for src in srcs:
+            pending |= set(re.findall(r"^INCLUDE_ASM\([^,]+, (func_\w+)\);", open(src).read(), re.M))
+        target = asm_ops(tpath)
+        seen = set()
+        scored = []
+        for path in glob.glob(f"{WORK}/asm/{module}/nonmatchings/*/func_*.s"):
+            name = os.path.basename(path)[:-2]
+            if name == func or name in pending or name in seen:
+                continue
+            seen.add(name)
+            ops = asm_ops(path)
+            if not ops or not 0.5 <= len(ops) / max(1, len(target)) <= 2:
+                continue
+            sm = difflib.SequenceMatcher(None, target, ops, autojunk=False)
+            if sm.real_quick_ratio() < EXAMPLE_MIN or sm.quick_ratio() < EXAMPLE_MIN:
+                continue
+            r = sm.ratio()
+            if r >= EXAMPLE_MIN:
+                scored.append((r, name))
+        scored.sort(reverse=True)
+        for r, name in scored:
+            if len(out) >= N_EXAMPLES:
+                break
+            c = c_definition(name, srcs)
+            if c:
+                out.append((r, name, c))
+    except Exception as e:
+        log(f"{func}: similar-function search failed: {e}")
+    _EXAMPLES[func] = out
+    if out:
+        log(f"{func}: examples " + ", ".join(f"{n} ({r:.2f})" for r, n, _ in out))
+    return out
+
+
+def extra_tips():
+    p = f"{MAIN}/tools/match/llm_tips.md"
+    if not os.path.exists(p):
+        return ""
+    lines = [l.rstrip() for l in open(p) if l.strip() and not l.lstrip().startswith("#")]
+    return ("\n\nMore project tricks (tools/match/llm_tips.md):\n" + "\n".join(lines)) if lines else ""
+
+
 def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), session=None):
     comp = (f"Compiler: PsyQ GCC {setup['gcc']} cc1 with `{setup['cc1']}`, output through maspsx "
             f"(ASPSX 2.79 emulation{', --expand-div: divides get the break 6/7 divide-by-zero and overflow checks' if setup['expand_div'] else ', no divide checks'}), "
             "then GNU as. MIPS R3000, little endian; load delay slots are filled with nop where needed.")
     parts = [f"Match `{func}`.", comp,
              "Declarations visible to the function in its source file (relevant ones):\n```c\n" + ctx + "\n```",
-             "Target assembly:\n```\n" + asm + "\n```",
+             "Target assembly:\n```\n" + asm + "\n```"]
+    ex = similar_examples(func)
+    if ex:
+        parts.append("Already-matched functions in the same overlay whose assembly is similar (similarity in "
+                     "brackets); they show the types, struct aliases and statement shapes that produce this "
+                     "kind of code, so borrow from them:\n"
+                     + "\n".join(f"[{r:.2f}] {n}:\n```c\n{c}\n```" for r, n, c in ex))
+    parts += [
              "Best C so far:\n```c\n" + best + "\n```", "Its result:\n```\n" + best_fb + "\n```"]
     if func in START_NOTES:
         parts.append(START_NOTES[func])
@@ -853,7 +962,11 @@ def main():
     ap.add_argument("--skip-done", action="store_true", help="skip functions already in summary.txt")
     ap.add_argument("--dry-run", action="store_true", help="build and save the first prompt only; no model")
     ap.add_argument("--quiet", action="store_true", help="don't stream the model's thinking and answer to the window")
+    ap.add_argument("--examples", type=int, default=2,
+                    help="similar matched functions shown in the first prompt (default 2, 0 = none)")
     a = ap.parse_args()
+    global N_EXAMPLES
+    N_EXAMPLES = a.examples
     global STREAM
     STREAM = not a.quiet
 

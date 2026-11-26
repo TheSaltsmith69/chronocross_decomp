@@ -1,0 +1,19 @@
+# Randomization weights for decomp-permuter, copied by permute_all.sh into the
+# [weight_overrides] section of every permuter/nonmatchings/FUNC/settings.toml before each run.
+# Names and defaults: tools/decomp-permuter/default_weights.toml (the [gcc] section changes some).
+# Higher = tried more often, 0 = never.
+
+# These change what the code means, so a near-miss built on them is wrong C that has to be
+# undone by hand: the return/parameter type of the function (e.g. volatile unsigned long long),
+# the types of globals it uses, float literals, and deleted statements (which leave variables
+# uninitialised).
+perm_randomize_function_type = 0
+perm_randomize_external_type = 0
+perm_float_literal = 0
+perm_remove_ast = 0
+
+# Identity helper functions (inline_fn) are valid C but clutter the output; keep them rare.
+perm_inline = 1
+
+# Local variable types (s16 vs s32 vs u16) often decide a match in this project.
+perm_randomize_internal_type = 20
