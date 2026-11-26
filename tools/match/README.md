@@ -31,6 +31,27 @@ The source file that holds the function's `INCLUDE_ASM` is found automatically.
 can't see symbol names. Two globals loaded in swapped order look like a match. Always finish
 with `fullbuild.sh`, which compares the real bytes.
 
+## First drafts with m2c
+
+`decomp.py FUNC... [-a CANDS.c]` writes a first-draft candidate block per function with
+[m2c](https://github.com/matt-kempster/m2c) (`bash tools/setup_tools.sh` fetches it;
+`.venv/bin/pip install pycparser graphviz`). Append to a candidate file with `-a`, then
+`try.sh` it like a hand-written block.
+
+- The context (`m2ctx.py FUNC`) is what the function can see at its spot in its source
+  file, preprocessed, with function bodies cut to prototypes and `asm("...")` aliases
+  renamed to the real symbol. `m2c_extra.h` adds prototypes the sources don't declare yet
+  (helpers such as `func_8009C9F4`); extend it as signatures become known.
+- Output is in house style: untyped pointers are `u8 *`, fields are `*(T *)(p + off)`.
+- If the file declares the function further down, m2c is given that signature, or the
+  draft is defined through an asm alias when that declaration's types aren't known yet.
+  Callee prototypes m2c guessed are swapped for the file's own later declaration.
+- Stack slots m2c reads without declaring get `s32 spXX; /* m2c: undeclared stack slot */`;
+  those are usually a local struct or array to reconstruct.
+
+Expect a draft to compile and get the logic right, then need the usual pass for
+types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio).
+
 ## Permuter (register-allocation near-misses)
 
 For functions whose logic matches but registers or instruction order don't, run

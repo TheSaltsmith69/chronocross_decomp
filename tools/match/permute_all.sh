@@ -9,7 +9,7 @@
 Q=$(abspath "$1"); MIN=${2:-30}; J=${3:-16}
 cd "$ROOT"
 mkdir -p permuter
-grep -v '^\s*\(#\|$\)' "$Q" | while read -r cands func idx; do
+grep -v '^\s*\(#\|$\)' "$Q" | while read -r cands func idx _; do
   dir=permuter/nonmatchings/$func
   if [ ! -d "$dir" ]; then
     "$PY" tools/match/permute.py "$cands" "$func" ${idx:-0} > "permuter/$func.import.log" 2>&1 \

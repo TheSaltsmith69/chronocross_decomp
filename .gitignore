@@ -19,3 +19,4 @@ tools/maspsx/
 # decomp-permuter work dirs (tools/match/permute.py)
 permuter/
 tools/decomp-permuter/
+tools/m2c/
