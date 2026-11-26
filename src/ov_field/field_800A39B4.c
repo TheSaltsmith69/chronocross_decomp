@@ -1449,7 +1449,47 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800ACACC);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800ACF60);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800AD03C);
+typedef struct { u32 tag; u32 code[2]; } DM_ad0;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; s16 w, h; } T_ad0;
+typedef struct { DM_ad0 dm[2]; T_ad0 t[2]; s32 r; s32 g; s32 b; u8 p1[0x50 - 0x44]; s16 abr; s16 on; u8 p2[4]; } E_ad0;
+typedef struct { u8 p[0x16C]; E_ad0 e[2]; } C_ad0;
+typedef struct { s16 x, y, w, h; } R_ad0;
+extern C_ad0 D_800E3A50_ad0 asm("D_800E3A50");
+u16 GetTPage_ad0(s32, s32, s32, s32) asm("GetTPage");
+extern E_ad0 D_800E3BBC_ad0[] asm("D_800E3BBC");
+extern R_ad0 D_800E6218_ad0[][2] asm("D_800E6218");
+extern u8 *D_80086FB4_ad0 asm("D_80086FB4");
+typedef struct { unsigned addr : 24; unsigned len : 8; } PT_ad0;
+#define setaddr_ad0(p, a) (((PT_ad0 *)(p))->addr = (u32)(a))
+#define getaddr_ad0(p) (u32)(((PT_ad0 *)(p))->addr)
+#define addPrim_ad0(ot, p) setaddr_ad0(p, getaddr_ad0(ot)), setaddr_ad0(ot, p)
+#define setRECT_ad0(r, _x, _y, _w, _h) (r)->x = (_x), (r)->y = (_y), (r)->w = (_w), (r)->h = (_h)
+#define setRGB0_ad0(p, _r, _g, _b) (p)->r0 = _r, (p)->g0 = _g, (p)->b0 = _b
+void func_800AD03C(void) {
+    s32 i;
+    u8 *ot;
+    T_ad0 *t;
+    DM_ad0 *d;
+    for (i = 0; i < 2; i++) {
+        if (D_800E3A50_ad0.e[i].on != 0) {
+            D_800E6218_ad0[D_800E3A44][i].y = 0;
+            D_800E6218_ad0[D_800E3A44][i].x = 0;
+            D_800E6218_ad0[D_800E3A44][i].w = 0xFF;
+            D_800E6218_ad0[D_800E3A44][i].h = 0xFF;
+            SetDrawMode(&D_800E3A50_ad0.e[i].dm[D_800E3A44], 0, 0, GetTPage_ad0(0, D_800E3A50_ad0.e[i].abr, 0, 0), &D_800E6218_ad0[D_800E3A44][i]);
+            setRGB0_ad0(&D_800E3A50_ad0.e[i].t[D_800E3A44], D_800E3A50_ad0.e[i].r >> 16, D_800E3A50_ad0.e[i].g >> 16, D_800E3A50_ad0.e[i].b >> 16);
+            if (i == 0) {
+
+                addPrim_ad0(D_80086FB4_ad0 + 0x4070, &D_800E3A50_ad0.e[0].t[D_800E3A44]);
+                addPrim_ad0(D_80086FB4_ad0 + 0x4070, &D_800E3A50_ad0.e[0].dm[D_800E3A44]);
+            } else {
+
+                addPrim_ad0(D_80086FB4_ad0 + 0x70, &D_800E3A50_ad0.e[1].t[D_800E3A44]);
+                addPrim_ad0(D_80086FB4_ad0 + 0x70, &D_800E3A50_ad0.e[1].dm[D_800E3A44]);
+            }
+        }
+    }
+}
 
 typedef struct { u8 t[0x20]; s32 f20; s32 f24; s32 f28; s32 f2C; s32 f30; s32 f34; s16 h38; s16 h3A; s32 f3C; u8 q[0x58 - 0x40]; } R_ad2;
 typedef struct { u8 p[0x184]; R_ad2 r[4]; } S_ad2;
