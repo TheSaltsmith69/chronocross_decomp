@@ -107,13 +107,109 @@ def pick_model():
     return models[0]
 
 
+GREY, RESET = "\033[90m", "\033[0m"
+STREAM = True          # --quiet turns it off
+
+
+def stream_lines(body, timeout=1800):
+    """POST /chat/completions with stream=true; yield the raw SSE lines."""
+    url = BASE + "/chat/completions"
+    if os.path.exists(CURL_EXE):
+        args = [CURL_EXE, "-s", "-N", "--max-time", str(timeout), "-X", "POST",
+                "-H", "Content-Type: application/json", "--data-binary", "@-"]
+        if KEY:
+            args += ["-H", f"Authorization: Bearer {KEY}"]
+        p = subprocess.Popen(args + [url], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1)
+        p.stdin.write(json.dumps(body))
+        p.stdin.close()
+        for line in p.stdout:
+            yield line.rstrip("\r\n")
+        p.wait()
+        if p.returncode:
+            raise RuntimeError(f"curl.exe failed ({p.returncode}): {p.stderr.read().strip()}")
+    else:
+        import urllib.request
+        req = urllib.request.Request(url, method="POST", data=json.dumps(body).encode(),
+                                     headers={"Content-Type": "application/json",
+                                              **({"Authorization": f"Bearer {KEY}"} if KEY else {})})
+        with urllib.request.urlopen(req, timeout=timeout) as f:
+            for raw in f:
+                yield raw.decode("utf-8", "replace").rstrip("\r\n")
+
+
 def ask(model, system, user, temperature):
-    data = http("POST", "/chat/completions", {
-        "model": model, "temperature": temperature,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-    })
-    text = data["choices"][0]["message"].get("content") or ""
-    return re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+    """Returns (answer, thinking). With STREAM, both are printed as they arrive:
+    thinking in grey, the answer in the normal colour."""
+    body = {"model": model, "temperature": temperature,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    if not STREAM:
+        data = http("POST", "/chat/completions", body)
+        msg = data["choices"][0]["message"]
+        text = msg.get("content") or ""
+        think = msg.get("reasoning_content") or msg.get("reasoning") or ""
+        think += "".join(re.findall(r"<think>(.*?)</think>", text, flags=re.S))
+        return re.sub(r"<think>.*?</think>", "", text, flags=re.S), think
+
+    body["stream"] = True
+    content, thinking = [], []
+    in_think = False            # inside <think>...</think> in the content stream
+    pending = ""                # content not yet split into thinking/answer
+    mode = None                 # what is being printed: "think" or "answer"
+
+    def show(kind, s):
+        nonlocal mode
+        if not s:
+            return
+        if kind != mode:
+            sys.stdout.write((GREY + "\n[thinking] " if kind == "think" else RESET + "\n[answer] "))
+            mode = kind
+        sys.stdout.write(s)
+        sys.stdout.flush()
+
+    for line in stream_lines(body):
+        if not line.startswith("data:"):
+            if line.strip().startswith("{") and '"error"' in line:
+                raise RuntimeError(line.strip())
+            continue
+        payload = line[5:].strip()
+        if payload == "[DONE]":
+            break
+        try:
+            chunk = json.loads(payload)
+        except ValueError:
+            continue
+        if "error" in chunk:
+            raise RuntimeError(str(chunk["error"]))
+        for ch in chunk.get("choices", []):
+            delta = ch.get("delta") or {}
+            r = delta.get("reasoning_content") or delta.get("reasoning") or ""
+            if r:
+                thinking.append(r)
+                show("think", r)
+            pending += delta.get("content") or ""
+            # split <think>...</think> out of the content; a tag may arrive split across
+            # chunks, so hold back a tail that could be the start of one
+            while pending:
+                tag = "</think>" if in_think else "<think>"
+                at = pending.find(tag)
+                if at >= 0:
+                    part, pending = pending[:at], pending[at + len(tag):]
+                else:
+                    keep = next((k for k in range(len(tag) - 1, 0, -1) if pending.endswith(tag[:k])), 0)
+                    part, pending = (pending[:-keep], pending[-keep:]) if keep else (pending, "")
+                (thinking if in_think else content).append(part)
+                show("think" if in_think else "answer", part)
+                if at >= 0:
+                    in_think = not in_think
+                elif keep:
+                    break
+    if pending:
+        (thinking if in_think else content).append(pending)
+        show("think" if in_think else "answer", pending)
+    sys.stdout.write(RESET + "\n")
+    sys.stdout.flush()
+    return "".join(content), "".join(thinking)
 
 
 # ---------------------------------------------------------------- scoring
@@ -261,13 +357,15 @@ def iterate(model, func, cands, idx, rounds, temperature):
             open(f"{d}/prompt.txt", "w").write(SYSTEM + "\n=====\n" + prompt)
             log(f"{func}: dry run, prompt ({len(SYSTEM) + len(prompt)} chars) in permuter/llm/{func}/prompt.txt")
             return
+        log(f"{func} round {i}: asking the model")
         try:
-            answer = ask(model, SYSTEM, prompt, temperature)
+            answer, thinking = ask(model, SYSTEM, prompt, temperature)
         except Exception as e:
             log(f"{func} round {i}: request failed: {e}")
             time.sleep(10)
             continue
-        open(f"{d}/round{i:02d}.txt", "w").write(answer)
+        open(f"{d}/round{i:02d}.txt", "w").write(
+            (f"<think>\n{thinking}\n</think>\n" if thinking else "") + answer)
         new = extract_code(answer, func)
         if new is None:
             log(f"{func} round {i}: no C block with {func} in the answer")
@@ -297,7 +395,10 @@ def main():
     ap.add_argument("--temperature", type=float, default=0.6)
     ap.add_argument("--skip-done", action="store_true", help="skip functions already in summary.txt")
     ap.add_argument("--dry-run", action="store_true", help="build and save the first prompt only; no model")
+    ap.add_argument("--quiet", action="store_true", help="don't stream the model's thinking and answer to the window")
     a = ap.parse_args()
+    global STREAM
+    STREAM = not a.quiet
 
     jobs = []
     starts = {}
