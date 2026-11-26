@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """llm_iterate.py -- let a local LLM iterate on unmatched functions.
 
-    llm_iterate.py --parked ov_battle [--rounds 8]      # the parked list of an overlay
+    llm_iterate.py --parked ov_battle [--compiles 40] [--minutes 30]   # an overlay's parked list
     llm_iterate.py --queue permuter/queue.txt          # "CANDS.c FUNC [IDX]" lines
     llm_iterate.py func_800C91FC func_800B8AC4         # named functions
 
 For each function it starts from a candidate (the queue's, else an m2c draft from
-decomp.py), then for --rounds rounds: sends the model the target assembly, the exact
-compiler setup for that object, the relevant declarations, the best C so far and its
-instruction diff, takes the C function it answers with, compiles and scores it, and
-keeps the best. Everything happens in a separate copy of the repo (~/chronocross-llm,
+decomp.py) and holds one conversation with the model: the first message has the target
+assembly, the exact compiler setup for that object, the relevant declarations and the
+best C so far with its instruction diff; each reply may carry up to --variants versions
+of the function, every one is compiled and scored, and the results go back as the next
+message. It stops at a match, after --compiles compiles or after --minutes minutes, and
+keeps the best. When the history passes ~35% of --ctx tokens (the model's thinking needs
+the rest), it restarts the conversation from the best code and the model's handoff notes.
+--rounds N is the older mode: N independent single-answer rounds. Everything happens in a separate copy of the repo (~/chronocross-llm,
 refreshed from this checkout before each function), because trycc edits source files
 while it works; this checkout is never touched.
 
@@ -139,10 +143,14 @@ def stream_lines(body, timeout=1800):
 
 
 def ask(model, system, user, temperature):
+    return ask_messages(model, [{"role": "system", "content": system}, {"role": "user", "content": user}],
+                        temperature)
+
+
+def ask_messages(model, messages, temperature):
     """Returns (answer, thinking). With STREAM, both are printed as they arrive:
     thinking in grey, the answer in the normal colour."""
-    body = {"model": model, "temperature": temperature,
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    body = {"model": model, "temperature": temperature, "messages": messages}
     if not STREAM:
         data = http("POST", "/chat/completions", body)
         msg = data["choices"][0]["message"]
@@ -277,18 +285,34 @@ def relevant_context(func, code):
     return "\n".join(keep[:400])
 
 
-SYSTEM = """You are an expert at matching decompilation of PlayStation 1 games: you write C that, \
+HEAD = """You are an expert at matching decompilation of PlayStation 1 games: you write C that, \
 compiled with the exact original compiler, produces instruction-for-instruction the given MIPS assembly.
 
 Rules:
-- Answer with exactly ONE ```c code block holding the complete function, preceded by any \
+"""
+
+ROUND_RULES = """- Answer with exactly ONE ```c code block holding the complete function, preceded by any \
 typedef/extern/prototype lines it needs that are not already in the provided declarations. \
 Keep the function's name. Briefly say what you changed before the block.
 - After the code block, write a handoff for the next round, starting with a line `HANDOFF:` \
 (at most 12 lines, no code blocks). The next round sees your code and its score but NOT your \
 reasoning, so put in it what you changed and why, what the remaining differences are (which \
 instructions/registers), what you think causes them, what you ruled out, and what to try next.
-- C89 only: declarations at the start of a block, no // comments inside code, no C99 features.
+"""
+
+SESSION_RULES = """- You have the compiler: each reply may hold up to {k} ```c code blocks, each a complete \
+variant of the function (keep its name), preceded by any typedef/extern/prototype lines it needs \
+that are not already in the provided declarations. Every block is compiled and scored and the \
+results come back as the next message; then you continue. This goes on until a variant matches or \
+the budget of compiles and time runs out, so learn from each result: when close, change one thing \
+per variant so you can tell what helped; when stuck, try a bolder restructuring. Say in one line \
+before each block what it changes.
+- End every reply with a line `HANDOFF:` and at most 8 lines (no code): what still differs, what \
+you think causes it, what you ruled out, what to try next. When the conversation gets long it is \
+restarted to free memory, and only the best code, its result and these handoffs are carried over.
+"""
+
+SYSTEM_BODY = """- C89 only: declarations at the start of a block, no // comments inside code, no C99 features.
 - Project style: untyped pointers are u8 *, struct fields are *(T *)(p + 0xOFF) or a small typedef \
 struct; types u8/s8/u16/s16/u32/s32 exist. If a prototype elsewhere has different parameter types, \
 define the function under another C name with an asm label: `s32 f_m(u8 *a) asm("func_X"); s32 f_m(u8 *a) {...}`.
@@ -331,6 +355,12 @@ argument: the callee takes it.
 - String constants in the function's own rodata come from string literals in the C.
 """
 
+SYSTEM = HEAD + ROUND_RULES + SYSTEM_BODY
+
+
+def session_system(k):
+    return HEAD + SESSION_RULES.format(k=k) + SYSTEM_BODY
+
 
 NOTES_MAX = 9000        # characters of earlier rounds' handoffs kept in the prompt
 
@@ -343,7 +373,7 @@ def notes_text(notes):
     return "\n\n".join(entries)
 
 
-def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=()):
+def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), session=None):
     comp = (f"Compiler: PsyQ GCC {setup['gcc']} cc1 with `{setup['cc1']}`, output through maspsx "
             f"(ASPSX 2.79 emulation{', --expand-div: divides get the break 6/7 divide-by-zero and overflow checks' if setup['expand_div'] else ', no divide checks'}), "
             "then GNU as. MIPS R3000, little endian; load delay slots are filled with nop where needed.")
@@ -357,7 +387,10 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=()):
     if notes:
         parts.append("Handoffs from earlier rounds (oldest first; the result is that round's score):\n"
                      + notes_text(notes))
-    parts.append("Write an improved version of the function, then the HANDOFF.")
+    if session:
+        parts.append(session + f"\nReply with up to the allowed number of variants of `{func}`, then the HANDOFF.")
+    else:
+        parts.append("Write an improved version of the function, then the HANDOFF.")
     return "\n\n".join(parts)
 
 
@@ -373,10 +406,15 @@ def split_handoff(text):
     return body, (h[:1500] + " [...]" if len(h) > 1500 else h) or "(no handoff written)"
 
 
-def extract_code(text, func):
+def extract_codes(text, func):
+    """Every ```c block that holds the function, in order, without duplicates."""
     blocks = re.findall(r"```(?:c|C)?\s*\n(.*?)```", text, flags=re.S)
-    blocks = [b for b in blocks if func in b]
-    return blocks[-1].strip() + "\n" if blocks else None
+    return list(dict.fromkeys(b.strip() + "\n" for b in blocks if func in b))
+
+
+def extract_code(text, func):
+    blocks = extract_codes(text, func)
+    return blocks[-1] if blocks else None
 
 
 # ---------------------------------------------------------------- driver
@@ -449,11 +487,116 @@ def iterate(model, func, cands, idx, rounds, temperature):
             last, last_fb = None, None
         else:
             last, last_fb = new, fb
+    finish(func, d, best, best_r, best_m)
+
+
+def finish(func, d, best, best_r, best_m, extra=""):
     open(f"{d}/best.c", "w").write(f"// @@{func}\n{best}")
-    line = f"{time.strftime('%Y-%m-%d %H:%M')} {func}: {'MATCH' if best_m else f'best {best_r:.4f}'} -> permuter/llm/{func}/best.c"
+    line = (f"{time.strftime('%Y-%m-%d %H:%M')} {func}: {'MATCH' if best_m else f'best {best_r:.4f}'}"
+            f"{extra} -> permuter/llm/{func}/best.c")
     with open(f"{OUT}/summary.txt", "a") as f:
         f.write(line + "\n")
     log(line)
+
+
+def est_tokens(msgs):
+    return sum(len(m["content"]) for m in msgs) // 3
+
+
+def iterate_session(model, func, cands, idx, compiles, minutes, temperature, variants, ctx_tokens):
+    """One conversation per function: the model sends variants, gets each one's score and
+    diff back, and carries on until a match, COMPILES compiles or MINUTES minutes. When the
+    history gets long (the model's thinking needs room too), the conversation restarts from
+    the best code and the handoff log."""
+    sync_workspace()
+    src, setup = compiler_setup(func)
+    if not src:
+        log(f"{func}: already matched (no INCLUDE_ASM)")
+        return
+    d = f"{OUT}/{func}"
+    os.makedirs(d, exist_ok=True)
+    code = start_code(func, cands, idx)
+    if code is None:
+        log(f"{func}: no starting candidate (m2c failed)")
+        return
+    asm = target_asm(func)
+    best, (best_r, best_m, best_fb) = code, score(func, code, "start")
+    open(f"{d}/start.c", "w").write(f"// @@{func}\n{code}")
+    log(f"{func}: start ratio {best_r:.4f}; budget {compiles} compiles, {minutes} min")
+    t0 = time.time()
+    t_end = t0 + minutes * 60
+    used, turn, fails, restarts = 0, 0, 0, 0
+    notes, msgs = [], None
+    system = session_system(variants)
+
+    def budget():
+        return (f"Budget left: {compiles - used} compiles, {max(0, round((t_end - time.time()) / 60))} "
+                f"minutes; up to {variants} variants per reply.")
+
+    while not best_m and used < compiles and time.time() < t_end:
+        if msgs is None or est_tokens(msgs) > ctx_tokens * 0.35:
+            if msgs is not None:
+                restarts += 1
+                log(f"{func}: conversation at ~{est_tokens(msgs)} tokens, restarting from the best code")
+            prompt = build_prompt(func, setup, asm, relevant_context(func, best), best, best_fb, None, None,
+                                  notes, session=budget())
+            msgs = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
+            if model is None:                   # --dry-run
+                open(f"{d}/prompt.txt", "w").write(system + "\n=====\n" + prompt)
+                log(f"{func}: dry run, prompt ({len(system) + len(prompt)} chars) in permuter/llm/{func}/prompt.txt")
+                return
+        turn += 1
+        log(f"{func} turn {turn}: asking the model ({budget()[13:]})")
+        try:
+            answer, thinking = ask_messages(model, msgs, temperature)
+            fails = 0
+        except Exception as e:
+            log(f"{func} turn {turn}: request failed: {e}")
+            fails += 1
+            if fails >= 3:
+                log(f"{func}: 3 failed requests in a row, moving on")
+                break
+            time.sleep(10)
+            msgs = None                         # maybe the context was too long: start fresh
+            continue
+        open(f"{d}/turn{turn:02d}.txt", "w").write(
+            (f"<think>\n{thinking}\n</think>\n" if thinking else "") + answer)
+        msgs.append({"role": "assistant", "content": answer})
+        body, handoff = split_handoff(answer)
+        blocks = (extract_codes(body, func) or extract_codes(answer, func))[:variants]
+        if not blocks:
+            log(f"{func} turn {turn}: no C block with {func} in the answer")
+            notes.append((turn, "no code block found", handoff))
+            msgs.append({"role": "user", "content": f"No ```c block containing `{func}` was found in your "
+                         f"reply, so nothing was compiled. {budget()}"})
+            continue
+        results, tags = [], []
+        for j, new in enumerate(blocks, 1):
+            if used >= compiles:
+                break
+            used += 1
+            r, m, fb = score(func, new, f"t{turn}v{j}")
+            open(f"{d}/turn{turn:02d}_v{j}.c", "w").write(f"// @@{func}\n{new}")
+            tag = ("MATCH" if m else "did not compile" if fb.startswith("COMPILE FAILED")
+                   else f"ratio {r:.4f}" + (" (new best)" if r > best_r else f" (best is {best_r:.4f})"))
+            if m or r > best_r:
+                best, best_r, best_m, best_fb = new, r, m, fb
+            lines = fb.splitlines()
+            fb = "\n".join(lines[:60]) + ("\n[... more differing lines]" if len(lines) > 60 else "")
+            results.append(f"Variant {j}: {tag}\n```\n{fb}\n```")
+            tags.append(f"v{j} {tag}")
+            if m:
+                break
+        notes.append((turn, "; ".join(tags), handoff))
+        with open(f"{d}/handoffs.txt", "a") as f:
+            f.write(f"=== turn {turn} ({'; '.join(tags)})\n{handoff}\n\n")
+        log(f"{func} turn {turn}: " + "; ".join(tags))
+        msgs.append({"role": "user", "content": "\n\n".join(results) + "\n\n" + budget()})
+    why = ("" if best_m else "compile budget used" if used >= compiles
+           else "time up" if time.time() >= t_end else "requests failing")
+    finish(func, d, best, best_r, best_m,
+           f" ({used} compiles, {turn} turns, {int((time.time() - t0) / 60)} min"
+           + (f", {restarts} restarts" if restarts else "") + (f"; {why}" if why else "") + ")")
 
 
 def main():
@@ -461,7 +604,13 @@ def main():
     ap.add_argument("funcs", nargs="*")
     ap.add_argument("--parked", metavar="OV", help="work through tools/match/parked_OV.txt")
     ap.add_argument("--queue", help='file of "CANDS.c FUNC [IDX]" lines')
-    ap.add_argument("--rounds", type=int, default=8)
+    ap.add_argument("--compiles", type=int, default=40, help="compiles per function (default 40)")
+    ap.add_argument("--minutes", type=float, default=30, help="minutes per function (default 30)")
+    ap.add_argument("--variants", type=int, default=3, help="variants the model may send per reply (default 3)")
+    ap.add_argument("--ctx", type=int, default=131072,
+                    help="the model's context in tokens; the conversation restarts at ~35%% of it (default 131072)")
+    ap.add_argument("--rounds", type=int,
+                    help="old mode instead: N independent rounds, a fresh prompt each time")
     ap.add_argument("--temperature", type=float, default=0.6)
     ap.add_argument("--skip-done", action="store_true", help="skip functions already in summary.txt")
     ap.add_argument("--dry-run", action="store_true", help="build and save the first prompt only; no model")
@@ -495,11 +644,16 @@ def main():
     except RuntimeError as e:
         sys.exit(f"can't reach the model server: {e}\n"
                  f"(LLM_BASE_URL={BASE}; key {'set' if KEY else 'NOT set: STRATA_API_KEY / LLM_API_KEY'})")
-    log(f"model {model} at {BASE}; {len(jobs)} function(s), {a.rounds} rounds each")
+    log(f"model {model} at {BASE}; {len(jobs)} function(s), "
+        + (f"{a.rounds} rounds each" if a.rounds else
+           f"up to {a.compiles} compiles / {a.minutes:g} min each, {a.variants} variants per reply"))
     for f in dict.fromkeys(jobs):
         try:
             cands, idx = starts.get(f, (None, 0))
-            iterate(model, f, cands, idx, a.rounds, a.temperature)
+            if a.rounds:
+                iterate(model, f, cands, idx, a.rounds, a.temperature)
+            else:
+                iterate_session(model, f, cands, idx, a.compiles, a.minutes, a.temperature, a.variants, a.ctx)
         except KeyboardInterrupt:
             raise
         except Exception as e:

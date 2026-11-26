@@ -58,18 +58,24 @@ types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio)
 API (Strata by default: `LLM_BASE_URL=http://127.0.0.1:47831/v1`, key in `STRATA_API_KEY` or
 `LLM_API_KEY`, `LLM_MODEL` optional). Each round the model gets the target asm, the object's
 exact compiler setup (cc1 flags, whether `--expand-div` applies), the declarations the code
-uses, the best C so far and its diff; its answer is compiled and scored and the best is kept.
+uses, the best C so far and its diff. It then has the compiler: each reply may carry up to
+`--variants` (3) versions of the function, each one is compiled and scored, and the results go
+back as the next message, until a match or the budget runs out (`--compiles` 40, `--minutes` 30
+per function, whichever comes first). Every reply ends with a HANDOFF note; when the history
+passes ~35% of `--ctx` tokens the conversation restarts from the best code plus those notes.
+The system prompt lists the gcc 2.8.1 patterns that matched functions here; extend it as
+new ones turn up. `--rounds N` is the older mode (N independent single-answer rounds).
 
 | Command | What it does |
 |---|---|
-| `llm_iterate.py --parked ov_battle [--rounds 8] [--skip-done]` | The overlay's parked list (functions with a saved candidate in `permuter/queue.txt` first, others start from an m2c draft) |
+| `llm_iterate.py --parked ov_battle [--compiles 40] [--minutes 30] [--skip-done]` | The overlay's parked list (functions with a saved candidate in `permuter/queue.txt` first, others start from an m2c draft) |
 | `llm_iterate.py --queue FILE` / `llm_iterate.py FUNC...` | A queue of `CANDS.c FUNC [IDX]` lines, or named functions |
 | `llm_iterate.py --dry-run FUNC` | Builds the first prompt into `permuter/llm/FUNC/prompt.txt` without calling the model |
 
 It works in a separate copy of the repo (`~/chronocross-llm`, refreshed before each function)
 because `trycc.py` edits source files while it compiles, so it can run alongside other work.
 From WSL it sends requests through Windows' `curl.exe` (a server on Windows' 127.0.0.1 isn't
-reachable from WSL). Results: `permuter/llm/FUNC/` (each round, `best.c`) and
+reachable from WSL). Results: `permuter/llm/FUNC/` (each turn with its thinking, every variant, `handoffs.txt`, `best.c`) and
 `permuter/llm/summary.txt`. A MATCH is a trycc match: lock it with a full build as usual.
 
 ## Permuter (register-allocation near-misses)
