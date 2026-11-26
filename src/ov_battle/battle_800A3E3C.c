@@ -2557,7 +2557,26 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BDDE8);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BE098);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BE51C);
+extern s16 D_800D8F90[];
+extern s16 D_800D8F98[];
+void func_800BE51C(u32 a0, s32 a1) {
+    if (a0) {
+        u32 mask = 0x33377339;
+        s32 i, k, row;
+        func_800BC368(0x78);
+        i = 0;
+        row = 7;
+        for (k = i; i < 32; i++) {
+            if (func_800BC5F4(mask, i)) {
+                if (func_800BC5F4(a0, i)) {
+                    func_800BC4A0(D_800D8F90[(u8)a1 * 2 + k / 9], D_800D8F98[k], row);
+                    k++;
+                }
+                row++;
+            }
+        }
+    }
+}
 
 void func_800BE51C(u32, s32);
 extern u8 D_800DB021;
