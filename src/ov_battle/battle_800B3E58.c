@@ -464,7 +464,41 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800B738C);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800B7898);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800B8070);
+u16 func_800BC594(u16, u8);
+u8 func_800C82AC(u8);
+typedef struct { s16 h0; s16 h2; s32 w4; } SBDD0;
+extern SBDD0 D_800DDBD0_s[] asm("D_800DDBD0");
+extern u16 D_800DDF40;
+
+void func_800B8070(void) {
+    s32 m;
+    s32 i;
+
+    m = 0xFF;
+    for (i = 3; i < 9; i++) {
+        if (func_800BC594(D_800DDF40, i)) {
+            if (D_800DB078[i].h16C != 0 && m >= D_800DB078[i].h16C && D_800DB078[i].h1C8 == 0) {
+                m = (u8)D_800DB078[i].h16C;
+            }
+        }
+    }
+    for (i = 0; i < 9; i++) {
+        if (func_800BC594(D_800DDF40, i)) {
+            D_800DB078[i].h16C -= (u8)m;
+            if (D_800DB078[i].h16C < 0) {
+                D_800DB078[i].h16C = 0;
+            }
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        if (func_800C82AC(i)) {
+            D_800DB078[i].h19E += m * (D_800DB078[i].pad0x[0x1D] + D_800DDBD0_s[i].h2);
+            if (D_800DB078[i].h19E >= 0x47) {
+                D_800DB078[i].h19E = 0x46;
+            }
+        }
+    }
+}
 
 extern u8 D_800DB035;
 u8 func_800C82AC(u8);
@@ -1844,7 +1878,39 @@ void func_800C65B8(s16 a0) {
     }
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800C6670);
+extern s32 D_800D8C4C[];
+extern u8 D_800D8C0C[];
+extern u8 D_800D8BD8[];
+extern u8 D_800D9428;
+
+void func_800C6670(u8 a0, u8 a1) {
+    u32 m;
+    s32 j;
+    s32 o;
+    u8 *d;
+    u8 *e;
+    u8 *t;
+    u8 k;
+
+    m = func_800BC5B4(a0);
+    d = (u8 *)&D_800DDC28;
+    j = a1;
+    o = j * 4;
+    e = d + o;
+    if (!(m & *(s32 *)(e + 0x50)) && !(*(s32 *)(e + 0x30) & func_800BC5B4(a0))) {
+        t = *(u8 **)(d + 0x10) + (j + 2) * 4;
+        *(s32 *)(t + 0xA8) |= m;
+        if (m & D_800D8C4C[j]) {
+            k = D_800D8C0C[a0 + (j << 5)];
+            (*(u8 **)(d + 0x20))[k] = D_800D8BD8[k] * d[0x80];
+            if (j == 0 && (m & 0x20000000)) {
+                D_800DB078[d[0x6F]].b1CF = 1;
+                D_800D9428 = 1;
+                D_800DB078[d[0x6F]].h16C += 3;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800C67F8);
 
