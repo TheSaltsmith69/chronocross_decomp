@@ -29,7 +29,8 @@ import argparse, json, os, re, shutil, subprocess, sys, time
 MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
 OUT = os.path.join(MAIN, "permuter", "llm")
-BASE = os.environ.get("LLM_BASE_URL", "http://127.0.0.1:18500/v1").rstrip("/")
+# (an empty value counts as unset: run_llm.bat passes these through WSLENV even when unset)
+BASE = (os.environ.get("LLM_BASE_URL") or "http://127.0.0.1:18500/v1").rstrip("/")
 KEY = os.environ.get("LLM_API_KEY") or os.environ.get("STRATA_API_KEY") or ""
 CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
 SYNC = ["src", "include", "tools/match", "Makefile", "asm", "linker_scripts", "undefined_funcs.txt"]
