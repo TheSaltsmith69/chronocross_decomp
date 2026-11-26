@@ -28,7 +28,7 @@ The model is reached through an OpenAI-compatible chat API:
 From WSL, requests go through Windows' curl.exe, since a server listening on
 Windows' 127.0.0.1 isn't reachable from WSL directly.
 """
-import argparse, json, os, re, shutil, subprocess, sys, time
+import argparse, glob, json, os, re, shutil, subprocess, sys, time
 
 MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
@@ -431,6 +431,62 @@ def start_code(func, cands=None, idx=0):
     return r.stdout.split(f"// @@{func}\n", 1)[1]
 
 
+def saved_code(d, func):
+    """Code an earlier, interrupted run left: best.c, or (from before best.c was kept up to
+    date) every round/turn file."""
+    files = ([f"{d}/best.c"] if os.path.exists(f"{d}/best.c")
+             else sorted(glob.glob(f"{d}/round*.c") + glob.glob(f"{d}/turn*.c")))
+    out = []
+    for p in files:
+        t = open(p).read()
+        if t.startswith(f"// @@{func}\n"):
+            out.append(t.split("\n", 1)[1])
+    return list(dict.fromkeys(out))
+
+
+def last_index(d):
+    """Highest round/turn number already on disk, so a restart doesn't overwrite them."""
+    ns = [int(m.group(1)) for f in os.listdir(d) for m in [re.match(r"(?:round|turn)(\d+)", f)] if m]
+    return max(ns, default=0)
+
+
+def saved_notes(d):
+    p = f"{d}/handoffs.txt"
+    if not os.path.exists(p):
+        return []
+    found = re.findall(r"^=== (?:round|turn) (\d+) \((.*?)\)\n(.*?)(?=^=== |\Z)", open(p).read(), re.M | re.S)
+    return [(int(n), res, h.strip()) for n, res, h in found]
+
+
+def save_best(d, func, code):
+    open(f"{d}/best.c", "w").write(f"// @@{func}\n{code}")
+
+
+def starting_point(func, d, cands, idx):
+    """(code, (ratio, matched, feedback)) to start from: the best of the queue candidate / m2c
+    draft and whatever an earlier run of this function saved. None if there is nothing."""
+    first = start_code(func, cands, idx)
+    if first is not None and not os.path.exists(f"{d}/start.c"):
+        open(f"{d}/start.c", "w").write(f"// @@{func}\n{first}")
+    saved = saved_code(d, func)
+    best = None
+    for k, code in enumerate(([first] if first is not None else []) + saved):
+        s = score(func, code, f"start{k}")
+        if best is None or s[1] or s[0] > best[1][0]:
+            best = (code, s)
+        if s[1]:
+            break
+    if best is None:
+        return None
+    if saved:
+        how = "from the saved best" if best[0] in saved else f"from the start candidate ({len(saved)} saved scored lower)"
+        log(f"{func}: resuming {how}: ratio {best[1][0]:.4f}")
+        save_best(d, func, best[0])
+    else:
+        log(f"{func}: start ratio {best[1][0]:.4f}")
+    return best
+
+
 def iterate(model, func, cands, idx, rounds, temperature):
     sync_workspace()
     src, setup = compiler_setup(func)
@@ -439,17 +495,16 @@ def iterate(model, func, cands, idx, rounds, temperature):
         return
     d = f"{OUT}/{func}"
     os.makedirs(d, exist_ok=True)
-    code = start_code(func, cands, idx)
-    if code is None:
+    sp = starting_point(func, d, cands, idx)
+    if sp is None:
         log(f"{func}: no starting candidate (m2c failed)")
         return
     asm = target_asm(func)
-    best, (best_r, best_m, best_fb) = code, score(func, code, "start")
-    open(f"{d}/start.c", "w").write(f"// @@{func}\n{code}")
-    log(f"{func}: start ratio {best_r:.4f}")
+    best, (best_r, best_m, best_fb) = sp
     last, last_fb = None, None
-    notes = []                                  # (round, result, handoff)
-    for i in range(1, rounds + 1):
+    notes = saved_notes(d)                      # (round, result, handoff)
+    base = last_index(d)
+    for i in range(base + 1, base + rounds + 1):
         if best_m:
             break
         prompt = build_prompt(func, setup, asm, relevant_context(func, best), best, best_fb, last, last_fb,
@@ -484,6 +539,7 @@ def iterate(model, func, cands, idx, rounds, temperature):
         log(f"{func} round {i}: {'MATCH' if m else f'ratio {r:.4f}'} (best {best_r:.4f})")
         if m or r > best_r:
             best, best_r, best_m, best_fb = new, r, m, fb
+            save_best(d, func, best)
             last, last_fb = None, None
         else:
             last, last_fb = new, fb
@@ -515,18 +571,18 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
         return
     d = f"{OUT}/{func}"
     os.makedirs(d, exist_ok=True)
-    code = start_code(func, cands, idx)
-    if code is None:
+    sp = starting_point(func, d, cands, idx)
+    if sp is None:
         log(f"{func}: no starting candidate (m2c failed)")
         return
     asm = target_asm(func)
-    best, (best_r, best_m, best_fb) = code, score(func, code, "start")
-    open(f"{d}/start.c", "w").write(f"// @@{func}\n{code}")
-    log(f"{func}: start ratio {best_r:.4f}; budget {compiles} compiles, {minutes} min")
+    best, (best_r, best_m, best_fb) = sp
+    log(f"{func}: budget {compiles} compiles, {minutes:g} min")
     t0 = time.time()
     t_end = t0 + minutes * 60
-    used, turn, fails, restarts = 0, 0, 0, 0
-    notes, msgs = [], None
+    turn = last_index(d)
+    used, fails, restarts, turns = 0, 0, 0, 0
+    notes, msgs = saved_notes(d), None
     system = session_system(variants)
 
     def budget():
@@ -546,6 +602,7 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
                 log(f"{func}: dry run, prompt ({len(system) + len(prompt)} chars) in permuter/llm/{func}/prompt.txt")
                 return
         turn += 1
+        turns += 1
         log(f"{func} turn {turn}: asking the model ({budget()[13:]})")
         try:
             answer, thinking = ask_messages(model, msgs, temperature)
@@ -581,6 +638,7 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
                    else f"ratio {r:.4f}" + (" (new best)" if r > best_r else f" (best is {best_r:.4f})"))
             if m or r > best_r:
                 best, best_r, best_m, best_fb = new, r, m, fb
+                save_best(d, func, best)
             lines = fb.splitlines()
             fb = "\n".join(lines[:60]) + ("\n[... more differing lines]" if len(lines) > 60 else "")
             results.append(f"Variant {j}: {tag}\n```\n{fb}\n```")
@@ -595,7 +653,7 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
     why = ("" if best_m else "compile budget used" if used >= compiles
            else "time up" if time.time() >= t_end else "requests failing")
     finish(func, d, best, best_r, best_m,
-           f" ({used} compiles, {turn} turns, {int((time.time() - t0) / 60)} min"
+           f" ({used} compiles, {turns} turns, {int((time.time() - t0) / 60)} min"
            + (f", {restarts} restarts" if restarts else "") + (f"; {why}" if why else "") + ")")
 
 
