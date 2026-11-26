@@ -3384,7 +3384,37 @@ u8 func_800D6D00(s32 a0, u8 *a1) {
     return D_800D9624[a1[0]];
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800D6DAC);
+u8 func_800D6DAC(s32 a0, u8 *a1) {
+    u8 *b;
+    u8 k;
+    u8 *q;
+    u8 *c;
+    u8 fill;
+    s32 i;
+    u8 *p;
+
+    func_800D29A8(a1, 1, 0, 1);
+
+    b = D_800DDB30;
+    if (*(s16 *)(b + 0x6A4) == 0xE9) {
+        q = (u8 *)((u8 **)b + a0);
+        k = ((u8 **)q)[0][0x83];
+    } else {
+        k = b[0x6A4] + 0x21;
+    }
+
+    fill = 0xFF;
+    i = 6;
+    p = D_800DDB60_a + i;
+    for (; i >= 0; i--) {
+        *p-- = fill;
+    }
+
+    c = (u8 *)((u8 **)D_800DDB30 + k);
+    D_800DDB60 = ((u8 **)c)[0][0x83];
+
+    return D_800D9624[a1[0]];
+}
 
 u8 func_800D6E88(s32 a0, u8 *a1) {
     u8 *b;
