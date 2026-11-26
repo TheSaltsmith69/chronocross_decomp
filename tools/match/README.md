@@ -93,7 +93,7 @@ fetches it; `.venv/bin/pip install toml Levenshtein`).
 |---|---|
 | `permute.py CANDS.c FUNC [IDX]` | Imports one candidate variant into `permuter/nonmatchings/FUNC/` (gitignored). `compile.sh` is the object's real Makefile recipe, so per-object flags such as `--expand-div` apply |
 | `permuter.py permuter/nonmatchings/FUNC -j16` | Runs it interactively (from `tools/decomp-permuter/`) |
-| `permute_all.sh QUEUE [MINUTES] [JOBS]` | Runs a queue of `CANDS.c FUNC [IDX]` lines unattended, MINUTES each; best scores go to `permuter/summary.txt` |
+| `permute_all.sh QUEUE [MINUTES] [JOBS] [all]` | Runs a queue of `CANDS.c FUNC [IDX]` lines unattended, MINUTES each; best scores go to `permuter/summary.txt`. The console shows each function's base score, every improvement (with the compile that found it) and a status line updated on every compile (count, rate, latest and best score, errors, time left), plus a permanent line each minute; `all` prints one line per compile instead (`permwatch.py`) |
 
 Results are in `output-SCORE-N/source.c` (score 0 = full match). The randomizer often finds
 odd-looking code that only fixes registers by accident; turn it into something sensible, then
