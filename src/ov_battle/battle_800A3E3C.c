@@ -411,7 +411,28 @@ void func_800AC0F8(u8 *a0) {
     }
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800AC1D8);
+typedef struct { s16 h[4]; } S1D8;
+void func_800AC1D8(u8 *o, s32 a1, s16 *v) {
+    s32 n = a1 + *(s16 *)(o + 0x110);
+    *(s16 *)(o + 0x144) = a1;
+    if (n > 0) {
+        u8 *t = func_8009C9F4(o, func_800AC0F8);
+        *(u8 **)(t + 0xC) = o;
+        *(s32 *)(t + 0x10) = n;
+        *(S1D8 *)(t + 0x14) = *(S1D8 *)v;
+        if (*(s16 *)(o + 0x110) < 0) {
+            n = -*(s16 *)(o + 0x110);
+            *(s32 *)(o + 0x84) += *(s32 *)(o + 0x94) * n;
+            *(s32 *)(o + 0x88) += *(s32 *)(o + 0x98) * n;
+            *(s32 *)(o + 0x8C) += *(s32 *)(o + 0x9C) * n;
+        }
+    } else {
+        *(s32 *)(o + 0x84) = v[0] << 12;
+        *(s32 *)(o + 0x88) = v[1] << 12;
+        *(s32 *)(o + 0x8C) = v[2] << 12;
+        *(s32 *)(o + 0x94) = *(s32 *)(o + 0x98) = *(s32 *)(o + 0x9C) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800AC2F4);
 
@@ -513,7 +534,29 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800ADBEC);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800ADD8C);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800ADF14);
+void func_800ADF14(u8 *o, u8 *t) {
+    if (*(s16 *)(t + 0x10) > 0) {
+        s32 h = *(s16 *)(o + 0x110);
+        if (h < 0) {
+            s32 n = -h;
+            *(s32 *)(o + 0x84) += *(s32 *)(o + 0x94) * n;
+            *(s32 *)(o + 0x8C) += *(s32 *)(o + 0x9C) * n;
+            *(s16 *)(t + 0x12) += 1;
+            *(s32 *)(o + 0x88) -= *(s32 *)(o + 0x98) / 2;
+            while (n != 0) {
+                *(s32 *)(o + 0x88) += *(s32 *)(o + 0x98);
+                *(s32 *)(o + 0x98) += *(s32 *)(t + 0x14);
+                n--;
+            }
+        }
+    } else {
+        *(s32 *)(o + 0x84) = *(s16 *)(t + 0x18) << 12;
+        *(s32 *)(o + 0x88) = *(s16 *)(t + 0x1A) << 12;
+        *(s32 *)(o + 0x8C) = *(s16 *)(t + 0x1C) << 12;
+        *(s32 *)(o + 0x94) = *(s32 *)(o + 0x98) = *(s32 *)(o + 0x9C) = 0;
+        func_8009CA60(t);
+    }
+}
 
 u8 *func_800AD9D0(u8 *, s32 *, s32 *, s32, s32);
 void func_800ADF14(u8 *, u8 *);
@@ -1504,7 +1547,23 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B3914);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B39B4);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B3A54);
+typedef struct { s32 x, y, z, pad; } V3A54;
+void func_800B3A54(u8 *a0) {
+    V3A54 b;
+    V3A54 a;
+    func_8009789C(*(s32 *)(a0 + 0x10), *(s16 *)(a0 + 0x16), (s32)&a);
+    *(s16 *)(a0 + 0x20) = a.x - (*(s32 *)(*(u8 **)(a0 + 0x10) + 0x84) >> 12);
+    *(s16 *)(a0 + 0x22) = a.y - (*(s32 *)(*(u8 **)(a0 + 0x10) + 0x88) >> 12);
+    *(s16 *)(a0 + 0x24) = a.z - (*(s32 *)(*(u8 **)(a0 + 0x10) + 0x8C) >> 12);
+    func_8009789C(*(s32 *)(a0 + 0xC), *(s16 *)(a0 + 0x14), (s32)&b);
+    *(s32 *)(*(u8 **)(a0 + 0x10) + 0x84) = (b.x - *(s16 *)(a0 + 0x20)) << 12;
+    *(s32 *)(*(u8 **)(a0 + 0x10) + 0x88) = (b.y - *(s16 *)(a0 + 0x22)) << 12;
+    *(s32 *)(*(u8 **)(a0 + 0x10) + 0x8C) = (b.z - *(s16 *)(a0 + 0x24)) << 12;
+    if (*(s16 *)(a0 + 0x18) != 0) {
+        *(s16 *)(a0 + 0x18) -= D_1F800010_u;
+        if (*(s16 *)(a0 + 0x18) <= 0) func_8009CA60(a0);
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B3B64);
 
