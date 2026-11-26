@@ -327,7 +327,32 @@ s32 func_800AD288(u8 *a0) {
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AD36C);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AD564);
+u8 **func_8003099C_h(s32) asm("func_8003099C");
+extern s32 D_800A0F00_h[] asm("D_800A0F00");
+s32 func_80025044(s16);
+s32 func_80025114(s16);
+typedef struct { s32 x, y, z, pad; } VD564;
+s32 func_800AD564(u8 *a0) {
+    s16 *q = *(s16 **)(a0 + 0x108);
+    u8 **o;
+    u8 *e;
+    s16 *a;
+    s16 *r;
+    s32 len;
+    VD564 v;
+    if (q[1] == 0) o = func_8003099C_h(q[2]);
+    else o = func_800309D0(q[2]);
+    if (!o) func_80029DD8(D_800A3364, "kz_GetLenPos()", D_800A0F00_h[q[2]]);
+    e = *o;
+    a = func_8009AAE0(a0, q[3]);
+    r = func_8009AAE0(a0, q[5]);
+    len = q[4];
+    v = *(VD564 *)(e + 0x84);
+    r[0] = (v.x + -func_80025044(a[0]) * len) >> 12;
+    r[1] = (v.z + -func_80025114(a[0]) * len) >> 12;
+    r[2] = v.y >> 12;
+    return 6;
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AD6A8);
 
@@ -737,7 +762,46 @@ void func_800AF690(u8 *p) {
     func_8009789C(**(s32 **)(p + 0x10), *(s32 *)(p + 0x14), *(s32 *)(p + 0xC) + 0x1C4);
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AF6C4);
+u8 **func_8003099C_i(s32) asm("func_8003099C");
+u8 **func_80030934(s32);
+extern s32 D_800A0F00_i[] asm("D_800A0F00");
+void func_80097D28(u8 *, s32, s32);
+void func_800AF690();
+s32 func_800AF6C4(u8 *a0) {
+    s16 *q = *(s16 **)(a0 + 0x108);
+    s16 m = q[1];
+    u16 k = q[3];
+    u8 **o = 0;
+    u8 *p;
+    u8 *t;
+    switch (m) {
+    case 0:
+        o = func_8003099C_i(q[2]);
+        break;
+    case 1:
+        o = func_800309D0(q[2]);
+        break;
+    case 2:
+        o = func_80030934(q[2]);
+        break;
+    }
+    if (!o) func_80029DD8(D_800A3364, "kz_FaceLockOn()", D_800A0F00_i[q[1]]);
+    func_8009789C((s32)*o, (s16)k, (s32)(a0 + 0x1C4));
+    p = 0;
+    while ((p = func_8009CB34(p, func_800AF690)) != 0) {
+        u8 *n = *(u8 **)(p + 4);
+        if (*(u8 **)(p + 0xC) == a0) {
+            func_8009CA60(p);
+            p = n;
+        }
+    }
+    t = func_8009C9F4(a0, func_800AF690);
+    *(u8 **)(t + 0xC) = a0;
+    *(u8 ***)(t + 0x10) = o;
+    *(s32 *)(t + 0x14) = (s16)k;
+    func_80097D28(a0, 0, 0xE00);
+    return 4;
+}
 
 void func_800AF690();
 void func_80097F80(u8 *, s32);
