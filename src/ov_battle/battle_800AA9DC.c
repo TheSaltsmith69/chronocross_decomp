@@ -1607,7 +1607,54 @@ s32 func_800B31D0(u8 *p) {
     return 2;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800B3214);
+typedef struct { s16 x, y, z, pad; } SV3214;
+s32 ApplyMatrixSV_q(u8 *, u8 *, SV3214 *) asm("ApplyMatrixSV");
+s32 RotTransPers_q(SV3214 *, s32 *, s32 *, s32 *) asm("RotTransPers");
+s32 SetRotMatrix(s32);
+s32 SetTransMatrix(s32);
+s32 func_80097854_q(u8 *, s32, u8 **, u8 **) asm("func_80097854");
+extern s32 D_800A1274;
+s32 func_800B3214(u8 *a0) {
+    SV3214 v;
+    u8 *pv;
+    u8 *m;
+    s32 sx;
+    s32 p;
+    s32 fl;
+    s32 id;
+    s32 z;
+    s32 x;
+    s32 y;
+    u8 *e;
+    u8 *q = *(u8 **)(a0 + 0x108);
+
+    id = *(s16 *)(q + 2) | (*(s16 *)(q + 4) << 16);
+    func_80097854_q(a0, 0x10, &pv, &m);
+    ApplyMatrixSV_q(m, pv, &v);
+    v.x += *(u16 *)(m + 0x14);
+    v.y += *(u16 *)(m + 0x18);
+    v.z += *(u16 *)(m + 0x1C);
+    SetRotMatrix(D_800A1274);
+    SetTransMatrix(D_800A1274);
+    z = RotTransPers_q(&v, &sx, &p, &fl);
+    sx = (s16)sx - 0xA0;
+    if (sx < -0xA0) {
+        sx = -0xA0;
+    } else if (sx > 0xA0) {
+        sx = 0xA0;
+    }
+    x = sx * 48 / 160 + 0x80;
+    if (z >= 0x2000) z = 0x1FFF;
+    z = 0x1FFF - z;
+    y = (z * 96 >> 13) + 0x20;
+    e = 0;
+    while ((e = (u8 *)func_8004208C(e, 0x16, 0)) != 0) {
+        if (*(s32 *)(e + 4) == id) {
+            func_8004A1DC((u8 *)func_80041F6C(e), 0, x, y);
+        }
+    }
+    return 4;
+}
 
 s32 func_800B33C0(void) {
     return 3;
