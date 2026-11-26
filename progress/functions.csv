@@ -2099,7 +2099,7 @@ func_800ABEB0,800ABEB0,ov_battle/battle_800A3E3C,ov_battle,156,1
 func_800ABF4C,800ABF4C,ov_battle/battle_800A3E3C,ov_battle,156,1
 func_800ABFE8,800ABFE8,ov_battle/battle_800A3E3C,ov_battle,272,0
 func_800AC0F8,800AC0F8,ov_battle/battle_800A3E3C,ov_battle,224,1
-func_800AC1D8,800AC1D8,ov_battle/battle_800A3E3C,ov_battle,284,0
+func_800AC1D8,800AC1D8,ov_battle/battle_800A3E3C,ov_battle,284,1
 func_800AC2F4,800AC2F4,ov_battle/battle_800A3E3C,ov_battle,400,0
 func_800AC484,800AC484,ov_battle/battle_800A3E3C,ov_battle,392,0
 func_800AC60C,800AC60C,ov_battle/battle_800A3E3C,ov_battle,380,0
@@ -2122,7 +2122,7 @@ func_800AD880,800AD880,ov_battle/battle_800A3E3C,ov_battle,336,0
 func_800AD9D0,800AD9D0,ov_battle/battle_800A3E3C,ov_battle,540,0
 func_800ADBEC,800ADBEC,ov_battle/battle_800A3E3C,ov_battle,416,0
 func_800ADD8C,800ADD8C,ov_battle/battle_800A3E3C,ov_battle,392,0
-func_800ADF14,800ADF14,ov_battle/battle_800A3E3C,ov_battle,280,0
+func_800ADF14,800ADF14,ov_battle/battle_800A3E3C,ov_battle,280,1
 func_800AE02C,800AE02C,ov_battle/battle_800A3E3C,ov_battle,240,1
 func_800AE11C,800AE11C,ov_battle/battle_800A3E3C,ov_battle,164,1
 func_800AE1C0,800AE1C0,ov_battle/battle_800A3E3C,ov_battle,164,1
@@ -2233,7 +2233,7 @@ func_800B3794,800B3794,ov_battle/battle_800A3E3C,ov_battle,204,1
 func_800B3860,800B3860,ov_battle/battle_800A3E3C,ov_battle,180,1
 func_800B3914,800B3914,ov_battle/battle_800A3E3C,ov_battle,160,0
 func_800B39B4,800B39B4,ov_battle/battle_800A3E3C,ov_battle,160,0
-func_800B3A54,800B3A54,ov_battle/battle_800A3E3C,ov_battle,272,0
+func_800B3A54,800B3A54,ov_battle/battle_800A3E3C,ov_battle,272,1
 func_800B3B64,800B3B64,ov_battle/battle_800A3E3C,ov_battle,424,0
 func_800B3D0C,800B3D0C,ov_battle/battle_800A3E3C,ov_battle,64,1
 func_800B3D4C,800B3D4C,ov_battle/battle_800A3E3C,ov_battle,64,1
@@ -2364,7 +2364,7 @@ func_800BDD54,800BDD54,ov_battle/battle_800A3E3C,ov_battle,68,1
 func_800BDD98,800BDD98,ov_battle/battle_800A3E3C,ov_battle,80,1
 func_800BDDE8,800BDDE8,ov_battle/battle_800A3E3C,ov_battle,688,0
 func_800BE098,800BE098,ov_battle/battle_800A3E3C,ov_battle,1156,0
-func_800BE51C,800BE51C,ov_battle/battle_800A3E3C,ov_battle,276,0
+func_800BE51C,800BE51C,ov_battle/battle_800A3E3C,ov_battle,276,1
 func_800BE630,800BE630,ov_battle/battle_800A3E3C,ov_battle,88,1
 func_800BE688,800BE688,ov_battle/battle_800A3E3C,ov_battle,88,1
 func_800BE6E0,800BE6E0,ov_battle/battle_800A3E3C,ov_battle,1292,0
