@@ -1365,7 +1365,7 @@ func_800AC794,800AC794,ov_field/field_800A39B4,ov_field,728,0
 func_800ACA6C,800ACA6C,ov_field/field_800A39B4,ov_field,96,1
 func_800ACACC,800ACACC,ov_field/field_800A39B4,ov_field,1172,0
 func_800ACF60,800ACF60,ov_field/field_800A39B4,ov_field,220,0
-func_800AD03C,800AD03C,ov_field/field_800A39B4,ov_field,644,0
+func_800AD03C,800AD03C,ov_field/field_800A39B4,ov_field,644,1
 func_800AD2C0,800AD2C0,ov_field/field_800A39B4,ov_field,256,1
 func_800AD3C0,800AD3C0,ov_field/field_800A39B4,ov_field,96,1
 func_800AD420,800AD420,ov_field/field_800A39B4,ov_field,96,1
