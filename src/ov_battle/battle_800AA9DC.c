@@ -140,9 +140,68 @@ void func_800AC1D8(u8 *o, s32 a1, s16 *v) {
     }
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC2F4);
+void func_80029D9C(void);
+void func_8009AC54_j(u8 *, u8 *, s32 *, s32 *, s32) asm("func_8009AC54");
+typedef struct { s32 x, y, z, pad; } VC2F4;
+s32 func_800AC2F4(u8 *a0) {
+    char *s = "MoveT";
+    u8 *q = *(u8 **)(a0 + 0x108);
+    s32 id = *(s16 *)(q + 2);
+    s32 n = *(s16 *)(q + 4);
+    u8 **o;
+    u8 *e;
+    s32 k;
+    s16 t[3];
+    VC2F4 v;
+    s32 m;
+    func_800ABD88(a0, (s32)s);
+    func_800ABE24(a0, (s32)s);
+    func_800ABEB0(a0, (s32)s);
+    o = func_800309D0(id);
+    if (!o) func_80029D9C();
+    e = *o;
+    func_8009AC54_j(a0, e, &v.x, &m, 0xF);
+    t[0] = (*(s32 *)(a0 + 0x84) + v.x * m) >> 12;
+    t[1] = (*(s32 *)(a0 + 0x88) + v.y * m) >> 12;
+    t[2] = (*(s32 *)(a0 + 0x8C) + v.z * m) >> 12;
+    k = m / n;
+    *(s32 *)(a0 + 0x94) = v.x * k;
+    *(s32 *)(a0 + 0x98) = v.y * k;
+    m = k;
+    *(s32 *)(a0 + 0x9C) = v.z * k;
+    func_800AC1D8(a0, n, t);
+    return 3;
+}
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC484);
+void func_80029D9C(void);
+void func_8009AC54_k(u8 *, u8 *, s32 *, s32 *, s32) asm("func_8009AC54");
+typedef struct { s32 x, y, z, pad; } VC484;
+s32 func_800AC484(u8 *a0) {
+    char *s = "MoveS";
+    u8 *q = *(u8 **)(a0 + 0x108);
+    s32 id = *(s16 *)(q + 2);
+    s32 n = *(s16 *)(q + 4);
+    u8 **o;
+    u8 *e;
+    s16 t[3];
+    VC484 v;
+    s32 m;
+    func_800ABD88(a0, (s32)s);
+    func_800ABE24(a0, (s32)s);
+    func_800ABEB0(a0, (s32)s);
+    o = func_800309D0(id);
+    if (!o) func_80029D9C();
+    e = *o;
+    func_8009AC54_k(a0, e, &v.x, &m, 0xF);
+    t[0] = (*(s32 *)(a0 + 0x84) + v.x * m) >> 12;
+    t[1] = (*(s32 *)(a0 + 0x88) + v.y * m) >> 12;
+    t[2] = (*(s32 *)(a0 + 0x8C) + v.z * m) >> 12;
+    *(s32 *)(a0 + 0x94) = v.x * n;
+    *(s32 *)(a0 + 0x98) = v.y * n;
+    *(s32 *)(a0 + 0x9C) = v.z * n;
+    func_800AC1D8(a0, m / n, t);
+    return 3;
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC60C);
 

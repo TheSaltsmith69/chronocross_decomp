@@ -3269,7 +3269,27 @@ u16 func_800D294C(u8 *p) {
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800D29A8);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800D2B78);
+u16 func_800BC594(u16, u8);
+u8 func_800D2B78_d(s16, s16, s32) asm("func_800D2B78");
+u8 func_800D2B78_d(s16 a, s16 b, s32 op) {
+    u8 r = 0;
+    switch (op & 0xF) {
+    case 0: if (a == b) r = 1; break;
+    case 1: if (a != b) r = 1; break;
+    case 2: if (a > b) r = 1; break;
+    case 3: if (a < b) r = 1; break;
+    case 4: if (a >= b) r = 1; break;
+    case 5: if (a <= b) r = 1; break;
+    case 6: if ((s16)(a & b)) r = 1; break;
+    case 7: if (a != b) r = 1; break;
+    case 8: if ((s16)(a | b)) r = 1; break;
+    case 9: if (func_800BC594(a, b)) r = 1; break;
+    case 10: if (!func_800BC594(a, b)) r = 1; break;
+    }
+    return r;
+}
+/* zero word that pads the jump table above to 8 bytes in the original rodata */
+const s32 D_800D2B78_pad = 0;
 
 u16 func_800D2CEC(u8 *p) {
     s32 i;
