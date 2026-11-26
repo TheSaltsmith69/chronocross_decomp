@@ -73,7 +73,56 @@ extern SA648 D_800DA648[];
 extern u8 D_800DDF4C;
 /* ---- end shared declarations ---- */
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800A3E3C);
+s32 func_800A40F4(s32, u16, s32, s32);
+s32 func_800A4354(s32, u16, s32, s32);
+s32 func_800A45E0(s32, u16, s32, s32);
+s32 func_800A487C(s32, u16, s32, s32);
+s32 func_800A4ADC(s32, s32, s32);
+s32 func_800A5C90(s32, s32, s32);
+s32 func_800A7018(s32, s32, s32);
+s32 func_800A77FC(s32, s32, s32);
+void *memset(void *, s32, s32);
+extern u8 D_8006B30C;
+extern u16 D_800D8688;
+extern u16 D_800D9AA8;
+extern s16 D_800D9AAA;
+extern s16 D_800D9AAC;
+extern s32 D_800D9AB0;
+
+void func_800A3E3C(u8 *arg0, s32 arg1) {
+    u8 buf[8];
+    u8 c[4];
+    u16 f;
+
+    memset(buf, 0, 8);
+    f = *(u16 *)(arg0 + 0x12);
+    if (!(f & 1)) {
+        D_800D9AAA = f & 2;
+        D_800D9AAC = 0;
+        c[0] = arg0[0x14];
+        c[1] = arg0[0x15];
+        c[2] = arg0[0x16];
+        D_800D9AA8 = D_800D8688;
+        D_800D9AB0 = *(s32 *)c;
+        if (D_8006B30C != 0) {
+            func_800A487C(*(s32 *)arg0, *(u16 *)(arg0 + 0x10), *(s32 *)(arg0 + 4), arg1);
+            if (*(u16 *)(arg0 + 0x12) & 0x8000) {
+                func_800A77FC(*(s32 *)(arg0 + 8), arg1, (s32)buf);
+            } else {
+                func_800A5C90(*(s32 *)(arg0 + 8), arg1, (s32)buf);
+            }
+            func_800A45E0(*(s32 *)arg0, *(u16 *)(arg0 + 0x1E), *(s32 *)(arg0 + 0x20), arg1);
+            return;
+        }
+        func_800A40F4(*(s32 *)arg0, *(u16 *)(arg0 + 0x10), *(s32 *)(arg0 + 4), arg1);
+        if (*(u16 *)(arg0 + 0x12) & 0x8000) {
+            func_800A7018(*(s32 *)(arg0 + 8), arg1, (s32)buf);
+        } else {
+            func_800A4ADC(*(s32 *)(arg0 + 8), arg1, (s32)buf);
+        }
+        func_800A4354(*(s32 *)arg0, *(u16 *)(arg0 + 0x1E), *(s32 *)(arg0 + 0x20), arg1);
+    }
+}
 
 s32 func_800A40F4(s32, u16, s32, s32);
 s32 func_800A4354(s32, u16, s32, s32);
