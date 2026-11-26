@@ -3,6 +3,7 @@
 
     llm_iterate.py --parked ov_battle [--compiles 40] [--minutes 30]   # an overlay's parked list
     llm_iterate.py --queue permuter/queue.txt          # "CANDS.c FUNC [IDX]" lines
+    llm_iterate.py --permuted [FUNC...]                # functions the permuter has improved
     llm_iterate.py func_800C91FC func_800B8AC4         # named functions
 
 For each function it starts from a candidate (the queue's, else an m2c draft from
@@ -16,6 +17,14 @@ the rest), it restarts the conversation from the best code and the model's hando
 --rounds N is the older mode: N independent single-answer rounds. Everything happens in a separate copy of the repo (~/chronocross-llm,
 refreshed from this checkout before each function), because trycc edits source files
 while it works; this checkout is never touched.
+
+--permuted works through the functions under permuter/nonmatchings/ that have at least one
+permuter output (not the *.matched ones), lowest permuter score first. Each starts from the
+function in its best output-SCORE-N/source.c, put after the queue candidate's own declarations
+(typedefs, externs); the queue candidate is scored as well, and the better one is used. The
+model is told the code came from the permuter, which makes random changes that can be odd or
+wrong C. With --skip-done, a function is skipped only if the LLM already started from that same
+permuter output (permuter/llm/<func>/permuted_from.txt); a newer permuter result runs it again.
 
 Results: permuter/llm/<func>/ (every round, best.c) and permuter/llm/summary.txt.
 A MATCH there is a trycc match (relocations masked), so it still needs locking with a
@@ -408,6 +417,8 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), 
              "Declarations visible to the function in its source file (relevant ones):\n```c\n" + ctx + "\n```",
              "Target assembly:\n```\n" + asm + "\n```",
              "Best C so far:\n```c\n" + best + "\n```", "Its result:\n```\n" + best_fb + "\n```"]
+    if func in START_NOTES:
+        parts.append(START_NOTES[func])
     if last is not None and last.strip() != best.strip():
         parts += ["Your previous attempt (worse than the best):\n```c\n" + last + "\n```",
                   "Its result:\n```\n" + last_fb + "\n```"]
@@ -445,6 +456,104 @@ def extract_code(text, func):
 
 
 # ---------------------------------------------------------------- driver
+
+PERMUTER_DIR = os.path.join(MAIN, "permuter", "nonmatchings")
+START_NOTES = {}    # func -> extra note for the first prompt (e.g. where the start code came from)
+ALT_STARTS = {}     # func -> other start code to score alongside the usual candidate
+
+
+def func_span(text, func):
+    """(start, end) of FUNC's definition in TEXT (start of its line .. its closing brace), or None."""
+    m = re.search(r"^[^\n;{}#]*\b" + func + r"\s*\([^;{]*\)\s*\{", text, re.M)
+    if not m:
+        return None
+    depth, i = 0, m.end() - 1
+    while i < len(text):
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return m.start(), i + 1
+        i += 1
+    return None
+
+
+def cand_prelude(func, cands, idx):
+    """The declarations (typedefs, externs, prototypes) in front of FUNC in its queue candidate."""
+    if not cands:
+        return ""
+    try:
+        t = open(cands if os.path.isabs(cands) else f"{MAIN}/{cands}").read()
+    except OSError:
+        return ""
+    vs = t.split(f"// @@{func}\n")[1:]
+    if len(vs) <= idx:
+        return ""
+    block = vs[idx].split("\n// @@")[0]
+    sp = func_span(block, func)
+    return block[: sp[0]] if sp else ""
+
+
+def permuted_best(func):
+    """(score, output dir name, source.c path) of FUNC's best permuter output, or None."""
+    best = None
+    for src in glob.glob(f"{PERMUTER_DIR}/{func}/output-*-*/source.c"):
+        m = re.search(r"output-(\d+)-(\d+)$", os.path.dirname(src))
+        if m:
+            k = (int(m.group(1)), int(m.group(2)))
+            if best is None or k < best[0]:
+                best = (k, os.path.basename(os.path.dirname(src)), src)
+    return (best[0][0], best[1], best[2]) if best else None
+
+
+def permuted_code(func, src, cands, idx):
+    """FUNC as the permuter left it: the candidate's prelude, any helper the permuter added in
+    front of the function (e.g. inline_fn), then the function. None if it can't be found."""
+    t = open(src).read()
+    sp = func_span(t, func)
+    if not sp:
+        return None
+    start = sp[0]
+    base_p = os.path.join(os.path.dirname(os.path.dirname(src)), "base.c")
+    if os.path.exists(base_p):
+        import difflib
+        base = open(base_p).read()
+        bsp = func_span(base, func)
+        a = base[: bsp[0]].splitlines(True) if bsp else base.splitlines(True)
+        b = t[: sp[0]].splitlines(True)
+        new = [j1 for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes()
+               if tag in ("insert", "replace") and "".join(b[j1:j2]).strip()]
+        if new:
+            # back up to the start of the top-level item holding the first new line
+            j = min(new)
+            while j > 0 and b[j - 1].strip() and not b[j - 1].rstrip().endswith((";", "}")):
+                j -= 1
+            start = sum(len(x) for x in b[:j])
+    code = cand_prelude(func, cands, idx) + t[start: sp[1]].strip("\n") + "\n"
+    return code
+
+
+def permuted_jobs(starts):
+    """[(func, score, output name, code)] for every function with a permuter output, best first."""
+    out = []
+    for d in sorted(glob.glob(f"{PERMUTER_DIR}/func_*")):
+        func = os.path.basename(d)
+        if not re.fullmatch(r"func_[0-9A-Fa-f]+", func):      # e.g. func_800C598C.matched
+            continue
+        pb = permuted_best(func)
+        if not pb:
+            continue
+        cands, idx = starts.get(func, (None, 0))
+        code = permuted_code(func, pb[2], cands, idx)
+        if code is None:
+            log(f"{func}: can't find the function in {pb[2]}, skipped")
+            continue
+        out.append((func, pb[0], pb[1], code))
+    out.sort(key=lambda x: x[1])
+    return out
+
 
 def start_code(func, cands=None, idx=0):
     if cands:
@@ -496,8 +605,9 @@ def starting_point(func, d, cands, idx):
     if first is not None and not os.path.exists(f"{d}/start.c"):
         open(f"{d}/start.c", "w").write(f"// @@{func}\n{first}")
     saved = saved_code(d, func)
+    alt = [ALT_STARTS[func]] if func in ALT_STARTS else []
     best = None
-    for k, code in enumerate(([first] if first is not None else []) + saved):
+    for k, code in enumerate(alt + ([first] if first is not None else []) + saved):
         s = score(func, code, f"start{k}")
         if best is None or s[1] or s[0] > best[1][0]:
             best = (code, s)
@@ -505,7 +615,14 @@ def starting_point(func, d, cands, idx):
             break
     if best is None:
         return None
-    if saved:
+    if alt:
+        how = ("from the permuter output" if best[0] in alt else
+               "from the saved best" if best[0] in saved else "from the queue candidate")
+        log(f"{func}: starting {how}: ratio {best[1][0]:.4f}")
+        if best[0] not in alt:
+            START_NOTES.pop(func, None)    # the permuter's code isn't what the model will see
+        save_best(d, func, best[0])
+    elif saved:
         how = "from the saved best" if best[0] in saved else f"from the start candidate ({len(saved)} saved scored lower)"
         log(f"{func}: resuming {how}: ratio {best[1][0]:.4f}")
         save_best(d, func, best[0])
@@ -718,6 +835,8 @@ def main():
     ap.add_argument("funcs", nargs="*")
     ap.add_argument("--parked", metavar="OV", help="work through tools/match/parked_OV.txt")
     ap.add_argument("--queue", help='file of "CANDS.c FUNC [IDX]" lines')
+    ap.add_argument("--permuted", action="store_true",
+                    help="work through the functions the permuter has outputs for, starting from its best code")
     ap.add_argument("--compiles", type=int, default=40, help="compiles per function (default 40)")
     ap.add_argument("--minutes", type=float, default=30, help="minutes per function (default 30)")
     ap.add_argument("--variants", type=int, default=3, help="variants the model may send per reply (default 3)")
@@ -751,12 +870,38 @@ def main():
     if a.parked:
         jobs += [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.parked}.txt") if l.strip()]
         jobs.sort(key=lambda f: f not in starts)      # ones with a saved candidate first
+    permuted_from = {}
+    if a.permuted:
+        pj = permuted_jobs(starts)
+        if a.funcs:                       # --permuted FUNC...: only those
+            pj = [x for x in pj if x[0] in a.funcs]
+            a.funcs = []
+        for func, sc, name, code in pj:
+            ALT_STARTS[func] = code
+            permuted_from[func] = f"{name}\n"
+            START_NOTES[func] = (
+                f"Note: the best C above came from decomp-permuter ({name}/source.c, permuter score {sc}; "
+                "lower is better, 0 = match). The permuter makes random changes to find better codegen, so it "
+                "can contain odd or wrong C: unused or uninitialised variables, a strange return type such as "
+                "`volatile unsigned long long`, identity helpers like inline_fn, reordered or merged statements. "
+                "Keep the changes that make the assembly closer, but send real, equivalent C: undo the ones "
+                "that change what the function does.")
+        jobs += [f for f, *_ in pj]
+        log(f"permuter outputs: " + ", ".join(f"{f} ({sc})" for f, sc, *_ in pj) if pj else "no permuter outputs")
     jobs += a.funcs
     if a.skip_done and os.path.exists(f"{OUT}/summary.txt"):
         done = set(re.findall(r" (func_\w+): ", open(f"{OUT}/summary.txt").read()))
-        jobs = [j for j in jobs if j not in done]
+
+        def already(j):
+            if j not in done:
+                return False
+            if j not in permuted_from:
+                return True
+            p = f"{OUT}/{j}/permuted_from.txt"     # skip only if it already ran from this same output
+            return os.path.exists(p) and open(p).read() == permuted_from[j]
+        jobs = [j for j in jobs if not already(j)]
     if not jobs:
-        sys.exit("nothing to do (give functions, --parked or --queue)")
+        sys.exit("nothing to do (give functions, --parked, --queue or --permuted)")
     os.makedirs(OUT, exist_ok=True)
     try:
         model = None if a.dry_run else pick_model()
@@ -771,6 +916,9 @@ def main():
     for f in dict.fromkeys(jobs):
         try:
             cands, idx = starts.get(f, (None, 0))
+            if f in permuted_from and not a.dry_run:
+                os.makedirs(f"{OUT}/{f}", exist_ok=True)
+                open(f"{OUT}/{f}/permuted_from.txt", "w").write(permuted_from[f])
             if a.rounds:
                 iterate(model, f, cands, idx, a.rounds, a.temperature)
             else:
