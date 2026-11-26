@@ -2435,7 +2435,7 @@ func_800C52F8,800C52F8,ov_battle/battle_800B3E58,ov_battle,308,1
 func_800C542C,800C542C,ov_battle/battle_800B3E58,ov_battle,556,0
 func_800C5658,800C5658,ov_battle/battle_800B3E58,ov_battle,780,0
 func_800C5964,800C5964,ov_battle/battle_800B3E58,ov_battle,40,1
-func_800C598C,800C598C,ov_battle/battle_800B3E58,ov_battle,320,0
+func_800C598C,800C598C,ov_battle/battle_800B3E58,ov_battle,320,1
 func_800C5ACC,800C5ACC,ov_battle/battle_800B3E58,ov_battle,504,0
 func_800C5CC4,800C5CC4,ov_battle/battle_800B3E58,ov_battle,160,1
 func_800C5D64,800C5D64,ov_battle/battle_800B3E58,ov_battle,424,0
