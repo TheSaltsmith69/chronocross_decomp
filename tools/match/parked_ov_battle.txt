@@ -10,3 +10,4 @@ func_800B012C
 func_800B0B10
 func_800D2F5C
 func_800C1988
+func_800D421C
