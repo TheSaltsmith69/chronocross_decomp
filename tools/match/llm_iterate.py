@@ -18,7 +18,7 @@ A MATCH there is a trycc match (relocations masked), so it still needs locking w
 full build in this checkout.
 
 The model is reached through an OpenAI-compatible chat API:
-    LLM_BASE_URL  default http://127.0.0.1:18500/v1 (Strata)
+    LLM_BASE_URL  default http://127.0.0.1:47831/v1 (Strata)
     LLM_API_KEY   or STRATA_API_KEY
     LLM_MODEL     default: the first model the server lists
 From WSL, requests go through Windows' curl.exe, since a server listening on
@@ -30,7 +30,7 @@ MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
 OUT = os.path.join(MAIN, "permuter", "llm")
 # (an empty value counts as unset: run_llm.bat passes these through WSLENV even when unset)
-BASE = (os.environ.get("LLM_BASE_URL") or "http://127.0.0.1:18500/v1").rstrip("/")
+BASE = (os.environ.get("LLM_BASE_URL") or "http://127.0.0.1:47831/v1").rstrip("/")
 KEY = os.environ.get("LLM_API_KEY") or os.environ.get("STRATA_API_KEY") or ""
 CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
 SYNC = ["src", "include", "tools/match", "Makefile", "asm", "linker_scripts", "undefined_funcs.txt"]

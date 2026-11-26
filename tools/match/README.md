@@ -55,7 +55,7 @@ types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio)
 ## Local LLM loop
 
 `llm_iterate.py` hands unmatched functions to a local model over an OpenAI-compatible chat
-API (Strata by default: `LLM_BASE_URL=http://127.0.0.1:18500/v1`, key in `STRATA_API_KEY` or
+API (Strata by default: `LLM_BASE_URL=http://127.0.0.1:47831/v1`, key in `STRATA_API_KEY` or
 `LLM_API_KEY`, `LLM_MODEL` optional). Each round the model gets the target asm, the object's
 exact compiler setup (cc1 flags, whether `--expand-div` applies), the declarations the code
 uses, the best C so far and its diff; its answer is compiled and scored and the best is kept.
