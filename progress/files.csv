@@ -251,4 +251,4 @@ lib/libspu/s_sia,lib,80056440,1,1,64,64
 lib/libgte/cmb_07,lib,80056480,1,0,176,0
 ov_field/libpress,ov_field,800A39B4,19,15,2800,1536
 ov_field/field_800A39B4,ov_field,800A44A4,763,614,245888,99052
-ov_battle/battle_800A3E3C,ov_battle,800A3E3C,763,170,215116,2576
+ov_battle/battle_800A3E3C,ov_battle,800A3E3C,763,213,215116,4992
