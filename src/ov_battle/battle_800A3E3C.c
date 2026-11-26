@@ -1573,7 +1573,25 @@ void func_800B4280(u8 *p) {
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B42B8);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B4354);
+void func_800B4A04();
+u8 *func_800B4354(SLB *a0, s32 a1, s16 a2, s16 a3) {
+    s32 i;
+    for (i = a1 * 4; i < a1 * 4 + 4; i++) {
+        if (a0->l[i].next == &a0->l[i]) break;
+    }
+    if (i >= a1 * 4 + 4) return 0;
+    {
+        u8 *t = func_8009C9F4((u8 *)a0, func_800B4A04);
+        s32 o = a1 * 2;
+        *(SLB **)(t + 0xC) = a0;
+        *(s16 *)(t + 0x10) = a2;
+        *(s16 *)(t + 0x12) = a3;
+        *(s32 *)(t + 0x18) = 0;
+        *(s32 *)(t + 0x14) = i;
+        *(s16 *)((u8 *)a0 + o + 0x1A8) = i;
+        return t;
+    }
+}
 
 void func_800B4434(u8 *p, s32 i) {
     p += i * 2;
@@ -1982,7 +2000,35 @@ void func_800BA14C(void) {
     D_800DA980.b6 = 1;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800BA164);
+typedef struct { u8 pad0[2]; u8 b2, b3; u8 pad1[3]; u8 b7; u8 pad2[0x10]; u8 b18[3]; u8 b1B; } SBA164;
+extern SBA164 D_800DA980_b asm("D_800DA980");
+extern u8 D_800DA612[];
+extern s32 D_800DBA68;
+typedef struct { u8 pad[0x2D]; u8 b2D; u8 pad2[0x438 - 0x2E]; } TBA164;
+extern TBA164 D_800DB078_ba[] asm("D_800DB078");
+void func_800BA164(u8 a0) {
+    s32 j = 2;
+    if ((u8)(a0 - 1) < 3) {
+        if (D_800DA612[2] != 0xFF) {
+            SBA164 *d = &D_800DA980_b;
+            d->b1B = 1;
+            d->b2 = 0;
+            d->b3 = a0;
+            d->b7 = 0;
+            for (; a0 != 0; a0--) {
+                u8 v = D_800DB078_ba[j].b2D;
+                if (v < 0x40) d->b18[j] = D_800DA612[j];
+                else d->b18[j] = v;
+                j--;
+            }
+            func_800B8D74();
+            func_8002B41C();
+        } else {
+            func_8002B41C();
+            func_8003D504(D_800DBA68);
+        }
+    }
+}
 
 extern u8 D_800DA614;
 extern u8 D_80355D44[];
@@ -2723,7 +2769,18 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C5D64);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C5F0C);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800C61A4);
+typedef struct { u8 pad[0x62]; s16 h62; u8 pad2[0x10]; s16 h74; } SC61A4;
+extern SC61A4 D_800DDC28_c asm("D_800DDC28");
+void func_800C61A4_d(s16 a0) asm("func_800C61A4");
+void func_800C61A4_d(s16 a0) {
+    s32 i, sum;
+    sum = i = 0;
+    for (; i <= D_800DDC28_c.h62; i++) {
+        sum += a0 * 100 - func_80019690(0, (u16)a0);
+    }
+    D_800DDC28_c.h74 = sum / 400;
+    if (D_800DDC28_c.h74 < 0) D_800DDC28_c.h74 = 1;
+}
 
 void func_800C61A4(s32);
 void func_800C6284(void) {
