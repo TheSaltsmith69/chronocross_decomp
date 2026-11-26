@@ -1872,7 +1872,21 @@ void func_800B8BD8(u8 *a0, u8 a1) {
     *a0 = v;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B8C98);
+extern s16 D_80071C76;
+typedef struct { u8 pad0[0x18]; u8 b18; u8 b19; u8 pad1[2]; u8 b1C; u8 b1D; u8 pad2[0x88]; u8 bA6; u8 bA7; u8 pad3[0x438 - 0xA8]; } T8C98;
+extern T8C98 D_800DB078_t[] asm("D_800DB078");
+void func_800B8C98(u8 a0) {
+    T8C98 *p = &D_800DB078_t[a0];
+    s32 v = p->bA6 & 0x7F;
+    if (v < D_80071C76) {
+        D_800D9C82 = D_80071C76 - v;
+        if (D_800D9C82 < 0) D_800D9C82 = 0;
+        func_800B8BD8(&D_800DB078_t[a0].b18, p->bA7 & 3);
+        func_800B8BD8(&D_800DB078_t[a0].b19, (p->bA7 & 0xC) >> 2);
+        func_800B8BD8(&D_800DB078_t[a0].b1C, (p->bA7 & 0x30) >> 4);
+        func_800B8BD8(&D_800DB078_t[a0].b1D, p->bA7 >> 6);
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800B8D74);
 
@@ -3365,7 +3379,22 @@ void func_800CE01C(u16 *a0, u8 *a1, u8 a2, s16 a3) {
     }
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800CE0E4);
+typedef struct { u8 pad0[0x84]; u8 b84[7]; u8 pad1[0xB]; u8 b96; u8 b97; } SA9B8;
+extern SA9B8 D_800DA9B8;
+extern u8 D_80071760[];
+extern u16 D_800DAC18[];
+extern u8 D_8006EBC1;
+void func_800CE0E4(void) {
+    s32 i;
+    if (D_800DA9B8.b96 && !D_8006EBC1 && D_800DA9B8.b97) {
+        i = 0;
+        do {
+            if (D_800DAC18[i] & 0x8000) func_800CE01C((u16 *)D_80071760, D_80071760 + 0x180, *(u8 *)&D_800DAC18[i], 0xC0);
+            else func_800CE01C((u16 *)(D_80071760 - 0x480), D_80071760 - 0x480 + 0x300, *(u8 *)&D_800DAC18[i], 0x180);
+            i++;
+        } while (i < D_800DA9B8.b97);
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800CE1C0);
 
@@ -4501,7 +4530,26 @@ u8 func_800D737C(s32 a0, u8 *a1) {
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800D741C);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800D7678);
+typedef struct { u8 pad0[0x84]; u8 b84[7]; } SA9B8x;
+extern SA9B8x D_800DA9B8_x asm("D_800DA9B8");
+extern u8 D_800D9614[];
+extern u8 D_800DB050;
+u8 func_800D7678(s32 a0, u8 *a1) {
+    s16 r = 1;
+    s32 i;
+    u8 *b;
+    func_800D29A8(a1, 2, 0, 1);
+    for (i = 0; i < 7; i++) {
+        if (D_800DA9B8_x.b84[i] != D_800D9614[i]) {
+            r = 0;
+            break;
+        }
+    }
+    b = D_800DDB30;
+    *(s16 *)(b + (((a1[2] << 8) | a1[1]) & 0xFFFE) + 0x84) = r;
+    if (r) D_800DB050 = 0;
+    return D_800D9624[a1[0]];
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800A3E3C", func_800D7748);
 
