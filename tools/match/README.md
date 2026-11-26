@@ -31,6 +31,22 @@ The source file that holds the function's `INCLUDE_ASM` is found automatically.
 can't see symbol names. Two globals loaded in swapped order look like a match. Always finish
 with `fullbuild.sh`, which compares the real bytes.
 
+## Permuter (register-allocation near-misses)
+
+For functions whose logic matches but registers or instruction order don't, run
+[decomp-permuter](https://github.com/simonlindholm/decomp-permuter) (`bash tools/setup_tools.sh`
+fetches it; `.venv/bin/pip install toml Levenshtein`).
+
+| Command | What it does |
+|---|---|
+| `permute.py CANDS.c FUNC [IDX]` | Imports one candidate variant into `permuter/nonmatchings/FUNC/` (gitignored). `compile.sh` is the object's real Makefile recipe, so per-object flags such as `--expand-div` apply |
+| `permuter.py permuter/nonmatchings/FUNC -j16` | Runs it interactively (from `tools/decomp-permuter/`) |
+| `permute_all.sh QUEUE [MINUTES] [JOBS]` | Runs a queue of `CANDS.c FUNC [IDX]` lines unattended, MINUTES each; best scores go to `permuter/summary.txt` |
+
+Results are in `output-SCORE-N/source.c` (score 0 = full match). The randomizer often finds
+odd-looking code that only fixes registers by accident; turn it into something sensible, then
+check it with `try.sh` and lock it as usual. Settings are in `tools/permuter_settings.toml`.
+
 ## When a function won't match
 
 | Tool | What it does |

@@ -16,3 +16,6 @@ __pycache__/
 # Downloaded toolchain (bash tools/setup_tools.sh)
 tools/gcc-*/
 tools/maspsx/
+# decomp-permuter work dirs (tools/match/permute.py)
+permuter/
+tools/decomp-permuter/

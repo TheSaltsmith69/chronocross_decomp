@@ -1,0 +1,9 @@
+# Settings for tools/decomp-permuter/import.py (run it through tools/match/permute.py).
+# compiler_command is only what import.py needs to preprocess the source (the -I
+# and -D flags); permute.py then rewrites each job's compile.sh from the object's
+# own Makefile recipe, so per-object flags (--expand-div for battle_800AA9DC.o,
+# gcc 2.7.2 for the libs) are kept.
+compiler_type = "gcc"
+compiler_command = "tools/gcc-2.8.1-psx/cpp -undef -lang-c -nostdinc -Iinclude -Isrc -D_LANGUAGE_C -DUSE_INCLUDE_ASM | tools/gcc-2.8.1-psx/cc1 -quiet -O2 -G0 -mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker -funsigned-char | .venv/bin/python3 tools/maspsx/maspsx.py --aspsx-version=2.79 | mips-linux-gnu-as -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0"
+assembler_command = "mips-linux-gnu-as -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0"
+asm_prelude_file = "tools/permuter_prelude.inc"
