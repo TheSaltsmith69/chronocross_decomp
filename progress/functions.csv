@@ -2069,7 +2069,7 @@ func_800A9A98,800A9A98,ov_battle/battle_800A3E3C,ov_battle,76,1
 func_800A9AE4,800A9AE4,ov_battle/battle_800A3E3C,ov_battle,40,1
 func_800A9B0C,800A9B0C,ov_battle/battle_800A3E3C,ov_battle,228,0
 func_800A9BF0,800A9BF0,ov_battle/battle_800A3E3C,ov_battle,288,0
-func_800A9D10,800A9D10,ov_battle/battle_800A3E3C,ov_battle,140,0
+func_800A9D10,800A9D10,ov_battle/battle_800A3E3C,ov_battle,140,1
 func_800A9D9C,800A9D9C,ov_battle/battle_800A3E3C,ov_battle,128,1
 func_800A9E1C,800A9E1C,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800A9E24,800A9E24,ov_battle/battle_800A3E3C,ov_battle,36,1
@@ -2094,7 +2094,7 @@ func_800ABD04,800ABD04,ov_battle/battle_800A3E3C,ov_battle,72,1
 func_800ABD4C,800ABD4C,ov_battle/battle_800A3E3C,ov_battle,52,1
 func_800ABD80,800ABD80,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800ABD88,800ABD88,ov_battle/battle_800A3E3C,ov_battle,156,0
-func_800ABE24,800ABE24,ov_battle/battle_800A3E3C,ov_battle,140,0
+func_800ABE24,800ABE24,ov_battle/battle_800A3E3C,ov_battle,140,1
 func_800ABEB0,800ABEB0,ov_battle/battle_800A3E3C,ov_battle,156,0
 func_800ABF4C,800ABF4C,ov_battle/battle_800A3E3C,ov_battle,156,0
 func_800ABFE8,800ABFE8,ov_battle/battle_800A3E3C,ov_battle,272,0
@@ -2105,7 +2105,7 @@ func_800AC484,800AC484,ov_battle/battle_800A3E3C,ov_battle,392,0
 func_800AC60C,800AC60C,ov_battle/battle_800A3E3C,ov_battle,380,0
 func_800AC788,800AC788,ov_battle/battle_800A3E3C,ov_battle,284,0
 func_800AC8A4,800AC8A4,ov_battle/battle_800A3E3C,ov_battle,8,1
-func_800AC8AC,800AC8AC,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800AC8AC,800AC8AC,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800AC93C,800AC93C,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800AC944,800AC944,ov_battle/battle_800A3E3C,ov_battle,408,0
 func_800ACADC,800ACADC,ov_battle/battle_800A3E3C,ov_battle,724,0
@@ -2166,11 +2166,11 @@ func_800B012C,800B012C,ov_battle/battle_800A3E3C,ov_battle,88,1
 func_800B0184,800B0184,ov_battle/battle_800A3E3C,ov_battle,68,1
 func_800B01C8,800B01C8,ov_battle/battle_800A3E3C,ov_battle,28,1
 func_800B01E4,800B01E4,ov_battle/battle_800A3E3C,ov_battle,132,0
-func_800B0268,800B0268,ov_battle/battle_800A3E3C,ov_battle,132,0
+func_800B0268,800B0268,ov_battle/battle_800A3E3C,ov_battle,132,1
 func_800B02EC,800B02EC,ov_battle/battle_800A3E3C,ov_battle,196,0
-func_800B03B0,800B03B0,ov_battle/battle_800A3E3C,ov_battle,132,0
-func_800B0434,800B0434,ov_battle/battle_800A3E3C,ov_battle,132,0
-func_800B04B8,800B04B8,ov_battle/battle_800A3E3C,ov_battle,132,0
+func_800B03B0,800B03B0,ov_battle/battle_800A3E3C,ov_battle,132,1
+func_800B0434,800B0434,ov_battle/battle_800A3E3C,ov_battle,132,1
+func_800B04B8,800B04B8,ov_battle/battle_800A3E3C,ov_battle,132,1
 func_800B053C,800B053C,ov_battle/battle_800A3E3C,ov_battle,148,0
 func_800B05D0,800B05D0,ov_battle/battle_800A3E3C,ov_battle,260,0
 func_800B06D4,800B06D4,ov_battle/battle_800A3E3C,ov_battle,68,1
@@ -2273,7 +2273,7 @@ func_800B5710,800B5710,ov_battle/battle_800A3E3C,ov_battle,28,1
 func_800B572C,800B572C,ov_battle/battle_800A3E3C,ov_battle,256,0
 func_800B582C,800B582C,ov_battle/battle_800A3E3C,ov_battle,56,1
 func_800B5864,800B5864,ov_battle/battle_800A3E3C,ov_battle,364,0
-func_800B59D0,800B59D0,ov_battle/battle_800A3E3C,ov_battle,148,0
+func_800B59D0,800B59D0,ov_battle/battle_800A3E3C,ov_battle,148,1
 func_800B5A64,800B5A64,ov_battle/battle_800A3E3C,ov_battle,112,1
 func_800B5AD4,800B5AD4,ov_battle/battle_800A3E3C,ov_battle,40,1
 func_800B5AFC,800B5AFC,ov_battle/battle_800A3E3C,ov_battle,416,0
@@ -2405,7 +2405,7 @@ func_800C25D0,800C25D0,ov_battle/battle_800A3E3C,ov_battle,1552,0
 func_800C2BE0,800C2BE0,ov_battle/battle_800A3E3C,ov_battle,1116,0
 func_800C303C,800C303C,ov_battle/battle_800A3E3C,ov_battle,332,0
 func_800C3188,800C3188,ov_battle/battle_800A3E3C,ov_battle,200,0
-func_800C3250,800C3250,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800C3250,800C3250,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800C32E0,800C32E0,ov_battle/battle_800A3E3C,ov_battle,92,1
 func_800C333C,800C333C,ov_battle/battle_800A3E3C,ov_battle,1804,0
 func_800C3A48,800C3A48,ov_battle/battle_800A3E3C,ov_battle,180,0
@@ -2447,7 +2447,7 @@ func_800C62DC,800C62DC,ov_battle/battle_800A3E3C,ov_battle,440,0
 func_800C6494,800C6494,ov_battle/battle_800A3E3C,ov_battle,44,1
 func_800C64C0,800C64C0,ov_battle/battle_800A3E3C,ov_battle,28,1
 func_800C64DC,800C64DC,ov_battle/battle_800A3E3C,ov_battle,76,1
-func_800C6528,800C6528,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800C6528,800C6528,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800C65B8,800C65B8,ov_battle/battle_800A3E3C,ov_battle,184,0
 func_800C6670,800C6670,ov_battle/battle_800A3E3C,ov_battle,392,0
 func_800C67F8,800C67F8,ov_battle/battle_800A3E3C,ov_battle,308,0
@@ -2502,7 +2502,7 @@ func_800CABDC,800CABDC,ov_battle/battle_800A3E3C,ov_battle,188,0
 func_800CAC98,800CAC98,ov_battle/battle_800A3E3C,ov_battle,1880,0
 func_800CB3F0,800CB3F0,ov_battle/battle_800A3E3C,ov_battle,912,0
 func_800CB780,800CB780,ov_battle/battle_800A3E3C,ov_battle,548,0
-func_800CB9A4,800CB9A4,ov_battle/battle_800A3E3C,ov_battle,140,0
+func_800CB9A4,800CB9A4,ov_battle/battle_800A3E3C,ov_battle,140,1
 func_800CBA30,800CBA30,ov_battle/battle_800A3E3C,ov_battle,176,0
 func_800CBAE0,800CBAE0,ov_battle/battle_800A3E3C,ov_battle,532,0
 func_800CBCF4,800CBCF4,ov_battle/battle_800A3E3C,ov_battle,64,1
@@ -2525,7 +2525,7 @@ func_800CD160,800CD160,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800CD168,800CD168,ov_battle/battle_800A3E3C,ov_battle,120,1
 func_800CD1E0,800CD1E0,ov_battle/battle_800A3E3C,ov_battle,188,0
 func_800CD29C,800CD29C,ov_battle/battle_800A3E3C,ov_battle,128,1
-func_800CD31C,800CD31C,ov_battle/battle_800A3E3C,ov_battle,136,0
+func_800CD31C,800CD31C,ov_battle/battle_800A3E3C,ov_battle,136,1
 func_800CD3A4,800CD3A4,ov_battle/battle_800A3E3C,ov_battle,116,1
 func_800CD418,800CD418,ov_battle/battle_800A3E3C,ov_battle,836,0
 func_800CD75C,800CD75C,ov_battle/battle_800A3E3C,ov_battle,136,0
@@ -2549,7 +2549,7 @@ func_800CE5F4,800CE5F4,ov_battle/battle_800A3E3C,ov_battle,80,1
 func_800CE644,800CE644,ov_battle/battle_800A3E3C,ov_battle,184,0
 func_800CE6FC,800CE6FC,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800CE704,800CE704,ov_battle/battle_800A3E3C,ov_battle,56,1
-func_800CE73C,800CE73C,ov_battle/battle_800A3E3C,ov_battle,140,0
+func_800CE73C,800CE73C,ov_battle/battle_800A3E3C,ov_battle,140,1
 func_800CE7C8,800CE7C8,ov_battle/battle_800A3E3C,ov_battle,176,0
 func_800CE878,800CE878,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800CE880,800CE880,ov_battle/battle_800A3E3C,ov_battle,476,0
@@ -2611,10 +2611,10 @@ func_800D33D8,800D33D8,ov_battle/battle_800A3E3C,ov_battle,76,1
 func_800D3424,800D3424,ov_battle/battle_800A3E3C,ov_battle,124,1
 func_800D34A0,800D34A0,ov_battle/battle_800A3E3C,ov_battle,124,1
 func_800D351C,800D351C,ov_battle/battle_800A3E3C,ov_battle,124,1
-func_800D3598,800D3598,ov_battle/battle_800A3E3C,ov_battle,136,0
-func_800D3620,800D3620,ov_battle/battle_800A3E3C,ov_battle,136,0
+func_800D3598,800D3598,ov_battle/battle_800A3E3C,ov_battle,136,1
+func_800D3620,800D3620,ov_battle/battle_800A3E3C,ov_battle,136,1
 func_800D36A8,800D36A8,ov_battle/battle_800A3E3C,ov_battle,100,1
-func_800D370C,800D370C,ov_battle/battle_800A3E3C,ov_battle,140,0
+func_800D370C,800D370C,ov_battle/battle_800A3E3C,ov_battle,140,1
 func_800D3798,800D3798,ov_battle/battle_800A3E3C,ov_battle,132,1
 func_800D381C,800D381C,ov_battle/battle_800A3E3C,ov_battle,132,1
 func_800D38A0,800D38A0,ov_battle/battle_800A3E3C,ov_battle,8,1
@@ -2633,7 +2633,7 @@ func_800D39BC,800D39BC,ov_battle/battle_800A3E3C,ov_battle,40,1
 func_800D39E4,800D39E4,ov_battle/battle_800A3E3C,ov_battle,196,0
 func_800D3AA8,800D3AA8,ov_battle/battle_800A3E3C,ov_battle,128,1
 func_800D3B28,800D3B28,ov_battle/battle_800A3E3C,ov_battle,296,0
-func_800D3C50,800D3C50,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800D3C50,800D3C50,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800D3CE0,800D3CE0,ov_battle/battle_800A3E3C,ov_battle,56,1
 func_800D3D18,800D3D18,ov_battle/battle_800A3E3C,ov_battle,940,0
 func_800D40C4,800D40C4,ov_battle/battle_800A3E3C,ov_battle,116,0
@@ -2652,7 +2652,7 @@ func_800D4A38,800D4A38,ov_battle/battle_800A3E3C,ov_battle,160,0
 func_800D4AD8,800D4AD8,ov_battle/battle_800A3E3C,ov_battle,180,0
 func_800D4B8C,800D4B8C,ov_battle/battle_800A3E3C,ov_battle,272,0
 func_800D4C9C,800D4C9C,ov_battle/battle_800A3E3C,ov_battle,8,1
-func_800D4CA4,800D4CA4,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800D4CA4,800D4CA4,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800D4D34,800D4D34,ov_battle/battle_800A3E3C,ov_battle,644,0
 func_800D4FB8,800D4FB8,ov_battle/battle_800A3E3C,ov_battle,92,0
 func_800D5014,800D5014,ov_battle/battle_800A3E3C,ov_battle,384,0
@@ -2663,7 +2663,7 @@ func_800D548C,800D548C,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800D5494,800D5494,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800D549C,800D549C,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800D54A4,800D54A4,ov_battle/battle_800A3E3C,ov_battle,260,0
-func_800D55A8,800D55A8,ov_battle/battle_800A3E3C,ov_battle,144,0
+func_800D55A8,800D55A8,ov_battle/battle_800A3E3C,ov_battle,144,1
 func_800D5638,800D5638,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800D5640,800D5640,ov_battle/battle_800A3E3C,ov_battle,8,1
 func_800D5648,800D5648,ov_battle/battle_800A3E3C,ov_battle,8,1
