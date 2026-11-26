@@ -284,6 +284,10 @@ Rules:
 - Answer with exactly ONE ```c code block holding the complete function, preceded by any \
 typedef/extern/prototype lines it needs that are not already in the provided declarations. \
 Keep the function's name. Briefly say what you changed before the block.
+- After the code block, write a handoff for the next round, starting with a line `HANDOFF:` \
+(at most 12 lines, no code blocks). The next round sees your code and its score but NOT your \
+reasoning, so put in it what you changed and why, what the remaining differences are (which \
+instructions/registers), what you think causes them, what you ruled out, and what to try next.
 - C89 only: declarations at the start of a block, no // comments inside code, no C99 features.
 - Project style: untyped pointers are u8 *, struct fields are *(T *)(p + 0xOFF) or a small typedef \
 struct; types u8/s8/u16/s16/u32/s32 exist. If a prototype elsewhere has different parameter types, \
@@ -294,10 +298,52 @@ define the function under another C name with an asm label: `s32 f_m(u8 *a) asm(
 saved register vs reloading); change a local's type (s16 vs s32 changes sll/sra pairs; u16 gives lhu); \
 compute an address once in a pointer vs inline per access; for/while/do-while loop shape; \
 `if (x) y = a; else y = b;` vs ternary; split or merge expressions; operand order of + and *.
+
+Tricks that matched functions in this project (gcc 2.8.1 -O2):
+- Register swaps (s0/s1, v0/v1 the other way round): gcc gives saved registers by priority \
+~ uses / live length, so moving where a value is first assigned or last used flips them. Copying a \
+parameter into a local at the top, or giving a reused local the job of a temp, also changes the choice.
+- A temp used only inside one block should be declared in that block (gets v0/v1 instead of an s register).
+- Base + index order (`addu v0,a0,v1` vs `addu v0,v1,a0`, or which lui comes first): put the scaled \
+index in a temp (`o = i * 12; *(s16 *)(p + o + 0x4)`), swap the operands of +, or index the global \
+directly (`D[i].f`) instead of through a pointer local (or the other way round).
+- A field offset folded into the address register instead of the load (lw 0(v0) vs lw 0x20(v0)) \
+means the original used a real struct field, not a cast on a byte offset.
+- Taking the address of a member of a global array element (`*(s32 *)&D[k].v`) makes gcc load \
+symbol+offset as one constant.
+- A load the original does before a store that may alias it must also come first in the C: read it \
+into a local before the store.
+- abs: `(h >= 0 ? h : -h)` on a local; `if (x < 0) x = -x;` gives a different branch shape.
+- One-bit tests: `u8 > 0` gives and+sltu; `!= 0` and `& 1` give other code; a 1-bit bitfield keeps lw.
+- Byte results: mask where they're read (`s32 b = f() & 0xFF;`) when the original masks right after \
+the call; a callee whose result is used unmasked as an index returns s32.
+- sll 16/sra 16 pairs at entry mean an s16 parameter; their absence means s32 even if the value is small.
+- Loops: `move s0,v0` before a loop = a separate start variable (`for (i = s; ...)`); an explicit \
+counter plus pointer (`p = base + i; ... p--`) gives a strength-reduced fill; reading a global inside \
+the loop instead of a local copy changes which constants are hoisted.
+- `if (call()) return X;` early returns change the branch layout; switch cases are laid out in source order.
+- 0x51EB851F with sra 7 is /400 (magic-number division); with --expand-div, a real `/` or `%` by a \
+variable gives the break 7 / break 6 checks.
+- Chained assignments (`a = b = 0`) change store order; a store ASPSX puts in a jal delay slot is \
+written just before the call.
+- An argument register still holding a value at a call that seems to take fewer args = a hidden \
+argument: the callee takes it.
+- String constants in the function's own rodata come from string literals in the C.
 """
 
 
-def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb):
+NOTES_MAX = 9000        # characters of earlier rounds' handoffs kept in the prompt
+
+
+def notes_text(notes):
+    """The handoff log, oldest dropped first so it fits NOTES_MAX."""
+    entries = [f"Round {n} ({res}):\n{h}" for n, res, h in notes]
+    while entries and sum(len(e) for e in entries) > NOTES_MAX:
+        entries.pop(0)
+    return "\n\n".join(entries)
+
+
+def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=()):
     comp = (f"Compiler: PsyQ GCC {setup['gcc']} cc1 with `{setup['cc1']}`, output through maspsx "
             f"(ASPSX 2.79 emulation{', --expand-div: divides get the break 6/7 divide-by-zero and overflow checks' if setup['expand_div'] else ', no divide checks'}), "
             "then GNU as. MIPS R3000, little endian; load delay slots are filled with nop where needed.")
@@ -308,8 +354,23 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb):
     if last is not None and last.strip() != best.strip():
         parts += ["Your previous attempt (worse than the best):\n```c\n" + last + "\n```",
                   "Its result:\n```\n" + last_fb + "\n```"]
-    parts.append("Write an improved version of the function.")
+    if notes:
+        parts.append("Handoffs from earlier rounds (oldest first; the result is that round's score):\n"
+                     + notes_text(notes))
+    parts.append("Write an improved version of the function, then the HANDOFF.")
     return "\n\n".join(parts)
+
+
+def split_handoff(text):
+    """(answer without the handoff, handoff). Without a HANDOFF: line, the prose around the
+    code block stands in for it."""
+    m = list(re.finditer(r"^[#*_\s]*HANDOFF[*_\s]*:[*_]*", text, flags=re.M | re.I))
+    if m:
+        body, h = text[:m[-1].start()], text[m[-1].end():]
+    else:
+        body, h = text, re.sub(r"```.*?```", "", text, flags=re.S)
+    h = re.sub(r"```.*?(```|$)", "", h, flags=re.S).strip()
+    return body, (h[:1500] + " [...]" if len(h) > 1500 else h) or "(no handoff written)"
 
 
 def extract_code(text, func):
@@ -349,10 +410,12 @@ def iterate(model, func, cands, idx, rounds, temperature):
     open(f"{d}/start.c", "w").write(f"// @@{func}\n{code}")
     log(f"{func}: start ratio {best_r:.4f}")
     last, last_fb = None, None
+    notes = []                                  # (round, result, handoff)
     for i in range(1, rounds + 1):
         if best_m:
             break
-        prompt = build_prompt(func, setup, asm, relevant_context(func, best), best, best_fb, last, last_fb)
+        prompt = build_prompt(func, setup, asm, relevant_context(func, best), best, best_fb, last, last_fb,
+                              notes)
         if model is None:                       # --dry-run
             open(f"{d}/prompt.txt", "w").write(SYSTEM + "\n=====\n" + prompt)
             log(f"{func}: dry run, prompt ({len(SYSTEM) + len(prompt)} chars) in permuter/llm/{func}/prompt.txt")
@@ -366,13 +429,20 @@ def iterate(model, func, cands, idx, rounds, temperature):
             continue
         open(f"{d}/round{i:02d}.txt", "w").write(
             (f"<think>\n{thinking}\n</think>\n" if thinking else "") + answer)
-        new = extract_code(answer, func)
+        body, handoff = split_handoff(answer)
+        new = extract_code(body, func) or extract_code(answer, func)
         if new is None:
             log(f"{func} round {i}: no C block with {func} in the answer")
+            notes.append((i, "no code block found", handoff))
             last, last_fb = None, None
             continue
         r, m, fb = score(func, new, f"r{i}")
         open(f"{d}/round{i:02d}.c", "w").write(f"// @@{func}\n{new}")
+        res = ("MATCH" if m else "did not compile" if fb.startswith("COMPILE FAILED")
+               else f"ratio {r:.4f}, {'new best' if r > best_r else f'best stays {best_r:.4f}'}")
+        notes.append((i, res, handoff))
+        with open(f"{d}/handoffs.txt", "a") as f:
+            f.write(f"=== round {i} ({res})\n{handoff}\n\n")
         log(f"{func} round {i}: {'MATCH' if m else f'ratio {r:.4f}'} (best {best_r:.4f})")
         if m or r > best_r:
             best, best_r, best_m, best_fb = new, r, m, fb
