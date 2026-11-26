@@ -21,6 +21,8 @@ GREEN, BOLD, DIM, RESET = ("\033[32;1m", "\033[1m", "\033[2m", "\033[0m") if tty
 ITER = re.compile(r"iteration (\d+), (\d+) errors, (?:(\d+) permuter failures, )?score = (\S+)")
 BASE = re.compile(r"base score = (\d+)")
 BEST = re.compile(r"found new best score! \((\d+) vs (\d+)\)")
+TIED = re.compile(r"tied best score! \((\d+) vs (\d+)\)")
+NOISE = ("warnings.warn", "resource_tracker", "leaked semaphore")
 WROTE = re.compile(r"wrote to (\S+)")
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -102,6 +104,12 @@ def handle(line):
         say(f"{clock()} {GREEN}{func}: IMPROVED at compile {compiles + 1}: {prev} -> {new}"
             f" (base {old}){RESET}")
         return
+    m = TIED.search(line)
+    if m:
+        say(f"{clock()} {func}: another variant tied the best score {m.group(1)} (compile {compiles + 1})")
+        return
+    if any(n in line for n in NOISE):
+        return
     m = WROTE.search(line)
     if m:
         say(f"           saved {m.group(1)}/source.c")
@@ -109,7 +117,10 @@ def handle(line):
     if "Found zero score" in line:
         say(f"{clock()} {GREEN}{func}: FULL MATCH (score 0){RESET}")
         return
-    if line.startswith(("Loading", "Will try", "No perm macros", "Exiting")) or line.endswith("base.c (" + func + ")"):
+    if line.startswith("Exiting"):
+        say(f"{clock()} {func}: time is up, stopping the permuter")
+        return
+    if line.startswith(("Loading", "Will try", "No perm macros")) or line.endswith("base.c (" + func + ")"):
         return
     other.append(line)
 

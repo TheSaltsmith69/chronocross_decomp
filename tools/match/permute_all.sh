@@ -22,7 +22,10 @@ grep -v '^\s*\(#\|$\)' "$Q" | while read -r cands func idx _; do
   fi
   echo
   echo "$(date +%H:%M) $func: permuting for ${MIN}m on $J threads"
-  PYTHONUNBUFFERED=1 timeout --signal=INT "${MIN}m" "$PY" tools/decomp-permuter/permuter.py "$dir" \
+  # SIGINT lets the permuter stop cleanly, but it can then hang on exit (a queue thread blocks
+  # writing to workers that are gone), so it is killed if still running 30 s later.
+  PYTHONUNBUFFERED=1 timeout --signal=INT --kill-after=30s "${MIN}m" \
+    "$PY" tools/decomp-permuter/permuter.py "$dir" \
     -j"$J" --best-only < /dev/null 2>&1 \
     | "$PY" tools/match/permwatch.py "$func" "$MIN" "permuter/$func.log" $EVERY || true
   best=$(ls -d "$dir"/output-* 2>/dev/null | sed 's/.*output-\([0-9]*\)-.*/\1/' | sort -n | head -1)

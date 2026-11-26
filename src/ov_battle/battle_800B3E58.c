@@ -1504,7 +1504,31 @@ void func_800C5964(void) {
     func_800C50AC(1);
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800C598C);
+void func_800C49AC(void);
+void func_800C598C(void) {
+    S800DDC28 *d = &D_800DDC28;
+    u16 t = d->h74;
+    s16 a;
+    s16 b;
+    *(u16 *)((u8 *)d + 0x76) = t;
+    a = ((s16)t * *(s16 *)((u8 *)d + 0x68)) / 1000;
+    *(s16 *)((u8 *)d + 0x78) = a;
+    b = (a * *(s16 *)((u8 *)d + 0x6A)) / 1000;
+    d->h7C = b;
+    d->h66 = b;
+    if (b >= 1000) d->h66 = 999;
+    D_800DDD38[d->b6F].h2A = d->h66;
+    func_800C49AC();
+    if (d->h66 != 0) {
+        if (d->w54 & 0x02000000) {
+            D_800DDD38[d->b6F].h10 = 0;
+        } else {
+            func_800C4908();
+        }
+    } else {
+        func_800C4894();
+    }
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800B3E58", func_800C5ACC);
 
