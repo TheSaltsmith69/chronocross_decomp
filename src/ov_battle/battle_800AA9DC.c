@@ -146,7 +146,28 @@ INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC484);
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC60C);
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800AC788);
+void func_800AC1D8(u8 *o, s32 a1, s16 *v);
+s32 func_800AC788(u8 *a0) {
+    char *s = "VecMoveT";
+    u8 *q = *(u8 **)(a0 + 0x108);
+    s16 *v;
+    s16 m, n;
+    s16 t[3];
+    func_800ABD88(a0, (s32)s);
+    func_800ABE24(a0, (s32)s);
+    func_800ABEB0(a0, (s32)s);
+    v = func_8009AAE0(a0, *(s16 *)(q + 2));
+    m = *(s16 *)(q + 6);
+    *(s32 *)(a0 + 0x94) = v[0] * m;
+    *(s32 *)(a0 + 0x98) = v[2] * m;
+    *(s32 *)(a0 + 0x9C) = v[1] * m;
+    n = *(s16 *)(q + 4);
+    t[0] = (*(s32 *)(a0 + 0x84) + *(s32 *)(a0 + 0x94) * n) >> 12;
+    t[1] = (*(s32 *)(a0 + 0x88) + *(s32 *)(a0 + 0x98) * n) >> 12;
+    t[2] = (*(s32 *)(a0 + 0x8C) + *(s32 *)(a0 + 0x9C) * n) >> 12;
+    func_800AC1D8(a0, n, t);
+    return 4;
+}
 
 s32 func_800AC8A4(void) {
     return 5;
