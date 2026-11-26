@@ -42,6 +42,9 @@ NODIV_SRCS := src/game/main.c src/game/unk_8002B070.c \
 $(NODIV_SRCS:%.c=$(BUILD)/%.o): MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
 # The field overlay has no divide-by-zero checks either.
 $(BUILD)/src/ov_%.o: MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79
+# ...except the battle object from func_800AA9DC to func_800B3D8C: every
+# divide in it has the checks (the battle code around it has none).
+$(BUILD)/src/ov_battle/battle_800AA9DC.o: MASPSX := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div
 # The PsyQ library objects in the main EXE were compiled with gcc 2.7.2
 # (plain signed char) and assembled with ASPSX, whose delay-slot filling
 # tools/aspsx_delay_slots.py reproduces.
@@ -85,6 +88,12 @@ OVERLAYS      := ov_field ov_battle
 ov_battle_FILE := 0005
 ov_field_FILE := 0003
 
+# splat writes .align 3 on jump tables that happen to sit on an 8-byte boundary.
+# They only need word alignment, and since the battle overlay was split into
+# three objects (the third one's rodata starts at 0x800A38AC) the stricter
+# alignment would add padding.
+ov_battle_POSTSPLIT := sed -i 's/^\.align 3$$/.align 2/' asm/ov_battle/nonmatchings/*/*.s
+
 define OVERLAY_RULES
 $(1)_S   := $$(shell find asm/$(1) -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
 $(1)_C   := $$(shell find src/$(1) -name '*.c' 2>/dev/null)
@@ -107,8 +116,11 @@ check-$(1): $(BUILD)/files/$$($(1)_FILE).bin
 
 split-$(1):
 	$$(PYTHON) -m splat split $(1).yaml
+	$$($(1)_POSTSPLIT)
 endef
 $(foreach ov,$(OVERLAYS),$(eval $(call OVERLAY_RULES,$(ov))))
+# The battle sources share headers next to them (written when the file was split)
+$(ov_battle_C:%.c=$(BUILD)/%.o): $(wildcard src/ov_battle/*.h)
 
 .PHONY: all split check clean progress $(OVERLAYS:%=check-%) $(OVERLAYS:%=split-%)
 .DELETE_ON_ERROR:

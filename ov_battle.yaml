@@ -50,7 +50,10 @@ segments:
     start: 0x0
     vram: 0x800A3308
     subsegments:
-      - [0x0, .rodata, battle_800A3E3C]
+      - [0x0, .rodata, battle_800AA9DC]
+      - [0x5A4, .rodata, battle_800B3E58]
       - [0xB34, c, battle_800A3E3C]
+      - [0x76D4, c, battle_800AA9DC]
+      - [0x10B50, c, battle_800B3E58]
       - [0x35380, data, data_800D8688]
   - [0x3B000]
