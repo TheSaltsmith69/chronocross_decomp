@@ -1,0 +1,66 @@
+# tools/match
+
+Helpers for matching functions one batch at a time. Run them from WSL; they find the repo
+from their own location, so they work from any directory. Candidate files may be given as
+relative or absolute paths (for example a Windows scratch folder under `/mnt/c/...`).
+
+## Candidate files
+
+A candidate file holds C blocks, each headed by the name of the function it replaces:
+
+```c
+// @@func_800B5C1C
+s32 func_800B5C1C(s32 a) { ... }
+// @@func_800B5C1C
+s32 func_800B5C1C(s32 a) { ... }   /* a second variant, tried in the next round */
+```
+
+The source file that holds the function's `INCLUDE_ASM` is found automatically.
+
+## Everyday loop
+
+| Step | Command |
+|---|---|
+| Pick candidates | `next.sh 16 all` (overlay, skips `parked_<OV>.txt` + `skip_<OV>.txt`), `libnext.sh 10`, `qdump.py 600` (boot-path quest) |
+| Rank easiest-first | `rank.py ov_field` then `easy.py` |
+| Compare | `try.sh CANDS.c` (`trycc.py` with `--show`), `tryd.sh` (differing lines only), `showf.sh CANDS.c FUNC` |
+| Lock in | `trycc.py CANDS.c --keep` then `fullbuild.sh CANDS.c` (full `make`, reverts on mismatch); `liblock.sh` for lib functions |
+| Commit | `commit.sh MSG.txt [COPYDIR]` (build, commit, progress snapshot commit, push) |
+
+`trycc.py` compiles each object and compares instructions with relocated fields masked, so it
+can't see symbol names. Two globals loaded in swapped order look like a match. Always finish
+with `fullbuild.sh`, which compares the real bytes.
+
+## When a function won't match
+
+| Tool | What it does |
+|---|---|
+| `findmis.sh CANDS.c` | Full build, then names the first functions whose overlay bytes differ |
+| `fcount.sh A.c B.c ...` | Differing-byte count of the overlay for each candidate file |
+| `cmpat.sh CANDS.c ADDR` | Disassembly of ours vs the original around one address |
+| `bdiff.sh CANDS.c` | Differing byte ranges of the main EXE |
+| `builderr.sh CANDS.c` | Real compile errors (trycc only says COMPILE FAILED) |
+| `adiff.py OUT [CTX]` / `adv.sh CANDS.c FUNC` | Alignment diff of saved `--show` output / per-variant diff size |
+| `realdiff.sh OUT [SKIP...]` | Drops scratchpad-literal relocation noise from saved `--show` output |
+| `dump.sh CANDS.c SRCFILE OUTDIR` | cc1 RTL dumps (`.lreg`/`.greg` show register allocation) |
+| `libcmp.py` / `libcmp_cdk.py CANDS.c REF.o` | Compile lib C under several toolchains and compare with an object built from the original asm |
+| `cdkscan.py DIR [NAME...]` | Runs parked lib drafts in `DIR/lib*.c` through `libcmp_cdk.py` |
+| `magic.py MAGIC SHIFT` | Finds the divisor behind a magic-number division |
+
+## Editing candidate files and sources
+
+`join.py base.c out.c func=file:k ...` (merge picks, `func=-:0` drops one), `mkpick.py src dst func=k ...`,
+`pick.py SRC IDX DST`, `pickblk.py OUT DIR name:idx ...`, `adddecl.py CANDS.c func "decl"`,
+`hoist.py [--file SRC.c] "decl line"` (moves a decl to the top of the file), `addro.py SRC.c func sym...` (INCLUDE_RODATA lines).
+`subst.py CANDS.c` puts blocks into `src/` without building. `verify.py` checks another checkout's
+field-overlay C, function by function, against this repo.
+
+## Overlays
+
+The byte-level tools default to `OV=ov_field`. Set `OV=ov_battle` (any entry of `OVERLAYS` in the
+Makefile) to point them at another overlay.
+
+## Lists
+
+- `parked_<OV>.txt`, `parked_main.txt`, `libskip.txt`: functions tried and parked, with their notes in the commit history.
+- `skip_<OV>.txt`: skipped for now in candidate lists, but not tried in depth yet.
