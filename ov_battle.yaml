@@ -1,0 +1,56 @@
+name: OV_BATTLE
+# Disc file #5 (LBA 472, 118 sectors): the battle overlay.
+# It is loaded at 0x800A3308, the same slot as the field overlay (file #3).
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 5
+sha1: 67825d31d9ad59b1cc939fbd39e7c03a1b073598
+options:
+  basename: ov_battle
+  target_path: iso/files/0005.bin
+  elf_path: build/ov_battle.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_battle
+  src_path: src/ov_battle
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_battle.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # Like the field overlay: rodata (debug strings + jump tables), then code, then data.
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_battle.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_battle_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_battle_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_battle
+    type: code
+    start: 0x0
+    vram: 0x800A3308
+    subsegments:
+      - [0x0, .rodata, battle_800A3E3C]
+      - [0xB34, c, battle_800A3E3C]
+      - [0x35380, data, data_800D8688]
+  - [0x3B000]

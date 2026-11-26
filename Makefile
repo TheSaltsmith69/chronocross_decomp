@@ -81,7 +81,8 @@ O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES
 # ---- Overlays (disc files loaded at runtime; see overlay_map.md) ----
 # Each one is split from iso/files/NNNN.bin (tools/extract_files.py), linked on
 # its own against the main EXE's symbols, and compared with the disc file.
-OVERLAYS      := ov_field
+OVERLAYS      := ov_field ov_battle
+ov_battle_FILE := 0005
 ov_field_FILE := 0003
 
 define OVERLAY_RULES

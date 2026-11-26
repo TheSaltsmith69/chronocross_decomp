@@ -21,6 +21,7 @@ NM = "mips-linux-gnu-nm"
 MODULES = [
     (None, ROOT / "slus_010.41.yaml", "main", ROOT / "build" / "slus_010.41.elf", ROOT / "src"),
     ("ov_field", ROOT / "ov_field.yaml", "ov_field", ROOT / "build" / "ov_field.elf", ROOT / "src" / "ov_field"),
+    ("ov_battle", ROOT / "ov_battle.yaml", "ov_battle", ROOT / "build" / "ov_battle.elf", ROOT / "src" / "ov_battle"),
 ]
 OVERLAYS = [m[0] for m in MODULES if m[0]]
 

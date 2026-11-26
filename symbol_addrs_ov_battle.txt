@@ -1,0 +1,1 @@
+// Known symbols for the battle overlay (disc file #5, vram 0x800A3308).
