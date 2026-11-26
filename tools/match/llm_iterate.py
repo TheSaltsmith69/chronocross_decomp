@@ -127,8 +127,15 @@ def stream_lines(body, timeout=1800):
                              stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1)
         p.stdin.write(json.dumps(body))
         p.stdin.close()
-        for line in p.stdout:
-            yield line.rstrip("\r\n")
+        done = False
+        try:
+            for line in p.stdout:
+                yield line.rstrip("\r\n")
+            done = True
+        finally:
+            if not done:                # the caller stopped reading (thinking budget): hang up
+                p.kill()
+                p.wait()
         p.wait()
         if p.returncode:
             raise RuntimeError(f"curl.exe failed ({p.returncode}): {p.stderr.read().strip()}")
@@ -147,10 +154,15 @@ def ask(model, system, user, temperature):
                         temperature)
 
 
-def ask_messages(model, messages, temperature):
+NO_THINK = {"chat_template_kwargs": {"enable_thinking": False}}   # Qwen3-style templates; others ignore it
+
+
+def ask_messages(model, messages, temperature, think_budget=0, extra=None):
     """Returns (answer, thinking). With STREAM, both are printed as they arrive:
-    thinking in grey, the answer in the normal colour."""
-    body = {"model": model, "temperature": temperature, "messages": messages}
+    thinking in grey, the answer in the normal colour. With THINK_BUDGET (characters), the
+    request is hung up once the thinking passes it, before any answer has started; the
+    answer is then "" and the caller decides what to do."""
+    body = {"model": model, "temperature": temperature, "messages": messages, **(extra or {})}
     if not STREAM:
         data = http("POST", "/chat/completions", body)
         msg = data["choices"][0]["message"]
@@ -175,7 +187,14 @@ def ask_messages(model, messages, temperature):
         sys.stdout.write(s)
         sys.stdout.flush()
 
-    for line in stream_lines(body):
+    lines = stream_lines(body)
+    thought = 0
+    for line in lines:
+        if think_budget and thought > think_budget and not "".join(content).strip():
+            lines.close()
+            sys.stdout.write(RESET + f"\n[thinking cut off at ~{thought // 4} tokens]")
+            pending = ""
+            break
         if not line.startswith("data:"):
             if line.strip().startswith("{") and '"error"' in line:
                 raise RuntimeError(line.strip())
@@ -194,6 +213,7 @@ def ask_messages(model, messages, temperature):
             r = delta.get("reasoning_content") or delta.get("reasoning") or ""
             if r:
                 thinking.append(r)
+                thought += len(r)
                 show("think", r)
             pending += delta.get("content") or ""
             # split <think>...</think> out of the content; a tag may arrive split across
@@ -207,6 +227,8 @@ def ask_messages(model, messages, temperature):
                     keep = next((k for k in range(len(tag) - 1, 0, -1) if pending.endswith(tag[:k])), 0)
                     part, pending = (pending[:-keep], pending[-keep:]) if keep else (pending, "")
                 (thinking if in_think else content).append(part)
+                if in_think:
+                    thought += len(part)
                 show("think" if in_think else "answer", part)
                 if at >= 0:
                     in_think = not in_think
@@ -307,6 +329,11 @@ results come back as the next message; then you continue. This goes on until a v
 the budget of compiles and time runs out, so learn from each result: when close, change one thing \
 per variant so you can tell what helped; when stuck, try a bolder restructuring. Say in one line \
 before each block what it changes.
+- The compiler is the checker, and a compile takes about a second while your reasoning takes \
+minutes. Do NOT simulate gcc's register allocator or scheduler in your head, and do not double-check \
+whether a variant will match: look at the diff, form a quick hypothesis, and send variants. When \
+torn between options, send each one as its own variant instead of deliberating. Keep your thinking \
+short; your thinking may be cut off if it runs long.
 - End every reply with a line `HANDOFF:` and at most 8 lines (no code): what still differs, what \
 you think causes it, what you ruled out, what to try next. When the conversation gets long it is \
 restarted to free memory, and only the best code, its result and these handoffs are carried over.
@@ -555,11 +582,38 @@ def finish(func, d, best, best_r, best_m, extra=""):
     log(line)
 
 
+def get_reply(model, msgs, temperature, think_tokens, no_think, func):
+    """One session turn: (answer, thinking, cut). If the thinking passes THINK_TOKENS before an
+    answer starts, the request is hung up and re-sent with the tail of that reasoning and an
+    instruction to answer with code now (thinking switched off where the server supports it)."""
+    budget = think_tokens * 4                   # ~4 characters per token
+
+    def call(m, extra):
+        try:
+            return ask_messages(model, m, temperature, budget, extra)
+        except RuntimeError:
+            if not extra:
+                raise
+            log("the server refused chat_template_kwargs; retrying without it")
+            return ask_messages(model, m, temperature, budget, None)
+
+    answer, thinking = call(msgs, NO_THINK if no_think else None)
+    if answer.strip() or not budget:
+        return answer, thinking, False
+    nudge = ("Your thinking budget for this turn ran out before you answered. The end of your "
+             "reasoning was:\n\"\"\"\n" + thinking[-2000:].strip() + "\n\"\"\"\n"
+             f"Stop reasoning and reply now with up to the allowed number of ```c variants of `{func}` "
+             "built on that, then the HANDOFF. The compiler will check them. /no_think")
+    answer, more = call(msgs + [{"role": "user", "content": nudge}], NO_THINK)
+    return answer, thinking + "\n[thinking cut off; asked for code]\n" + more, True
+
+
 def est_tokens(msgs):
     return sum(len(m["content"]) for m in msgs) // 3
 
 
-def iterate_session(model, func, cands, idx, compiles, minutes, temperature, variants, ctx_tokens):
+def iterate_session(model, func, cands, idx, compiles, minutes, temperature, variants, ctx_tokens,
+                    think_tokens=4000, no_think=False):
     """One conversation per function: the model sends variants, gets each one's score and
     diff back, and carries on until a match, COMPILES compiles or MINUTES minutes. When the
     history gets long (the model's thinking needs room too), the conversation restarts from
@@ -581,7 +635,7 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
     t0 = time.time()
     t_end = t0 + minutes * 60
     turn = last_index(d)
-    used, fails, restarts, turns = 0, 0, 0, 0
+    used, fails, restarts, turns, cuts = 0, 0, 0, 0, 0
     notes, msgs = saved_notes(d), None
     system = session_system(variants)
 
@@ -605,7 +659,8 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
         turns += 1
         log(f"{func} turn {turn}: asking the model ({budget()[13:]})")
         try:
-            answer, thinking = ask_messages(model, msgs, temperature)
+            answer, thinking, cut = get_reply(model, msgs, temperature, think_tokens, no_think, func)
+            cuts += cut
             fails = 0
         except Exception as e:
             log(f"{func} turn {turn}: request failed: {e}")
@@ -654,7 +709,8 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
            else "time up" if time.time() >= t_end else "requests failing")
     finish(func, d, best, best_r, best_m,
            f" ({used} compiles, {turns} turns, {int((time.time() - t0) / 60)} min"
-           + (f", {restarts} restarts" if restarts else "") + (f"; {why}" if why else "") + ")")
+           + (f", {restarts} restarts" if restarts else "") + (f", thinking cut {cuts}x" if cuts else "")
+           + (f"; {why}" if why else "") + ")")
 
 
 def main():
@@ -667,6 +723,11 @@ def main():
     ap.add_argument("--variants", type=int, default=3, help="variants the model may send per reply (default 3)")
     ap.add_argument("--ctx", type=int, default=131072,
                     help="the model's context in tokens; the conversation restarts at ~35%% of it (default 131072)")
+    ap.add_argument("--think", type=int, default=4000, metavar="TOKENS",
+                    help="thinking budget per reply: past it the reply is cut off and the model is told "
+                         "to send code now (default 4000; 0 = unlimited)")
+    ap.add_argument("--no-think", action="store_true",
+                    help="ask the server to switch thinking off (Qwen3-style enable_thinking=false)")
     ap.add_argument("--rounds", type=int,
                     help="old mode instead: N independent rounds, a fresh prompt each time")
     ap.add_argument("--temperature", type=float, default=0.6)
@@ -704,14 +765,17 @@ def main():
                  f"(LLM_BASE_URL={BASE}; key {'set' if KEY else 'NOT set: STRATA_API_KEY / LLM_API_KEY'})")
     log(f"model {model} at {BASE}; {len(jobs)} function(s), "
         + (f"{a.rounds} rounds each" if a.rounds else
-           f"up to {a.compiles} compiles / {a.minutes:g} min each, {a.variants} variants per reply"))
+           f"up to {a.compiles} compiles / {a.minutes:g} min each, {a.variants} variants per reply, "
+           + ("thinking off" if a.no_think else f"thinking cut at {a.think} tokens" if a.think
+              else "thinking unlimited")))
     for f in dict.fromkeys(jobs):
         try:
             cands, idx = starts.get(f, (None, 0))
             if a.rounds:
                 iterate(model, f, cands, idx, a.rounds, a.temperature)
             else:
-                iterate_session(model, f, cands, idx, a.compiles, a.minutes, a.temperature, a.variants, a.ctx)
+                iterate_session(model, f, cands, idx, a.compiles, a.minutes, a.temperature, a.variants, a.ctx,
+                                a.think, a.no_think)
         except KeyboardInterrupt:
             raise
         except Exception as e:

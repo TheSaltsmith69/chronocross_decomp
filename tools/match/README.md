@@ -65,6 +65,11 @@ per function, whichever comes first). Every reply ends with a HANDOFF note; when
 passes ~35% of `--ctx` tokens the conversation restarts from the best code plus those notes.
 The system prompt lists the gcc 2.8.1 patterns that matched functions here; extend it as
 new ones turn up. `--rounds N` is the older mode (N independent single-answer rounds).
+The system prompt tells it the compiler is the checker (a compile is ~1 s, so send variants
+rather than reasoning about whether they'll match). `--think TOKENS` (default 4000) cuts a reply
+whose thinking runs past that before any answer: the request is hung up and re-sent with the end
+of the reasoning and "answer with code now" (thinking off for that call). `--no-think` asks the
+server to turn thinking off throughout (`chat_template_kwargs.enable_thinking=false`).
 
 | Command | What it does |
 |---|---|
