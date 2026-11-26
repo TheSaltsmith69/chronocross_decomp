@@ -2710,7 +2710,7 @@ func_800D6BB8,800D6BB8,ov_battle/battle_800B3E58,ov_battle,40,1
 func_800D6BE0,800D6BE0,ov_battle/battle_800B3E58,ov_battle,96,1
 func_800D6C40,800D6C40,ov_battle/battle_800B3E58,ov_battle,192,1
 func_800D6D00,800D6D00,ov_battle/battle_800B3E58,ov_battle,172,1
-func_800D6DAC,800D6DAC,ov_battle/battle_800B3E58,ov_battle,220,0
+func_800D6DAC,800D6DAC,ov_battle/battle_800B3E58,ov_battle,220,1
 func_800D6E88,800D6E88,ov_battle/battle_800B3E58,ov_battle,224,1
 func_800D6F68,800D6F68,ov_battle/battle_800B3E58,ov_battle,100,1
 func_800D6FCC,800D6FCC,ov_battle/battle_800B3E58,ov_battle,196,0
