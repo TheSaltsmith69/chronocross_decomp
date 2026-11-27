@@ -49,7 +49,7 @@ FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)\b")
 
 DEFAULTS = {
     "perm": {"minutes": 20, "threads": 8, "stall": 5, "nice": 19, "fresh": False, "every": False,
-             "auto_draft": True, "keep_prob": 0.6, "speed": 100, "stack_diffs": False, "profile": "balanced"},
+             "auto_draft": True, "from_draft": False, "keep_prob": 0.6, "speed": 100, "stack_diffs": False, "profile": "balanced"},
     "llm": {"compiles": 40, "minutes": 30, "think": 8000, "think_mode": "budget", "variants": 3,
             "temperature": 0.6, "ctx": 131072, "examples": 2, "skip_done": True, "quiet": False,
             "rounds": 0, "model": "", "base_url": ""},
@@ -423,7 +423,8 @@ def perm_info():
             m = re.search(r"output-(\d+)-\d+$", o)
             if m:
                 scores.append(int(m.group(1)))
-        base = summ.get(func)
+        base = read(os.path.join(d, "base.score")).strip()     # original draft's score (permute_all.sh)
+        base = int(base) if base.isdigit() else summ.get(func)
         if base is None:
             m = re.search(r"base score = (\d+)", read(os.path.join(ROOT, "permuter", f"{func}.log"))[:65536])
             base = int(m.group(1)) if m else None
@@ -831,6 +832,8 @@ def start_perm(src, s):
     opts.append(f"stall={p['stall']}")
     if p["every"]:
         opts.append("all")
+    if p.get("from_draft"):
+        opts.append("draft")
     env["PERM_EXTRA"] = " ".join(perm_flags(p))
     perm = nice + ["bash", "tools/match/permute_all.sh", qfile, str(p["minutes"]), str(int(p["threads"]))] + opts
     if pre:

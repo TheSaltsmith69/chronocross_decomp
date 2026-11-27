@@ -1,5 +1,5 @@
 #!/bin/bash
-# permute_all.sh QUEUE [MINUTES] [JOBS] [all] [fresh] [stall=M] -- run decomp-permuter on each
+# permute_all.sh QUEUE [MINUTES] [JOBS] [all] [fresh] [draft] [stall=M] -- run decomp-permuter on each
 # queued function in turn, unattended. QUEUE has one job per line: "CANDS.c FUNC [IDX]" (a
 # candidate file and the variant to start from; # starts a comment). Each function gets MINUTES
 # (default 30) on JOBS threads (default 16). An existing permuter/nonmatchings/FUNC is reused, so
@@ -17,6 +17,9 @@
 # Pass "all" for one console line per compile. The raw permuter output still goes to
 # permuter/FUNC.log.
 #
+# Starting point: each visit starts from the function's best output so far (copied over base.c;
+# the original draft stays in base.orig.c). Pass "draft" to start from the original draft again.
+#
 # Randomization weights: tools/match/permuter_weights.toml is copied into each function's
 # settings.toml before every visit (it turns off the changes that make wrong C).
 # PERM_EXTRA (env): more decomp-permuter options, e.g. "--keep-prob=0.8 --speed=50 --stack-diffs"
@@ -29,14 +32,15 @@
 # has been through once, the next run starts from the top. "fresh" ignores resume.txt.
 . "$(dirname -- "${BASH_SOURCE[0]}")/common.sh"
 Q=$(abspath "$1"); MIN=${2:-30}; J=${3:-16}
-EVERY=; FRESH=; STALL_MIN=5
+EVERY=; FRESH=; FROM_DRAFT=; STALL_MIN=5
 for a in "${@:4}"; do
   case "$a" in
     all) EVERY=--every-compile ;;
     fresh) FRESH=1 ;;
     stall=*) STALL_MIN=${a#stall=} ;;
+    draft) FROM_DRAFT=1 ;;
     '') ;;
-    *) echo "permute_all.sh: unknown option '$a' (expected all, fresh or stall=MINUTES)" >&2; exit 2 ;;
+    *) echo "permute_all.sh: unknown option '$a' (expected all, fresh, draft or stall=MINUTES)" >&2; exit 2 ;;
   esac
 done
 cd "$ROOT"
@@ -87,6 +91,31 @@ FIRST_PASS_TOTAL=$FIRST_PASS
 
 # best_score DIR: lowest output-SCORE-N score so far, empty if none
 best_score() { ls -d "$1"/output-* 2>/dev/null | sed 's/.*output-\([0-9]*\)-.*/\1/' | sort -n | head -1; }
+# best_output DIR: the folder holding that score (oldest N on a tie)
+best_output() {
+  ls -d "$1"/output-* 2>/dev/null | sed 's/.*output-\([0-9]*\)-\([0-9]*\)$/\1 \2 &/' | sort -n -k1,1 -k2,2 \
+    | head -1 | cut -d' ' -f3-
+}
+
+# start_from_best DIR FUNC: make DIR/base.c the best output so far, so a visit carries on from
+# where the last one got to instead of from the original draft. The first time, the original
+# is kept as base.orig.c and its score as base.score (for the panel's base -> best); base.from
+# holds the score base.c now has.
+start_from_best() {
+  local dir=$1 func=$2 best out cur orig
+  best=$(best_score "$dir"); [ -n "$best" ] || return 0
+  cur=$(cat "$dir/base.from" 2> /dev/null)
+  [ -z "$cur" ] || [ "$best" -lt "$cur" ] || return 0
+  out=$(best_output "$dir"); [ -f "$out/source.c" ] || return 0
+  if [ ! -f "$dir/base.orig.c" ]; then
+    cp "$dir/base.c" "$dir/base.orig.c"
+    orig=$(tr '\r' '\n' < "permuter/$func.log" 2> /dev/null | grep -o 'base score = [0-9]*' | head -1 | grep -o '[0-9]*$')
+    [ -n "$orig" ] && [ ! -f "$dir/base.score" ] && echo "$orig" > "$dir/base.score"
+  fi
+  cp "$out/source.c" "$dir/base.c"
+  echo "$best" > "$dir/base.from"
+  echo "$func: starting from its best so far, $(basename "$out") (original draft kept as base.orig.c)"
+}
 
 # apply_weights DIR: replace the [weight_overrides] section of DIR/settings.toml
 apply_weights() {
@@ -143,6 +172,12 @@ while [ ${#LINE[@]} -gt 0 ]; do
            [ -n "$first" ] && echo "done $func" > "$STATE"; continue; }
   fi
   apply_weights "$dir"
+  if [ -z "$FROM_DRAFT" ]; then
+    start_from_best "$dir" "$func"
+  elif [ -f "$dir/base.orig.c" ]; then
+    cp "$dir/base.orig.c" "$dir/base.c"; rm -f "$dir/base.from"
+    echo "$func: starting from the original draft (draft option)"
+  fi
   rem=${LEFT[$func]}
   rem_min=$(awk -v s="$rem" 'BEGIN {printf "%.4g", s / 60}')
   prior=$(best_score "$dir")
@@ -169,7 +204,8 @@ while [ ${#LINE[@]} -gt 0 ]; do
   rm -f "$usedf"
   LEFT[$func]=$(( rem - used ))
   best=$(best_score "$dir")
-  base=$(tr '\r' '\n' < "permuter/$func.log" | grep -o 'base score = [0-9]*' | head -1 | grep -o '[0-9]*$')
+  base=$(cat "$dir/base.score" 2> /dev/null)      # the original draft's score, if base.c moved on
+  [ -n "$base" ] || base=$(tr '\r' '\n' < "permuter/$func.log" | grep -o 'base score = [0-9]*' | head -1 | grep -o '[0-9]*$')
   echo "$func: base ${base:-?} best ${best:-none}" | tee -a permuter/summary.txt
   stalled=; [ -f "$dir/.stalled" ] && stalled=1
   rm -f "$dir/.stalled"

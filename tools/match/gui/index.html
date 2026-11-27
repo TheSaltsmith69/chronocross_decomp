@@ -576,6 +576,7 @@ table.sbs tr.ins td.r { background: rgba(125,255,158,0.10); color: #b8ffca; }
           <label class="tog full" title="Count stack offset differences in the score (scores run higher than without it, so compare like with like)"><input type="checkbox" data-k="perm.stack_diffs"><i></i>Score stack differences</label>
           <label class="tog"><input type="checkbox" data-k="perm.fresh"><i></i>Fresh (ignore resume)</label>
           <label class="tog"><input type="checkbox" data-k="perm.every"><i></i>Log every compile</label>
+          <label class="tog full" title="Normally each visit carries on from the function's best output so far. On: start from the original m2c/queue draft instead (base.orig.c)."><input type="checkbox" data-k="perm.from_draft"><i></i>Start from the original draft, not the best so far</label>
           <label class="tog full" title="Picked functions with no queue line or permuter folder get an m2c draft first, then the permuter runs on all of them"><input type="checkbox" data-k="perm.auto_draft"><i></i>Draft missing with m2c first</label>
           <div class="full row" style="margin-top:2px">
             <button class="btn sm" id="openWeights">Randomization weights…</button>

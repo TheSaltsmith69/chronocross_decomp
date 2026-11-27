@@ -140,8 +140,10 @@ def source_for(func, kind):
     if not d:
         raise ValueError("no permuter folder yet: draft it (m2c) or run the permuter on it once")
     base_p = os.path.join(d, "base.c")
-    if kind == "base":
-        return open(base_p).read(), base_p, os.path.getmtime(base_p)
+    if kind == "base":                 # the original draft (base.c moves on to the best output)
+        p = os.path.join(d, "base.orig.c")
+        p = p if os.path.exists(p) else base_p
+        return open(p).read(), p, os.path.getmtime(p)
     if kind == "perm":
         o = best_output(d)
         if not o:
@@ -358,10 +360,14 @@ def trend(func, history_file):
     perm, llm = [], []
     d = permdir(func)
     if d:
-        base_c = os.path.join(d, "base.c")
-        m = re.search(r"base score = (\d+)", _head(os.path.join(ROOT, "permuter", f"{func}.log")))
-        if m and os.path.exists(base_c):
-            perm.append([os.path.getmtime(base_c), int(m.group(1))])
+        base_c = os.path.join(d, "base.orig.c")
+        sc = _read(os.path.join(d, "base.score")).strip()
+        if not (os.path.exists(base_c) and sc.isdigit()):
+            base_c = os.path.join(d, "base.c")
+            m = re.search(r"base score = (\d+)", _head(os.path.join(ROOT, "permuter", f"{func}.log")))
+            sc = m.group(1) if m else ""
+        if sc and os.path.exists(base_c):
+            perm.append([os.path.getmtime(base_c), int(sc)])
         for o in glob.glob(os.path.join(d, "output-*")):
             mm = re.search(r"output-(\d+)-\d+$", o)
             if mm:
