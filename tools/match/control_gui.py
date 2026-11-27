@@ -30,6 +30,9 @@ from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gui_diff, gui_hw, pauseclock
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = os.path.join(ROOT, ".venv", "bin", "python3")
@@ -51,6 +54,17 @@ DEFAULTS = {
             "temperature": 0.6, "ctx": 131072, "examples": 2, "skip_done": True, "quiet": False,
             "rounds": 0, "model": "", "base_url": ""},
     "m2c": {"min_ratio": 0.3, "limit": 0, "nice": 10, "dry_run": False},
+    # CPU guard: pause the chosen engines while OTHER programs (Windows load minus WSL's own) use
+    # at least `threshold` % for `trigger_secs`; resume once below `resume_below` % for `resume_secs`
+    "guard": {"enabled": False, "threshold": 40, "trigger_secs": 10, "resume_below": 25, "resume_secs": 30,
+              "perm": True, "m2c": True, "llm": False},
+    "hw": {"cpu_idle_w": 15, "cpu_max_w": 250, "price": 0.15, "currency": "$"},
+    # night shift: stages run one after another, each for up to `hours` (paused time not counted)
+    "night": {"start_at": "", "stages": [
+        {"engine": "m2c", "on": True, "source": {"type": "list", "list": "parked:ov_battle"}, "hours": 0.5},
+        {"engine": "perm", "on": True, "source": {"type": "list", "list": "queue"}, "hours": 6},
+        {"engine": "llm", "on": True, "source": {"type": "list", "list": "permuted"}, "hours": 2},
+    ]},
 }
 os.makedirs(GUI, exist_ok=True)
 os.makedirs(LISTS, exist_ok=True)
@@ -106,9 +120,57 @@ class Job:
         self.done = set()
         self.stopping = False
         self.log = os.path.join(GUI, f"{name}.log")
+        self.ledger = os.path.join(GUI, f"{name}.pause")     # see pauseclock.py
+        self.pause_total = 0.0
+        self.pause_since = 0.0
+        self.paused_by = None         # None, "you", "guard" or "night"
 
     def running(self):
         return self.proc is not None and self.proc.poll() is None
+
+    def paused(self):
+        return self.running() and self.pause_since > 0
+
+    def paused_now(self):
+        """seconds spent paused in this run so far"""
+        return self.pause_total + (time.time() - self.pause_since if self.pause_since > 0 else 0.0)
+
+    def active_elapsed(self):
+        return (time.time() - self.started - self.paused_now()) if self.started else 0.0
+
+    def _signal_all(self, sig):
+        try:
+            os.killpg(self.proc.pid, sig)
+        except (ProcessLookupError, PermissionError):
+            pass
+
+    def pause(self, by="you"):
+        if not self.running() or self.pause_since > 0:
+            return False
+        self.pause_since = time.time()
+        pauseclock.write(self.ledger, self.pause_total, self.pause_since)
+        self._signal_all(signal.SIGSTOP)
+        self.paused_by = by
+        with self.lock:
+            self._commit(f"\x1b[33m{time.strftime('%H:%M:%S')} -- paused"
+                         + (" by the CPU guard" if by == "guard" else "") + "\x1b[0m")
+        EVENTS.add("job", None, f"{NAMES[self.name]} paused" + (" by the CPU guard" if by == "guard" else ""))
+        return True
+
+    def resume(self, by=None):
+        """by: only resume if it was paused by that (the guard won't undo your own pause)"""
+        if not self.running() or self.pause_since <= 0 or (by and self.paused_by != by):
+            return False
+        self.pause_total += time.time() - self.pause_since
+        self.pause_since = 0.0
+        pauseclock.write(self.ledger, self.pause_total, 0)
+        self._signal_all(signal.SIGCONT)
+        self.paused_by = None
+        with self.lock:
+            self._commit(f"\x1b[33m{time.strftime('%H:%M:%S')} -- resumed\x1b[0m")
+        if by is None:
+            EVENTS.add("job", None, f"{NAMES[self.name]} resumed")
+        return True
 
     def _commit(self, line):
         self.lines.append(line)
@@ -128,7 +190,10 @@ class Job:
             raise RuntimeError(f"{self.name} is already running")
         master, slave = os.openpty()
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 60, 240, 0, 0))
-        full_env = dict(os.environ, TERM="xterm-256color", COLUMNS="240", PYTHONUNBUFFERED="1", **env)
+        self.pause_total, self.pause_since, self.paused_by = 0.0, 0.0, None
+        pauseclock.write(self.ledger, 0, 0)
+        full_env = dict(os.environ, TERM="xterm-256color", COLUMNS="240", PYTHONUNBUFFERED="1",
+                        PAUSE_LEDGER=self.ledger, **env)
         self.proc = subprocess.Popen(argv, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=slave, stderr=slave,
                                      env=full_env, start_new_session=True, close_fds=True)
         os.close(slave)
@@ -141,6 +206,7 @@ class Job:
             self.stopping = False
             self._commit(f"\x1b[2m{time.strftime('%H:%M:%S')} $ {' '.join(argv)}\x1b[0m")
         threading.Thread(target=self._reader, args=(master, self.proc), daemon=True).start()
+        EVENTS.add("job", None, f"{NAMES[self.name]} started: {desc}")
 
     def _reader(self, fd, proc):
         dec = codecs.getincrementaldecoder("utf-8")(errors="replace")
@@ -179,14 +245,22 @@ class Job:
                 self._commit(self.partial)
                 self.partial = ""
             self.exit, self.ended = code, time.time()
+            if self.pause_since > 0:
+                self.pause_total += time.time() - self.pause_since
+                self.pause_since = 0.0
+            self.paused_by = None
             self._commit(f"\x1b[2m{time.strftime('%H:%M:%S')} -- exited with code {code}\x1b[0m")
             self.current = None
+        EVENTS.add("job", None, f"{NAMES[self.name]} finished ({self.desc}, exit {code})")
+        WATCH.poke()
 
     def stop(self):
         if not self.running():
             return False
         self.stopping = True
         proc = self.proc
+        if self.pause_since > 0:          # a stopped process can't act on SIGINT: wake it first
+            self.resume()
 
         def escalate():
             for sig, wait in ((signal.SIGINT, 20), (signal.SIGTERM, 15), (signal.SIGKILL, 0)):
@@ -207,6 +281,8 @@ class Job:
             since = max(since, first)
             new = list(self.lines)[since - first:] if since < self.seq else []
             return {"running": self.running(), "stopping": self.stopping and self.running(),
+                    "paused": self.paused(), "paused_by": self.paused_by if self.paused() else None,
+                    "active": round(self.active_elapsed()), "paused_secs": round(self.paused_now()),
                     "pid": self.proc.pid if self.proc else None, "started": self.started,
                     "ended": self.ended, "exit": self.exit, "desc": self.desc, "current": self.current,
                     "best": self.best, "order": self.order, "done": sorted(self.done),
@@ -267,6 +343,7 @@ class DraftJob(Job):
 
 
 JOBS = {"perm": PermJob("perm"), "llm": LlmJob("llm"), "m2c": DraftJob("m2c")}
+NAMES = {"perm": "Permuter", "llm": "LLM", "m2c": "m2c"}
 
 
 # ---------------------------------------------------------------- project data
@@ -634,6 +711,245 @@ def start_m2c(src, s):
 STARTERS = {"perm": start_perm, "llm": start_llm, "m2c": start_m2c}
 
 
+# ---------------------------------------------------------------- events, alerts, score history
+
+class Events:
+    """Activity feed (permuter/gui/events.jsonl): kinds match, improved, queued, job, guard, night."""
+    def __init__(self):
+        self.path = os.path.join(GUI, "events.jsonl")
+        self.lock = threading.Lock()
+        self.items = []
+        for l in read(self.path).splitlines()[-2000:]:
+            try:
+                self.items.append(json.loads(l))
+            except ValueError:
+                pass
+        self.next = (self.items[-1]["id"] + 1) if self.items else 1
+
+    def add(self, kind, func, text):
+        with self.lock:
+            e = {"id": self.next, "t": round(time.time(), 1), "kind": kind, "func": func, "text": text}
+            self.next += 1
+            self.items.append(e)
+            del self.items[:-2000]
+            try:
+                with open(self.path, "a") as f:
+                    f.write(json.dumps(e) + "\n")
+            except OSError:
+                pass
+        return e
+
+    def after(self, i, limit=300):
+        with self.lock:
+            return [e for e in self.items if e["id"] > i][-limit:]
+
+
+class Watcher:
+    """Every 20 s (and when a job ends) compares permuter/LLM results with the last snapshot:
+    new best scores go to the score history (permuter/gui/history.jsonl, for the trend charts),
+    and matches / improvements / newly queued drafts become events."""
+    HISTORY = os.path.join(GUI, "history.jsonl")
+
+    def __init__(self):
+        self.path = os.path.join(GUI, "snapshot.json")
+        self.ev = threading.Event()
+
+    def poke(self):
+        self.ev.set()
+
+    def start(self):
+        threading.Thread(target=self._run, daemon=True).start()
+
+    def _run(self):
+        while True:
+            try:
+                self.check()
+            except Exception as e:
+                print("watcher:", e, flush=True)
+            self.ev.wait(20)
+            self.ev.clear()
+
+    def check(self):
+        try:
+            prev = json.loads(read(self.path, "{}"))
+        except ValueError:
+            prev = {}
+        first = not prev
+        pi, li, q = perm_info(), llm_info(), queue_lines()
+        snap = {"perm": {f: [v["best"], v["matched"], v["base"]] for f, v in pi.items()},
+                "llm": {f: [v["ratio"], v["match"]] for f, v in li.items()},
+                "queue": sorted(q)}
+        hist = []
+        if not first:
+            pp, pl, pq = prev.get("perm", {}), prev.get("llm", {}), set(prev.get("queue", []))
+            for f, (best, matched, base) in snap["perm"].items():
+                old = pp.get(f, [None, False, None])
+                if best is not None and (old[0] is None or best < old[0]):
+                    hist.append({"t": time.time(), "f": f, "s": "perm", "v": best})
+                    if best == 0 or (matched and not old[1]):
+                        EVENTS.add("match", f, f"{f}: the permuter found a MATCH")
+                    else:
+                        EVENTS.add("improved", f, f"{f}: permuter best {old[0] if old[0] is not None else base} -> {best}")
+            for f, (ratio, match) in snap["llm"].items():
+                old = pl.get(f, [None, False])
+                if match and not old[1]:
+                    hist.append({"t": time.time(), "f": f, "s": "llm", "v": 1.0})
+                    EVENTS.add("match", f, f"{f}: the LLM found a MATCH")
+                elif ratio is not None and (old[0] is None or ratio > old[0]):
+                    hist.append({"t": time.time(), "f": f, "s": "llm", "v": ratio})
+                    EVENTS.add("improved", f, f"{f}: LLM best {old[0] if old[0] is not None else '-'} -> {ratio:.4f}")
+            for f in sorted(set(snap["queue"]) - pq):
+                EVENTS.add("queued", f, f"{f}: new m2c draft queued for the permuter")
+        if hist:
+            with open(self.HISTORY, "a") as fh:
+                fh.write("".join(json.dumps(h) + "\n" for h in hist))
+        tmp = self.path + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump(snap, fh)
+        os.replace(tmp, self.path)
+
+
+EVENTS = Events()
+WATCH = Watcher()
+
+
+# ---------------------------------------------------------------- night shift
+
+class NightShift:
+    """Runs the enabled stages one after another (m2c -> permuter -> LLM by default), each until
+    its engine finishes or its hours (paused time not counted) are used up, optionally starting
+    at a set time of day. Uses each engine's saved tuning."""
+    def __init__(self):
+        self.thread = None
+        self.stop_flag = threading.Event()
+        self.state = {"running": False, "stage": None, "stages": [], "waiting_until": None,
+                      "stage_started": None, "stage_active": 0, "log": []}
+
+    def note(self, text):
+        self.state["log"] = (self.state["log"] + [f"{time.strftime('%H:%M')} {text}"])[-30:]
+        EVENTS.add("night", None, "Night shift: " + text)
+
+    def start(self, cfg):
+        if self.thread and self.thread.is_alive():
+            raise RuntimeError("the night shift is already running")
+        stages = [s for s in cfg.get("stages", []) if s.get("on") and float(s.get("hours") or 0) > 0]
+        if not stages:
+            raise ValueError("no stages switched on")
+        self.stop_flag.clear()
+        self.state.update(running=True, stage=None, stages=stages, waiting_until=None, log=[])
+        self.thread = threading.Thread(target=self._run, args=(cfg, stages), daemon=True)
+        self.thread.start()
+
+    def stop(self):
+        self.stop_flag.set()
+
+    def _wait_until(self, hhmm):
+        h, m = (int(x) for x in hhmm.split(":"))
+        now = time.localtime()
+        target = time.mktime((now.tm_year, now.tm_mon, now.tm_mday, h, m, 0, 0, 0, -1))
+        if target <= time.time():
+            target += 86400
+        self.state["waiting_until"] = target
+        self.note(f"waiting until {hhmm}")
+        while time.time() < target:
+            if self.stop_flag.wait(5):
+                return False
+        self.state["waiting_until"] = None
+        return True
+
+    def _run(self, cfg, stages):
+        try:
+            if cfg.get("start_at") and re.fullmatch(r"\d{1,2}:\d\d", cfg["start_at"]):
+                if not self._wait_until(cfg["start_at"]):
+                    self.note("cancelled before it started")
+                    return
+            self.note("started (" + " -> ".join(f"{NAMES[s['engine']]} {s['hours']}h" for s in stages) + ")")
+            for i, st in enumerate(stages):
+                if self.stop_flag.is_set():
+                    break
+                eng, job = st["engine"], JOBS[st["engine"]]
+                self.state.update(stage=i, stage_started=time.time(), stage_active=0)
+                if not job.running():
+                    try:
+                        STARTERS[eng](st["source"], load_settings())
+                    except Exception as e:
+                        self.note(f"{NAMES[eng]} couldn't start: {e}")
+                        continue
+                self.note(f"stage {i + 1}: {NAMES[eng]} for up to {st['hours']} h")
+                budget = float(st["hours"]) * 3600
+                p0, t0 = job.paused_now(), time.time()
+                while job.running():
+                    self.state["stage_active"] = round(time.time() - t0 - (job.paused_now() - p0))
+                    if self.stop_flag.is_set() or self.state["stage_active"] >= budget:
+                        if not self.stop_flag.is_set():
+                            self.note(f"{NAMES[eng]}: time up, stopping it")
+                        job.stop()
+                        for _ in range(120):
+                            if not job.running():
+                                break
+                            time.sleep(1)
+                        break
+                    time.sleep(2)
+            self.note("stopped" if self.stop_flag.is_set() else "finished")
+        finally:
+            self.state.update(running=False, stage=None, waiting_until=None)
+
+
+NIGHT = NightShift()
+
+
+# ---------------------------------------------------------------- CPU guard
+
+class Guard:
+    def __init__(self):
+        self.over_since = self.under_since = None
+        self.tripped = False
+        self.last_other = None
+
+    def on_sample(self, now):
+        g = load_settings()["guard"]
+        other = now.get("other_load")
+        self.last_other = other
+        engines = [e for e in JOBS if g.get(e)]
+        if not g["enabled"] or other is None:
+            if self.tripped:
+                for e in JOBS:
+                    JOBS[e].resume(by="guard")
+                self.tripped = False
+            self.over_since = self.under_since = None
+            return
+        t = time.time()
+        if other >= g["threshold"]:
+            self.under_since = None
+            self.over_since = self.over_since or t
+            if t - self.over_since >= g["trigger_secs"]:
+                hit = [e for e in engines if JOBS[e].running() and not JOBS[e].paused() and JOBS[e].pause(by="guard")]
+                if hit and not self.tripped:
+                    EVENTS.add("guard", None, f"CPU guard: other programs at {other:.0f}% for "
+                               f"{g['trigger_secs']}s, paused {', '.join(NAMES[e] for e in hit)}")
+                self.tripped = self.tripped or bool(hit)
+        else:
+            self.over_since = None
+            if other < g["resume_below"]:
+                self.under_since = self.under_since or t
+                if self.tripped and t - self.under_since >= g["resume_secs"]:
+                    back = [e for e in JOBS if JOBS[e].resume(by="guard")]
+                    if back:
+                        EVENTS.add("guard", None, f"CPU guard: load down to {other:.0f}%, resumed "
+                                   + ", ".join(NAMES[e] for e in back))
+                    self.tripped = False
+            else:
+                self.under_since = None
+
+    def state(self):
+        return {"tripped": self.tripped, "other": self.last_other,
+                "over_for": round(time.time() - self.over_since) if self.over_since else 0}
+
+
+GUARD = Guard()
+HW = None          # gui_hw.Hardware, created in main()
+
+
 # ---------------------------------------------------------------- code viewer
 
 def code_for(func, kind):
@@ -686,7 +1002,20 @@ class H(BaseHTTPRequestHandler):
                 return self.send(open(os.path.join(HERE, "gui", "index.html"), "rb").read(), ctype="text/html; charset=utf-8")
             if u.path == "/api/state":
                 out = {k: j.state(int(q.get(k, 0))) for k, j in JOBS.items()}
-                return self.send(dict(out, key=bool(llm_key()), now=time.time()))
+                return self.send(dict(out, key=bool(llm_key()), now=time.time(),
+                                      events=EVENTS.after(int(q.get("ev", 0))), last_event=EVENTS.next - 1,
+                                      night=NIGHT.state, guard=GUARD.state(),
+                                      hw=HW.now if HW else {}))
+            if u.path == "/api/events":
+                return self.send(EVENTS.after(int(q.get("after", 0)), limit=int(q.get("limit", 500))))
+            if u.path == "/api/hw":
+                return self.send(HW.state(float(q.get("since", 0))) if HW else {})
+            if u.path == "/api/diff":
+                return self.send(gui_diff.diff(q.get("func", ""), q.get("kind", "perm")))
+            if u.path == "/api/overall":
+                return self.send(gui_diff.overall(q.get("func", "")))
+            if u.path == "/api/trend":
+                return self.send(gui_diff.trend(q.get("func", ""), Watcher.HISTORY))
             if u.path == "/api/functions":
                 return self.send(functions())
             if u.path == "/api/lists":
@@ -715,11 +1044,28 @@ class H(BaseHTTPRequestHandler):
                     s[k].update({kk: vv for kk, vv in b.get(k, {}).items() if kk in s[k]})
                 save_settings(s)
                 return self.send(s)
-            m = re.fullmatch(r"/api/(\w+)/(start|stop)", u.path)
+            if u.path == "/api/night/start":
+                s = load_settings()
+                if "night" in b:
+                    s["night"].update({k: v for k, v in b["night"].items() if k in s["night"]})
+                    save_settings(s)
+                NIGHT.start(s["night"])
+                return self.send({"ok": True})
+            if u.path == "/api/night/stop":
+                NIGHT.stop()
+                return self.send({"ok": True})
+            if u.path == "/api/hw/reset":
+                HW.reset()
+                return self.send({"ok": True})
+            m = re.fullmatch(r"/api/(\w+)/(start|stop|pause|resume)", u.path)
             if m and m.group(1) in JOBS:
                 job = m.group(1)
                 if m.group(2) == "stop":
                     return self.send({"ok": JOBS[job].stop()})
+                if m.group(2) == "pause":
+                    return self.send({"ok": JOBS[job].pause("you")})
+                if m.group(2) == "resume":
+                    return self.send({"ok": JOBS[job].resume()})
                 s = load_settings()
                 if "settings" in b:
                     s[job].update({k: v for k, v in b["settings"].items() if k in s[job]})
@@ -768,11 +1114,19 @@ def main():
         write_queue(a.make_queue, out, "picked")
         print(f"permuter queue: {len(out)} function(s)")
         return
+    global HW
+    HW = gui_hw.Hardware(GUI, load_settings, GUARD.on_sample)
+    WATCH.start()
     srv = ThreadingHTTPServer((a.host, a.port), H)
     srv.daemon_threads = True
     print(f"control panel on http://localhost:{a.port}/  (Ctrl+C here stops it and any running job)", flush=True)
 
     def bye(*_):
+        NIGHT.stop()
+        try:
+            HW.save()
+        except OSError:
+            pass
         for j in JOBS.values():
             j.stop()
         deadline = time.time() + 40

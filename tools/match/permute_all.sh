@@ -94,18 +94,28 @@ apply_weights() {
     && mv "$s.new" "$s"
 }
 
+# active_now: epoch seconds minus the time this run spent paused from the control panel
+# (PAUSE_LEDGER, see pauseclock.py), so budgets and the stall timer skip paused time
+active_now() {
+  if [ -n "$PAUSE_LEDGER" ] && [ -f "$PAUSE_LEDGER" ]; then
+    awk -v now="$(date +%s)" '{t = $1; if ($2 > 0) t += now - $2; printf "%d\n", now - t; exit}' "$PAUSE_LEDGER"
+  else
+    date +%s
+  fi
+}
+
 # watch_stall DIR PRIOR: background watcher; stops the permuter on DIR after STALL seconds
 # without a score below PRIOR (the best before this visit; empty = no output yet)
 watch_stall() {
   local dir=$1 prior=$2 last cur pat
-  last=$(date +%s)
+  last=$(active_now)
   pat="decomp-permuter/permuter.py $dir "
   while sleep 10; do
     cur=$(best_score "$dir")
     if [ -n "$cur" ] && { [ -z "$prior" ] || [ "$cur" -lt "$prior" ]; }; then
-      prior=$cur; last=$(date +%s)
+      prior=$cur; last=$(active_now)
     fi
-    if [ $(( $(date +%s) - last )) -ge "$STALL" ]; then
+    if [ $(( $(active_now) - last )) -ge "$STALL" ]; then
       touch "$dir/.stalled"
       pkill -INT -f "$pat"
       # the permuter can hang on exit after SIGINT (see below): TERM after 30 s, KILL after 40 s
@@ -144,13 +154,17 @@ while [ ${#LINE[@]} -gt 0 ]; do
   fi
   # SIGINT lets the permuter stop cleanly, but it can then hang on exit (a queue thread blocks
   # writing to workers that are gone), so it is killed if still running 30 s later.
-  start=$(date +%s)
-  PYTHONUNBUFFERED=1 timeout --signal=INT --kill-after=30s "${rem}s" \
+  # ptimeout.py = timeout --signal=INT --kill-after=30s, minus paused time.
+  usedf=permuter/.used.$$
+  rm -f "$usedf"
+  start=$(active_now)
+  PYTHONUNBUFFERED=1 "$PY" tools/match/ptimeout.py "$rem" --used-file "$usedf" -- \
     "$PY" tools/decomp-permuter/permuter.py "$dir" \
     -j"$J" --best-only --stop-on-zero < /dev/null 2>&1 \
     | "$PY" tools/match/permwatch.py "$func" "$rem_min" "permuter/$func.log" $EVERY || true
   [ -n "$watcher" ] && { kill "$watcher" 2> /dev/null; wait "$watcher" 2> /dev/null; }
-  used=$(( $(date +%s) - start ))
+  used=$(cat "$usedf" 2> /dev/null || echo $(( $(active_now) - start )))
+  rm -f "$usedf"
   LEFT[$func]=$(( rem - used ))
   best=$(best_score "$dir")
   base=$(tr '\r' '\n' < "permuter/$func.log" | grep -o 'base score = [0-9]*' | head -1 | grep -o '[0-9]*$')

@@ -11,7 +11,10 @@ and prints to the console:
   - with --every-compile, one permanent line per compile instead of the in-place line.
 Lower scores are better; 0 is a full match.
 """
-import re, sys, time
+import os, re, sys, time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pauseclock import active_time      # time.time() minus paused time (control panel)
 
 func, minutes, log_path = sys.argv[1], float(sys.argv[2]), sys.argv[3]
 every = "--every-compile" in sys.argv[4:]
@@ -26,7 +29,7 @@ NOISE = ("warnings.warn", "resource_tracker", "leaked semaphore")
 WROTE = re.compile(r"wrote to (\S+)")
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
-start = time.time()
+start = active_time()
 deadline = start + minutes * 60
 base = best = last = None
 compiles = errors = 0
@@ -40,12 +43,12 @@ def clock():
 
 
 def left():
-    s = max(0, int(deadline - time.time()))
+    s = max(0, int(deadline - active_time()))
     return f"{s // 60}:{s % 60:02d}"
 
 
 def rate():
-    el = time.time() - start
+    el = active_time() - start
     return compiles / el if el > 0 else 0.0
 
 

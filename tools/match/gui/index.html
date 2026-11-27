@@ -319,13 +319,129 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
 }
 .toast.warn { border-left-color: var(--park); } .toast.err { border-left-color: var(--bad); } .toast.good { border-left-color: var(--lock); }
 @keyframes slide { from { transform: translateY(10px); opacity: 0; } }
+
+/* ---------------- views */
+nav.views { display: inline-flex; gap: 2px; padding: 3px; border-radius: 11px; background: rgba(0,0,0,0.35); border: 1px solid var(--line); }
+nav.views button { border: 0; background: transparent; color: var(--muted); padding: 6px 13px; border-radius: 8px; cursor: pointer; font-size: 12px; position: relative; }
+nav.views button:hover { color: var(--text); }
+nav.views button.on { color: var(--text); background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)); box-shadow: inset 0 0 0 1px var(--line-2); }
+nav.views b:not(:empty) { margin-left: 6px; padding: 0 6px; border-radius: 99px; background: var(--lock); color: #0a1400; font: 700 10px/16px var(--mono); display: inline-block; box-shadow: 0 0 10px var(--lock); }
+.view { display: none; position: relative; z-index: 1; grid-row: 2 / 4; min-height: 0; overflow: auto; padding: 18px 22px 30px; }
+body.v-activity main, body.v-activity .consoles, body.v-hw main, body.v-hw .consoles { display: none; }
+body.v-activity #viewActivity, body.v-hw #viewHw { display: block; }
+.vhead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.vhead h2 { margin: 0 6px 0 0; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; }
+
+/* ---------------- pause + paused state */
+.gorow { display: flex; gap: 8px; margin-top: 12px; }
+.gorow .go { margin-top: 0; flex: 1; }
+.pz {
+  width: 46px; flex: none; border-radius: 13px; border: 1px solid var(--line-2); background: rgba(255,255,255,0.05); color: var(--text);
+  cursor: pointer; display: none; place-items: center; transition: .15s;
+}
+.pz:hover { background: rgba(255,255,255,0.1); border-color: var(--park); color: var(--park); }
+.engine.live .pz { display: grid; }
+.pz.on { background: var(--park); color: #1c1100; border-color: var(--park); box-shadow: 0 0 18px -2px var(--park); }
+.engine.paused { border-color: rgba(255,176,32,0.55) !important; box-shadow: 0 0 0 1px rgba(255,176,32,0.15), 0 10px 40px -12px rgba(255,176,32,0.45) !important; }
+.engine.paused .dot { background: var(--park) !important; box-shadow: 0 0 10px var(--park) !important; animation: none !important; }
+.engine.paused .prog i { background: var(--park); box-shadow: 0 0 10px var(--park); }
+.ptag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 6px; background: rgba(255,176,32,0.16); color: var(--park); font: 700 10px/16px var(--mono); letter-spacing: .06em; }
+.sq.paused-run { animation: none !important; box-shadow: 0 0 0 2px var(--park), 0 0 10px var(--park) !important; }
+
+/* ---------------- night shift */
+.engine.night { --acc: #7cf0c5; --acc2: #2fb3a0; }
+.engine.night .go { color: #02140f; }
+.stages { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.stage { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 9px; border: 1px solid var(--line); background: rgba(0,0,0,0.3); font: 11px var(--mono); color: var(--muted); }
+.stage i { width: 7px; height: 7px; border-radius: 50%; }
+.stage.off { opacity: .35; text-decoration: line-through; }
+.stage.now { color: var(--text); border-color: var(--acc); box-shadow: 0 0 12px -3px var(--acc); }
+.stage.done { opacity: .55; }
+.stage-arrow { color: var(--faint); align-self: center; }
+.nrow { display: grid; grid-template-columns: 26px 92px 1fr 90px; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.nrow .eng { font-weight: 700; font-size: 12px; letter-spacing: .08em; }
+
+/* ---------------- activity */
+.summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.feed { display: flex; flex-direction: column; gap: 6px; max-width: 1100px; }
+.ev { display: grid; grid-template-columns: 70px 22px 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 11px; border: 1px solid var(--line); background: rgba(255,255,255,0.02); font-size: 12.5px; }
+.ev.new { border-color: rgba(182,255,77,0.35); background: rgba(182,255,77,0.04); }
+.ev time { color: var(--faint); font: 11px var(--mono); }
+.ev .ico { width: 10px; height: 10px; border-radius: 50%; justify-self: center; }
+.ev .fn { font-family: var(--mono); color: var(--text); cursor: pointer; }
+.ev .fn:hover { color: var(--perm); text-decoration: underline; }
+.ev.match { border-color: rgba(182,255,77,0.5); background: linear-gradient(90deg, rgba(182,255,77,0.10), transparent 60%); }
+.ev.match .txt { color: var(--lock); font-weight: 600; }
+.daysep { margin: 12px 0 2px; color: var(--muted); font: 600 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------------- hardware */
+.hwgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 1400px; }
+.card.hw h3 { color: var(--text); }
+.card.hw.cpu { --acc: var(--perm); } .card.hw.gpu { --acc: #7dff9e; } .card.hw.total { --acc: var(--m2c); } .card.hw.guard { --acc: var(--park); --acc2: #c27a00; }
+.gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.gauge { position: relative; aspect-ratio: 1.6; display: grid; place-items: center; }
+.gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gauge .gv { position: relative; text-align: center; margin-top: 18%; }
+.gauge .gv b { display: block; font: 700 22px var(--mono); }
+.gauge .gv small { color: var(--muted); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+.gauge .gv em { font-style: normal; color: var(--park); font-size: 9.5px; display: block; }
+.spark { height: 90px; margin-top: 10px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.spark svg { width: 100%; height: 100%; display: block; }
+.spark .lg { position: absolute; top: 6px; left: 10px; display: flex; gap: 12px; font: 10.5px var(--mono); color: var(--muted); }
+.spark .lg i { display: inline-block; width: 8px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.kv3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.big { margin-top: 12px; display: flex; align-items: baseline; gap: 10px; }
+.big span { font: 700 34px var(--mono); color: var(--acc); text-shadow: 0 0 22px color-mix(in srgb, var(--acc) 50%, transparent); }
+.big small { color: var(--muted); }
+.entab { display: grid; grid-template-columns: auto repeat(4, 1fr); gap: 6px 14px; margin-top: 12px; font: 12px var(--mono); }
+.entab .h { color: var(--faint); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+.entab .r { color: var(--muted); }
+.entab b { color: var(--text); font-weight: 600; }
+
+/* ---------------- details window additions */
+.modal.wide { width: min(1180px, 95vw); }
+.dtabs { display: flex; gap: 6px; margin: 4px 0 10px; align-items: center; flex-wrap: wrap; }
+.dtabs .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+.dtabs button.on { border-color: var(--perm); color: var(--perm); }
+.overall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+.osrc { border: 1px solid var(--line); border-radius: 11px; padding: 8px 11px; background: rgba(255,255,255,0.02); cursor: pointer; transition: .15s; }
+.osrc:hover { border-color: var(--line-2); }
+.osrc.best { border-color: rgba(182,255,77,0.55); background: rgba(182,255,77,0.06); box-shadow: 0 0 16px -6px var(--lock); }
+.osrc .k { color: var(--faint); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; display: flex; justify-content: space-between; }
+.osrc .v { font: 600 15px var(--mono); margin-top: 2px; }
+.osrc .v small { color: var(--muted); font-weight: 400; font-size: 11px; }
+.osrc .err { color: var(--faint); font-size: 11px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trend { height: 120px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.35); margin-top: 10px; position: relative; overflow: hidden; }
+.trend svg { width: 100%; height: 100%; display: block; }
+.trend .lg { position: absolute; top: 6px; left: 10px; display: flex; gap: 14px; font: 10.5px var(--mono); color: var(--muted); }
+.trend .empty2 { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); font-size: 12px; }
+table.sbs { width: 100%; border-collapse: collapse; font: 12px/1.5 var(--mono); }
+table.sbs th { position: sticky; top: 0; background: #10131c; text-align: left; padding: 6px 10px; color: var(--muted); font-weight: 500; font-size: 11px; letter-spacing: .06em; border-bottom: 1px solid var(--line); z-index: 1; }
+table.sbs td { padding: 1px 10px; white-space: pre; border-bottom: 1px solid rgba(255,255,255,0.025); }
+table.sbs td.n { color: var(--faint); width: 34px; text-align: right; padding-right: 6px; }
+table.sbs tr.eq td { color: #8f96a8; }
+table.sbs tr.reg td.c { background: rgba(255,176,32,0.10); color: #ffd58a; }
+table.sbs tr.diff td.c { background: rgba(255,77,125,0.12); color: #ffb3c6; }
+table.sbs tr.del td.c:first-of-type, table.sbs tr.del td.l { background: rgba(255,77,125,0.16); color: #ffb3c6; }
+table.sbs tr.ins td.r { background: rgba(125,255,158,0.10); color: #b8ffca; }
+.diffsum { display: flex; gap: 14px; font: 12px var(--mono); color: var(--muted); margin-bottom: 8px; flex-wrap: wrap; }
+.diffsum b { color: var(--text); }
+.diffsum i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><b>CROSS//MATCH</b><span>control</span></div>
+  <nav class="views" id="views">
+    <button data-view="control" class="on">Control</button>
+    <button data-view="activity">Activity<b id="actBadge"></b></button>
+    <button data-view="hw">Hardware</button>
+  </nav>
   <div class="stats" id="stats"></div>
   <div class="pills">
+    <span class="pill" id="pillNight" style="display:none" title="Night shift"><span class="d"></span><span id="pillNightTxt">Night shift</span></span>
+    <span class="pill" id="pillGuard" title="CPU guard (Hardware tab)"><span class="d"></span><span id="pillGuardTxt">Guard off</span></span>
+    <span class="pill" id="pillPower" title="CPU + GPU power right now (Hardware tab)"><span class="d" style="background:var(--m2c)"></span><span id="pillPowerTxt">– W</span></span>
     <span class="pill" id="pillStrata" title="Strata model server"><span class="d"></span><span>Strata</span></span>
     <span class="pill" id="pillKey" title="STRATA_API_KEY passed to WSL"><span class="d"></span><span>API key</span></span>
   </div>
@@ -356,6 +472,18 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
   </section>
 
   <aside>
+    <div class="card engine night" id="engNight">
+      <h3><span class="dot"></span>Night shift <small id="nightSub">idle</small><span class="spacer"></span>
+        <button class="btn sm" id="nightCfg">Configure…</button></h3>
+      <div class="stages" id="nightStages"></div>
+      <button class="go" id="nightGo">START NIGHT SHIFT</button>
+      <div class="live-box" id="nightLive">
+        <div class="cur"><span id="nightCur">—</span><span id="nightTime"></span></div>
+        <div class="prog"><i id="nightProg" style="width:0"></i></div>
+        <div class="status" id="nightLog"></div>
+      </div>
+    </div>
+
     <div class="card">
       <h3>Selection <small id="selCount">0 picked</small><span class="spacer"></span>
         <button class="btn sm ghost" id="selClear">Clear</button>
@@ -377,7 +505,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
         <div class="seg" data-eng="m2c"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
         <select id="m2cList" style="display:none"></select>
       </div>
-      <button class="go" id="m2cGo">DRAFT</button>
+      <div class="gorow"><button class="go" id="m2cGo">DRAFT</button><button class="pz" id="m2cPz" data-pz="m2c"></button></div>
       <div class="live-box" id="m2cLive">
         <div class="cur"><span>now <b id="m2cCur">—</b></span><span id="m2cTime">0:00</span></div>
         <div class="status" id="m2cStatus"></div>
@@ -401,7 +529,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
         <div class="seg" data-eng="perm"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
         <select id="permList" style="display:none"></select>
       </div>
-      <button class="go" id="permGo">START</button>
+      <div class="gorow"><button class="go" id="permGo">START</button><button class="pz" id="permPz" data-pz="perm"></button></div>
       <div class="live-box" id="permLive">
         <div class="cur"><span>now <b id="permCur">—</b></span><span id="permTime">0:00</span></div>
         <div class="status" id="permStatus"></div>
@@ -431,7 +559,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
         <div class="seg" data-eng="llm"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
         <select id="llmList" style="display:none"></select>
       </div>
-      <button class="go" id="llmGo">START</button>
+      <div class="gorow"><button class="go" id="llmGo">START</button><button class="pz" id="llmPz" data-pz="llm"></button></div>
       <div class="live-box" id="llmLive">
         <div class="cur"><span>now <b id="llmCur">—</b></span><span id="llmTime">0:00</span></div>
         <div class="status" id="llmStatus"></div>
@@ -469,6 +597,72 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
   <div class="con" id="conM2c"><header>m2c<span class="st" id="m2cSt"></span><button data-auto="m2c" class="on">autoscroll</button><button data-clear="m2c">clear</button><button data-min>▾</button></header><div class="log" id="logM2c"></div></div>
   <div class="con" id="conPerm"><header>Permuter<span class="st" id="permSt"></span><button data-auto="perm" class="on">autoscroll</button><button data-clear="perm">clear</button><button data-min>▾</button></header><div class="log" id="logPerm"></div></div>
   <div class="con" id="conLlm"><header>LLM<span class="st" id="llmSt"></span><button data-auto="llm" class="on">autoscroll</button><button data-clear="llm">clear</button><button data-min>▾</button></header><div class="log" id="logLlm"></div></div>
+</section>
+
+<section class="view" id="viewActivity">
+  <div class="vhead">
+    <h2>Activity</h2>
+    <div class="tabs" id="actFilter">
+      <button data-f="all" class="on">All</button><button data-f="match">Matches</button><button data-f="improved">Improvements</button>
+      <button data-f="queued">Drafts</button><button data-f="job">Jobs</button><button data-f="guard">Guard</button><button data-f="night">Night shift</button>
+    </div>
+    <span class="spacer"></span>
+    <label class="tog"><input type="checkbox" id="alSound"><i></i>Sound on match</label>
+    <label class="tog"><input type="checkbox" id="alDesk"><i></i>Desktop notification</label>
+    <label class="tog"><input type="checkbox" id="alImp"><i></i>Toast on improvements</label>
+    <button class="btn sm" id="alTest">Test alert</button>
+    <button class="btn sm" id="actSeen">Mark all seen</button>
+  </div>
+  <div class="summary" id="actSummary"></div>
+  <div class="feed" id="actFeed"></div>
+</section>
+
+<section class="view" id="viewHw">
+  <div class="vhead">
+    <h2>Hardware</h2><span class="note" id="hwNote" style="margin:0"></span><span class="spacer"></span>
+    <button class="btn sm danger" id="hwReset">Reset kWh totals…</button>
+  </div>
+  <div class="hwgrid">
+    <div class="card hw cpu"><h3>CPU <small id="cpuName"></small></h3>
+      <div class="gauges">
+        <div class="gauge" id="gCpuTemp"></div><div class="gauge" id="gCpuLoad"></div><div class="gauge" id="gCpuPow"></div>
+      </div>
+      <div class="spark" id="sCpu"></div>
+      <div class="kv3" id="kCpu"></div>
+    </div>
+    <div class="card hw gpu"><h3>GPU <small id="gpuName"></small></h3>
+      <div class="gauges">
+        <div class="gauge" id="gGpuTemp"></div><div class="gauge" id="gGpuLoad"></div><div class="gauge" id="gGpuPow"></div>
+      </div>
+      <div class="spark" id="sGpu"></div>
+      <div class="kv3" id="kGpu"></div>
+    </div>
+    <div class="card hw total"><h3>Energy <small id="enSince"></small></h3>
+      <div class="big"><span id="enNow">–</span><small>W now (CPU + GPU)</small></div>
+      <div class="entab" id="enTab"></div>
+      <div class="spark" id="sPow"></div>
+      <div class="form" style="margin-top:12px">
+        <div class="fld"><label>Price per kWh</label><input type="number" step="0.01" min="0" data-k="hw.price"></div>
+        <div class="fld"><label>Currency</label><input type="text" data-k="hw.currency"></div>
+        <div class="fld"><label title="Used only when LibreHardwareMonitor isn't running">CPU idle W (estimate)</label><input type="number" min="0" data-k="hw.cpu_idle_w"></div>
+        <div class="fld"><label title="Used only when LibreHardwareMonitor isn't running">CPU full-load W (estimate)</label><input type="number" min="1" data-k="hw.cpu_max_w"></div>
+      </div>
+    </div>
+    <div class="card hw guard engine" id="guardCard"><h3><span class="dot"></span>CPU guard <small id="guardSub">off</small></h3>
+      <div class="note" style="margin-top:6px">Pauses the chosen engines while <b>other programs</b> (Windows load minus what WSL itself uses) are busy, and resumes them once things calm down. It never resumes something you paused yourself.</div>
+      <div class="big"><span id="guardOther">–</span><small>% other load now</small></div>
+      <div class="form">
+        <label class="tog full"><input type="checkbox" data-k="guard.enabled"><i></i>Guard on</label>
+        <div class="fld"><label>Pause at other load ≥ <em data-v="guard.threshold"></em>%</label><input type="range" min="5" max="95" step="5" data-k="guard.threshold"></div>
+        <div class="fld"><label>…for (seconds) <em data-v="guard.trigger_secs"></em></label><input type="range" min="2" max="120" step="2" data-k="guard.trigger_secs"></div>
+        <div class="fld"><label>Resume below <em data-v="guard.resume_below"></em>%</label><input type="range" min="0" max="90" step="5" data-k="guard.resume_below"></div>
+        <div class="fld"><label>…for (seconds) <em data-v="guard.resume_secs"></em></label><input type="range" min="5" max="300" step="5" data-k="guard.resume_secs"></div>
+        <label class="tog"><input type="checkbox" data-k="guard.perm"><i></i>Permuter</label>
+        <label class="tog"><input type="checkbox" data-k="guard.m2c"><i></i>m2c</label>
+        <label class="tog v full" title="Strata's own load counts as 'other' load, so guarding the LLM pauses it while it generates. Usually leave this off."><input type="checkbox" data-k="guard.llm"><i></i>LLM (usually off: Strata's own load would trip it)</label>
+      </div>
+    </div>
+  </div>
 </section>
 
 <div id="tip"></div>
@@ -597,8 +791,11 @@ function decorate() {
     el.classList.toggle("on", !!o);
     if (o) el.dataset.o = o < 100 ? o : ""; else delete el.dataset.o;
     let dashed = false;
+    let pausedRun = false;
     for (const [e, j, set] of runs) {
       el.classList.toggle("run-" + e, !!(j && j.current === n));
+      if (j && j.current === n && j.paused) pausedRun = true;
+      el.classList.toggle("paused-run", pausedRun);
       const inr = !!(set && set.has(n)) && !dashed;
       el.classList.toggle("inrun-" + e, inr);
       if (inr) dashed = true;
@@ -748,15 +945,22 @@ function renderEngine(eng, j, now) {
   const card = $("#eng" + CAP[eng]);
   const live = j.running;
   card.classList.toggle("live", live);
+  card.classList.toggle("paused", !!j.paused);
   const go = $(`#${eng}Go`);
   go.disabled = !!j.stopping;
   go.classList.toggle("stop", live);
   go.textContent = j.stopping ? "STOPPING…" : live ? "STOP" : eng === "m2c" ? "DRAFT" : "START";
-  $(`#${eng}Sub`).textContent = live ? `running · ${j.desc}` : j.exit != null ? `idle · last run exited ${j.exit}` : "idle";
+  const pz = $(`#${eng}Pz`);
+  pz.classList.toggle("on", !!j.paused);
+  pz.innerHTML = j.paused ? ICON_PLAY : ICON_PAUSE;
+  pz.title = j.paused ? "Resume" : "Pause (freezes it in place; paused time doesn't count against its budgets)";
+  const pausedTxt = j.paused ? (j.paused_by === "guard" ? "paused by CPU guard" : "paused") : "";
+  $(`#${eng}Sub`).innerHTML = live ? (j.paused ? `<span class="ptag">${pausedTxt.toUpperCase()}</span> ` : "running · ") + esc(j.desc)
+    : j.exit != null ? `idle · last run exited ${j.exit}` : "idle";
   if (live) {
     $(`#${eng}Cur`).textContent = j.current || "starting…";
     $(`#${eng}Cur`).onclick = () => j.current && inspect(j.current);
-    $(`#${eng}Time`).textContent = fmtT(now - j.started);
+    $(`#${eng}Time`).innerHTML = fmtT(j.active ?? (now - j.started)) + (j.paused_secs ? ` <span style="color:var(--park)" title="time spent paused (not counted)">+${fmtT(j.paused_secs)} paused</span>` : "");
     const best = j.current && j.best[j.current];
     const st = ANSI_STRIP(j.partial || "").trim();
     $(`#${eng}Status`).textContent = eng === "perm" ? (st || (best ? best : "")) :
@@ -765,8 +969,19 @@ function renderEngine(eng, j, now) {
     const n = j.total || j.order.length || 1, d = j.done.length;
     $(`#${eng}Prog`).style.width = (100 * Math.min(1, d / n)).toFixed(1) + "%";
   }
-  $(`#${eng}St`).textContent = live ? `${j.current || "…"} · ${fmtT(now - j.started)}` : (j.exit != null ? `exited ${j.exit}` : "idle");
+  $(`#${eng}St`).textContent = live ? `${j.paused ? "PAUSED · " : ""}${j.current || "…"} · ${fmtT(j.active ?? (now - j.started))}` : (j.exit != null ? `exited ${j.exit}` : "idle");
 }
+const ICON_PAUSE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`;
+const ICON_PLAY = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>`;
+$$("[data-pz]").forEach(b => b.onclick = async () => {
+  const eng = b.dataset.pz, j = S.job[eng];
+  if (!j || !j.running) return;
+  try {
+    await api(`/api/${eng}/${j.paused ? "resume" : "pause"}`, {});
+    toast(`${NAME[eng]} ${j.paused ? "resumed" : "paused: frozen in place, its time budget is on hold"}`, j.paused ? "good" : "warn");
+    poll();
+  } catch (e) { toast(esc(e.message), "err"); }
+});
 
 /* ---------------------------------------------------------------- consoles */
 const ANSI_STRIP = s => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
@@ -865,6 +1080,42 @@ function prompt2(title, text, val) {
     m.onclick = e => { const b = e.target.closest("[data-r]"); if (b) done(b.dataset.r === "1"); };
   });
 }
+const SRC = { perm: ["Permuter best", "var(--perm)"], llm: ["LLM best", "var(--llm)"], cand: ["Queue candidate", "var(--queue)"], base: ["Permuter start", "var(--muted)"] };
+function trendSVG(tr, base) {
+  const W = 1000, H = 120, P = 8;
+  const perm = (tr.perm || []).filter(p => p[1] != null), llm = tr.llm || [];
+  const b = base || Math.max(1, ...perm.map(p => p[1]));
+  const ps = perm.map(([t, v]) => [t, Math.max(0, 1 - v / b)]);
+  const all = [...ps, ...llm];
+  if (all.length < 1) return `<div class="empty2">No score history yet</div>`;
+  let t0 = Math.min(...all.map(p => p[0])), t1 = Math.max(...all.map(p => p[0]));
+  if (t1 - t0 < 60) { t0 -= 30; t1 += 30; }
+  const x = t => P + (t - t0) / (t1 - t0) * (W - 2 * P), y = v => H - P - v * (H - 2 * P - 14);
+  const step = (pts, best) => {   // running best as a step line
+    if (!pts.length) return "";
+    pts = [...pts].sort((a, c) => a[0] - c[0]);
+    let cur = -1, d = "";
+    for (const [t, v] of pts) { if (v > cur) { d += (d ? `H${x(t).toFixed(1)}V${y(v).toFixed(1)}` : `M${x(t).toFixed(1)},${y(v).toFixed(1)}`); cur = v; } }
+    return d + `H${(W - P).toFixed(1)}`;
+  };
+  const dots = (pts, c) => pts.map(([t, v]) => `<circle cx="${x(t).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.2" fill="${c}" opacity=".7"/>`).join("");
+  const grid = [0, .25, .5, .75, 1].map(v => `<line x1="0" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,${v === 1 ? .16 : .05})" ${v === 1 ? 'stroke-dasharray="4 4"' : ""}/>`).join("");
+  const days = Math.round((t1 - t0) / 3600);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${grid}
+    <path d="${step(ps)}" fill="none" stroke="#2ee6ff" stroke-width="2" vector-effect="non-scaling-stroke"/>${dots(ps, "#2ee6ff")}
+    <path d="${step(llm)}" fill="none" stroke="#c77dff" stroke-width="2" vector-effect="non-scaling-stroke"/>${dots(llm, "#c77dff")}</svg>
+    <div class="lg"><span><i style="display:inline-block;width:8px;height:3px;background:#2ee6ff;margin-right:5px;vertical-align:middle"></i>permuter (1 − score/base)</span><span><i style="display:inline-block;width:8px;height:3px;background:#c77dff;margin-right:5px;vertical-align:middle"></i>LLM ratio</span><span>top line = match · span ${days >= 48 ? Math.round(days / 24) + " days" : days >= 1 ? days + " h" : Math.max(1, Math.round((t1 - t0) / 60)) + " min"}</span></div>`;
+}
+function diffTable(r) {
+  const tag = { eq: "", reg: "regs", diff: "≠", del: "missing", ins: "extra" };
+  let i = 0, j = 0;
+  const rows = r.rows.map(([a, b, k]) => {
+    const ln = a != null ? ++i : "", rn = b != null ? ++j : "";
+    return `<tr class="${k}"><td class="n">${ln}</td><td class="c l">${esc(a ?? "")}</td><td class="n">${rn}</td><td class="c r">${esc(b ?? "")}</td><td class="n" style="color:${k === "eq" ? "transparent" : k === "reg" ? "var(--park)" : "var(--bad)"}">${tag[k]}</td></tr>`;
+  }).join("");
+  return `<div class="diffsum"><span><b>${r.diffs}</b> of ${r.total} instructions differ</span><span><i style="background:rgba(255,176,32,.5)"></i>${r.regs_only} registers only</span><span><i style="background:rgba(255,77,125,.5)"></i>${r.diffs - r.regs_only} other</span><span style="color:var(--faint)">${esc(r.path)}</span>${r.match ? '<span style="color:var(--lock)">MATCH</span>' : ""}</div>
+    <table class="sbs"><thead><tr><th></th><th>Target (original)</th><th></th><th>${esc(SRC[r.kind][0])}</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
 async function inspect(n) {
   const f = S.byName.get(n); if (!f) return;
   const g = gain(f), st = status(f);
@@ -877,26 +1128,56 @@ async function inspect(n) {
         <div class="box"><div class="k">Candidate</div><div class="v" style="font-size:12px">${f.q ? esc(f.q.cands.replace("permuter/cands/", "")) + " <small>#" + f.q.idx + "</small>" : f.p ? "<small>permuter dir</small>" : "<small>none (LLM will m2c)</small>"}</div></div>
       </div>
       ${f.q && f.q.note ? `<div class="note">${esc(f.q.note)}</div>` : ""}
+      <div class="note" style="margin-top:14px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-size:10.5px">Overall best <span id="ovNote" style="text-transform:none;letter-spacing:0;color:var(--faint)">· compiling every version to compare instruction by instruction…</span></div>
+      <div class="overall" id="overall">${Object.keys(SRC).map(k => `<div class="osrc" data-d="${k}"><div class="k">${SRC[k][0]}</div><div class="v" style="color:var(--faint)">…</div></div>`).join("")}</div>
+      <div class="trend" id="trend"><div class="empty2">loading history…</div></div>
       <div class="insp-actions">
         <button class="btn sm" data-a="sel">${S.sel.includes(n) ? "Remove from selection" : "Add to selection"}</button>
         <button class="btn sm" data-a="m2c" style="color:var(--m2c)">Draft with m2c</button>
         <button class="btn sm" data-a="perm" style="color:var(--perm)">Permute just this</button>
         <button class="btn sm" data-a="llm" style="color:var(--llm)">LLM just this</button>
-        <span class="spacer"></span>
-        <button class="btn sm ghost" data-c="perm">Permuter best</button>
-        <button class="btn sm ghost" data-c="llm">LLM best.c</button>
+      </div>
+      <div class="dtabs">
+        <span class="note" style="margin:0 4px 0 0">Side-by-side vs target:</span>
+        ${Object.keys(SRC).map(k => `<button class="btn sm" data-d="${k}">${SRC[k][0]}</button>`).join("")}
+        <span class="sep"></span><span class="note" style="margin:0 4px 0 0">Source:</span>
+        <button class="btn sm ghost" data-c="perm">Permuter C</button>
+        <button class="btn sm ghost" data-c="llm">LLM C</button>
         <button class="btn sm ghost" data-c="asm">Target asm</button>
       </div>
-      <div class="codebox" id="codebox"><div class="p">Pick a source above.</div></div>
-    </div>`);
+      <div class="codebox" id="codebox" style="max-height:52vh"><div class="p">Pick a source above.</div></div>
+    </div>`, "wide");
+  const mark = sel => $$(".dtabs button", m).forEach(b => b.classList.toggle("on", b.dataset.d === sel || b.dataset.c === sel));
   const showCode = async kind => {
+    mark(kind);
     $("#codebox").innerHTML = `<div class="p">loading…</div>`;
     try { const r = await api(`/api/code?func=${n}&kind=${kind}`); $("#codebox").innerHTML = `<div class="p">${esc(r.path)}</div><pre class="code">${esc(r.text)}</pre>`; }
     catch (e) { $("#codebox").innerHTML = `<div class="p">${esc(e.message)}</div>`; }
   };
+  const showDiff = async kind => {
+    mark(kind);
+    $("#codebox").innerHTML = `<div class="p">compiling ${esc(SRC[kind][0].toLowerCase())}…</div>`;
+    try { $("#codebox").innerHTML = diffTable(await api(`/api/diff?func=${n}&kind=${kind}`)); }
+    catch (e) { $("#codebox").innerHTML = `<div class="p">${esc(e.message)}</div>`; }
+  };
+  api(`/api/trend?func=${n}`).then(tr => { if ($("#trend")) $("#trend").innerHTML = trendSVG(tr, f.p && f.p.base); }).catch(() => {});
+  let picked = false;
+  api(`/api/overall?func=${n}`).then(o => {
+    if (!$("#overall")) return;
+    for (const k of Object.keys(SRC)) {
+      const s = o.sources[k], el = $(`#overall [data-d=${k}]`);
+      el.classList.toggle("best", o.best === k);
+      el.innerHTML = s.diffs != null
+        ? `<div class="k">${SRC[k][0]}${o.best === k ? '<span style="color:var(--lock)">BEST</span>' : ""}</div><div class="v" style="color:${s.diffs === 0 ? "var(--lock)" : SRC[k][1]}">${s.diffs === 0 ? "MATCH" : s.diffs + " off"}<small> / ${s.total} insns${s.regs_only ? " · " + s.regs_only + " regs only" : ""}</small></div>`
+        : `<div class="k">${SRC[k][0]}</div><div class="v" style="color:var(--faint)">–</div><div class="err" title="${esc(s.error)}">${esc(s.error)}</div>`;
+    }
+    $("#ovNote").textContent = o.best ? `· ${SRC[o.best][0]} is closest (${o.sources[o.best].diffs} instruction${o.sources[o.best].diffs === 1 ? "" : "s"} off). Click a card for its diff.` : "· nothing to compare yet";
+    if (o.best && !picked) showDiff(o.best);
+  }).catch(e => { if ($("#ovNote")) $("#ovNote").textContent = "· " + e.message; });
   m.onclick = async e => {
     if (e.target.closest("[data-x]")) return closeModal();
-    const c = e.target.closest("[data-c]"); if (c) return showCode(c.dataset.c);
+    const d = e.target.closest("[data-d]"); if (d) { picked = true; return showDiff(d.dataset.d); }
+    const c = e.target.closest("[data-c]"); if (c) { picked = true; return showCode(c.dataset.c); }
     const a = e.target.closest("[data-a]"); if (!a) return;
     if (a.dataset.a === "sel") { toggleSel(n); saveSel(); renderSel(); decorate(); closeModal(); return; }
     closeModal();
@@ -906,6 +1187,7 @@ async function inspect(n) {
     S.sel = keep; S.src[eng] = prevSrc;
   };
   showCode(f.p && f.p.outputs ? "perm" : f.l ? "llm" : "asm");
+  picked = false;
 }
 $("#openWeights").onclick = async () => {
   const ws = await api("/api/weights");
@@ -935,6 +1217,250 @@ $("#openTips").onclick = async () => {
   };
 };
 
+/* ---------------------------------------------------------------- views */
+S.view = localStorage.view || "control";
+function setView(v) {
+  S.view = localStorage.view = v;
+  document.body.classList.remove("v-control", "v-activity", "v-hw");
+  document.body.classList.add("v-" + v);
+  $$("#views button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  if (v === "activity") { renderActivity(); }
+  if (v === "hw") loadHw(true);
+}
+$("#views").onclick = e => { const b = e.target.closest("[data-view]"); if (b) setView(b.dataset.view); };
+
+/* ---------------------------------------------------------------- activity + alerts */
+S.events = []; S.lastEv = 0; S.seenEv = +(localStorage.seenEv || 0); S.actFilter = "all";
+const EVC = { match: "#b6ff4d", improved: "#2ee6ff", queued: "#ffa23d", job: "#8a90a2", guard: "#ffb020", night: "#7cf0c5" };
+for (const [id, def] of [["alSound", "1"], ["alDesk", "0"], ["alImp", "0"]]) {
+  const el = $("#" + id); el.checked = (localStorage[id] ?? def) === "1";
+  el.onchange = async () => {
+    localStorage[id] = el.checked ? "1" : "0";
+    if (id === "alDesk" && el.checked && "Notification" in window && Notification.permission !== "granted") {
+      const p = await Notification.requestPermission();
+      if (p !== "granted") { el.checked = false; localStorage[id] = "0"; toast("The browser blocked notifications for this page", "warn"); }
+    }
+  };
+}
+let actx;
+function chime() {
+  try {
+    actx = actx || new AudioContext();
+    const t = actx.currentTime;
+    [[659.25, 0], [880, .12], [1318.5, .24]].forEach(([fq, dt]) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = "triangle"; o.frequency.value = fq;
+      g.gain.setValueAtTime(0, t + dt); g.gain.linearRampToValueAtTime(.18, t + dt + .02); g.gain.exponentialRampToValueAtTime(.001, t + dt + .6);
+      o.connect(g).connect(actx.destination); o.start(t + dt); o.stop(t + dt + .65);
+    });
+  } catch (e) {}
+}
+function alertMatch(e) {
+  if ($("#alSound").checked) chime();
+  if ($("#alDesk").checked && "Notification" in window && Notification.permission === "granted") {
+    try { const nt = new Notification("Match found", { body: e.text, tag: "m" + e.id }); nt.onclick = () => { window.focus(); if (e.func) inspect(e.func); }; } catch (x) {}
+  }
+  toast(`<b style="color:var(--lock)">MATCH</b> · ${esc(e.text)}<br><span style="color:var(--muted)">Ask Claude to lock it in with a full build.</span>`, "good", 15000);
+}
+$("#alTest").onclick = () => alertMatch({ id: 0, text: "func_TEST: this is what a match alert looks like", func: null });
+function onEvents(evs, initial) {
+  if (!evs.length) return;
+  S.events.push(...evs); S.events = S.events.slice(-2000);
+  S.lastEv = evs[evs.length - 1].id;
+  if (!initial) for (const e of evs) {
+    if (e.kind === "match") alertMatch(e);
+    else if (e.kind === "improved" && $("#alImp").checked) toast(esc(e.text), "", 5000);
+    else if (e.kind === "guard") toast(esc(e.text), "warn", 7000);
+  }
+  badge();
+  if (S.view === "activity") renderActivity();
+}
+function badge() {
+  const n = S.events.filter(e => e.id > S.seenEv && e.kind !== "job").length;
+  $("#actBadge").textContent = n ? (n > 99 ? "99+" : n) : "";
+}
+$("#actSeen").onclick = () => { S.seenEv = S.lastEv; localStorage.seenEv = S.seenEv; badge(); renderActivity(); };
+$("#actFilter").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; S.actFilter = b.dataset.f; $$("#actFilter button").forEach(x => x.classList.toggle("on", x === b)); renderActivity(); };
+function renderActivity() {
+  const since = S.seenEv, news = S.events.filter(e => e.id > since);
+  const c = k => news.filter(e => e.kind === k).length;
+  const box = (k, label, v, col) => `<div class="box"><div class="k">${label}</div><div class="v" style="color:${col}">${v}</div></div>`;
+  $("#actSummary").innerHTML = `<div class="box"><div class="k">Since you last looked</div><div class="v">${since ? new Date((S.events.find(e => e.id === since) || { t: 0 }).t * 1000).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" }) : "ever"}</div></div>` +
+    box("m", "New matches", c("match"), "var(--lock)") + box("i", "Improvements", c("improved"), "var(--perm)") + box("q", "Drafts queued", c("queued"), "var(--m2c)") + box("g", "Guard trips", news.filter(e => e.kind === "guard" && /paused/.test(e.text)).length, "var(--park)");
+  const list = S.events.filter(e => S.actFilter === "all" || e.kind === S.actFilter).slice().reverse().slice(0, 600);
+  let html = "", day = "";
+  for (const e of list) {
+    const d = new Date(e.t * 1000), ds = d.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" });
+    if (ds !== day) { day = ds; html += `<div class="daysep">${ds}</div>`; }
+    const txt = esc(e.text).replace(/\b(func_[0-9A-F]{8})\b/g, `<span class="fn" data-fn="$1">$1</span>`);
+    html += `<div class="ev ${e.kind}${e.id > since ? " new" : ""}"><time>${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time><i class="ico" style="background:${EVC[e.kind] || "#888"};box-shadow:0 0 8px ${EVC[e.kind] || "#888"}"></i><span class="txt">${txt}</span><span class="note" style="margin:0">${e.kind}</span></div>`;
+  }
+  $("#actFeed").innerHTML = html || `<div class="empty">Nothing yet. Matches, improvements, new drafts, guard trips and night-shift steps show up here.</div>`;
+}
+$("#actFeed").onclick = e => { const f = e.target.closest("[data-fn]"); if (f) inspect(f.dataset.fn); };
+
+/* ---------------------------------------------------------------- hardware */
+S.hw = { samples: [], since: 0 };
+function gaugeSVG(v, max, col, label, unit, sub) {
+  const pct = v == null ? 0 : Math.max(0, Math.min(1, v / max));
+  const R = 42, cx = 60, cy = 56, a0 = Math.PI * 0.8, a1 = Math.PI * 2.2;
+  const arc = p => { const a = a0 + (a1 - a0) * p; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; };
+  const [sx, sy] = arc(0), [ex, ey] = arc(1), [px, py] = arc(pct);
+  const big = (a1 - a0) * pct > Math.PI ? 1 : 0;
+  return `<svg viewBox="0 0 120 80"><path d="M${sx},${sy} A${R},${R} 0 1 1 ${ex},${ey}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7" stroke-linecap="round"/>
+    ${pct > 0.002 ? `<path d="M${sx},${sy} A${R},${R} 0 ${big} 1 ${px},${py}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${col})"/>` : ""}</svg>
+    <div class="gv"><b style="color:${v == null ? "var(--faint)" : "var(--text)"}">${v == null ? "–" : Math.round(v)}<span style="font-size:12px;color:var(--muted)">${v == null ? "" : unit}</span></b><small>${label}</small>${sub ? `<em>${sub}</em>` : ""}</div>`;
+}
+const heat = t => t == null ? "#555" : t < 55 ? "#7dff9e" : t < 75 ? "#ffd166" : t < 88 ? "#ffa23d" : "#ff4d7d";
+function sparkSVG(series, maxes) {   // series: [[values...], color, label, max]
+  const W = 600, H = 90, n = S.hw.samples.length;
+  if (n < 2) return `<div class="lg">collecting samples…</div>`;
+  const t0 = S.hw.samples[0][0], t1 = S.hw.samples[n - 1][0];
+  const x = t => (t - t0) / Math.max(1, t1 - t0) * W;
+  const paths = series.map(([idx, col, label, max]) => {
+    let d = "";
+    for (const s of S.hw.samples) { const v = s[idx]; if (v == null) continue; d += (d ? "L" : "M") + x(s[0]).toFixed(1) + "," + (H - 4 - Math.min(1, v / max) * (H - 22)).toFixed(1); }
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke" opacity=".9"/>`;
+  }).join("");
+  const mins = Math.round((t1 - t0) / 60);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${paths}</svg><div class="lg">${series.map(([, c, l]) => `<span><i style="background:${c}"></i>${l}</span>`).join("")}<span>last ${mins} min</span></div>`;
+}
+const kwh = v => v == null ? "–" : v < 1 ? (v * 1000).toFixed(v < .01 ? 2 : 1) + " Wh" : v.toFixed(3) + " kWh";
+async function loadHw(full) {
+  try {
+    const r = await api(`/api/hw?since=${full ? 0 : S.hw.since}`);
+    if (!r.now) return;
+    if (full) S.hw.samples = r.samples; else S.hw.samples.push(...r.samples);
+    S.hw.samples = S.hw.samples.slice(-1200);
+    if (S.hw.samples.length) S.hw.since = S.hw.samples[S.hw.samples.length - 1][0];
+    renderHw(r);
+  } catch (e) { $("#hwNote").textContent = e.message; }
+}
+function renderHw(r) {
+  const n = r.now, g = n.gpu || {}, hs = S.settings.hw, cur = hs.currency || "";
+  $("#hwNote").innerHTML = (r.error ? `<span style="color:var(--bad)">${esc(r.error)}</span> · ` : "") +
+    (n.lhm ? "CPU temperature and power from LibreHardwareMonitor" :
+      `CPU power is <b style="color:var(--park)">estimated</b> from load and the CPU temperature is unknown: Windows doesn't expose them. Run <b>LibreHardwareMonitor</b> with its Remote Web Server on (port 8085) for real readings.`);
+  $("#gCpuTemp").innerHTML = gaugeSVG(n.cpu_temp, 100, heat(n.cpu_temp), "temp", "°C", n.lhm ? "" : "needs LHM");
+  $("#gCpuLoad").innerHTML = gaugeSVG(n.cpu_load, 100, "#2ee6ff", "load", "%", n.wsl_load != null ? `WSL ${Math.round(n.wsl_load)}% · other ${Math.round(n.other_load)}%` : "");
+  $("#gCpuPow").innerHTML = gaugeSVG(n.cpu_power, hs.cpu_max_w || 250, "#ffa23d", "power", "W", n.cpu_estimated ? "estimated" : "");
+  $("#gGpuTemp").innerHTML = gaugeSVG(g.temp, 100, heat(g.temp), "temp", "°C");
+  $("#gGpuLoad").innerHTML = gaugeSVG(g.load, 100, "#7dff9e", "load", "%", g.mem_total ? `VRAM ${(g.mem_used / 1024).toFixed(1)}/${(g.mem_total / 1024).toFixed(0)} GB` : "");
+  $("#gGpuPow").innerHTML = gaugeSVG(g.power, g.limit || 300, "#ffa23d", "power", "W", g.limit ? `limit ${Math.round(g.limit)} W` : "");
+  $("#cpuName").textContent = `${n.ncpu} threads`;
+  $("#gpuName").textContent = g.name || "no NVIDIA GPU found";
+  $("#sCpu").innerHTML = sparkSVG([[1, "#2ee6ff", "load %", 100], [7, "#ffb020", "other load %", 100], [2, "#ff7b9c", "temp °C", 100], [3, "#ffa23d", "power W", hs.cpu_max_w || 250]]);
+  $("#sGpu").innerHTML = sparkSVG([[4, "#7dff9e", "load %", 100], [5, "#ff7b9c", "temp °C", 100], [6, "#ffa23d", "power W", g.limit || 300]]);
+  const total = (n.cpu_power || 0) + (g.power || 0);
+  $("#enNow").textContent = Math.round(total);
+  const E = r.energy, T = r.today, Se = r.session, price = +hs.price || 0;
+  const row = (label, o) => { const t = (o.cpu || 0) + (o.gpu || 0); return `<span class="r">${label}</span><b>${kwh(o.cpu)}</b><b>${kwh(o.gpu)}</b><b style="color:var(--m2c)">${kwh(t)}</b><b>${price ? cur + (t * price).toFixed(2) : "–"}</b>`; };
+  $("#enTab").innerHTML = `<span></span><span class="h">CPU</span><span class="h">GPU</span><span class="h">Total</span><span class="h">Cost</span>` +
+    row("This session", Se) + row("Today", T) + row("All time", E.total);
+  $("#enSince").textContent = `since ${E.since || "?"}` + (E.cpu_estimated > 0.0005 ? ` · ${kwh(E.cpu_estimated)} of CPU estimated` : "");
+  $("#kCpu").innerHTML = `<div class="box"><div class="k">Today</div><div class="v">${kwh(T.cpu)}</div></div><div class="box"><div class="k">All time</div><div class="v">${kwh(E.total.cpu)}</div></div><div class="box"><div class="k">Other load</div><div class="v">${n.other_load ?? "–"}<small>%</small></div></div>`;
+  $("#kGpu").innerHTML = `<div class="box"><div class="k">Today</div><div class="v">${kwh(T.gpu)}</div></div><div class="box"><div class="k">All time</div><div class="v">${kwh(E.total.gpu)}</div></div><div class="box"><div class="k">VRAM</div><div class="v">${g.mem_used != null ? Math.round(g.mem_used) : "–"}<small> MB</small></div></div>`;
+  $("#sPow").innerHTML = sparkSVG([[3, "#2ee6ff", "CPU W", 400], [6, "#7dff9e", "GPU W", 400]]);
+}
+$("#hwReset").onclick = async () => {
+  if (!await ask("Reset kWh totals", "Set the all-time, today and session kWh counters back to zero? This can't be undone.", "Reset")) return;
+  await api("/api/hw/reset", {}); loadHw(true); toast("Energy counters reset", "warn");
+};
+setInterval(() => { if (S.view === "hw") loadHw(false); }, 2500);
+function renderHeaderHw(n, guard) {
+  if (n && n.t) {
+    const w = (n.cpu_power || 0) + ((n.gpu || {}).power || 0);
+    $("#pillPowerTxt").textContent = `${Math.round(w)} W` + (n.cpu_estimated ? "*" : "");
+    $("#pillPower").title = `CPU ${Math.round(n.cpu_power)} W${n.cpu_estimated ? " (estimated)" : ""} + GPU ${Math.round((n.gpu || {}).power || 0)} W · Hardware tab for more`;
+  }
+  const on = S.settings.guard && S.settings.guard.enabled;
+  const p = $("#pillGuard"); p.classList.toggle("ok", on && !guard.tripped); p.classList.toggle("bad", !!guard.tripped);
+  $("#pillGuardTxt").textContent = !on ? "Guard off" : guard.tripped ? "Guard: paused" : `Guard ${guard.other != null ? Math.round(guard.other) + "%" : "on"}`;
+  $("#guardSub").textContent = !on ? "off" : guard.tripped ? "tripped: engines paused" : "watching";
+  $("#guardCard").classList.toggle("live", !!on); $("#guardCard").classList.toggle("paused", !!guard.tripped);
+  $("#guardOther").textContent = guard.other != null ? Math.round(guard.other) : "–";
+}
+$("#pillPower").onclick = () => setView("hw"); $("#pillGuard").onclick = () => setView("hw"); $("#pillPower").style.cursor = $("#pillGuard").style.cursor = "pointer";
+
+/* ---------------------------------------------------------------- night shift */
+const ENGC = { m2c: "var(--m2c)", perm: "var(--perm)", llm: "var(--llm)" };
+function listName(src) {
+  if (!src) return "?";
+  if (src.type === "selection") return `${(src.funcs || []).length} picked`;
+  const l = getList(src.list); return l ? l.name : src.list;
+}
+function renderNight(st) {
+  const cfg = S.settings.night || { stages: [] }, live = st && st.running;
+  const stages = live ? st.stages : cfg.stages;
+  $("#nightStages").innerHTML = stages.map((s, i) => `${i ? '<span class="stage-arrow">→</span>' : ""}<span class="stage ${s.on === false ? "off" : ""} ${live && st.stage === i ? "now" : ""} ${live && st.stage > i ? "done" : ""}" title="${esc(listName(s.source))}"><i style="background:${ENGC[s.engine]}"></i>${NAME[s.engine]} ${s.hours}h</span>`).join("") +
+    (cfg.start_at && !live ? `<span class="stage">⏰ ${esc(cfg.start_at)}</span>` : "");
+  const card = $("#engNight");
+  card.classList.toggle("live", !!live);
+  const go = $("#nightGo"); go.classList.toggle("stop", !!live); go.textContent = live ? "STOP NIGHT SHIFT" : cfg.start_at ? `ARM FOR ${cfg.start_at}` : "START NIGHT SHIFT";
+  $("#nightSub").textContent = !live ? "idle" : st.waiting_until ? "armed" : `stage ${st.stage + 1}/${st.stages.length}`;
+  const pill = $("#pillNight"); pill.style.display = live ? "" : "none"; pill.classList.toggle("ok", !!live);
+  if (!live) return;
+  if (st.waiting_until) {
+    $("#nightCur").textContent = "starts at " + new Date(st.waiting_until * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    $("#nightTime").textContent = "in " + fmtT(st.waiting_until - Date.now() / 1000);
+    $("#nightProg").style.width = "0";
+    $("#pillNightTxt").textContent = "Night shift armed";
+  } else if (st.stage != null) {
+    const s = st.stages[st.stage], budget = s.hours * 3600;
+    $("#nightCur").innerHTML = `<b style="color:${ENGC[s.engine]}">${NAME[s.engine]}</b> on ${esc(listName(s.source))}`;
+    $("#nightTime").textContent = `${fmtT(st.stage_active)} / ${fmtT(budget)}`;
+    $("#nightProg").style.width = (100 * Math.min(1, st.stage_active / budget)).toFixed(1) + "%";
+    $("#pillNightTxt").textContent = `Night: ${NAME[s.engine]} ${st.stage + 1}/${st.stages.length}`;
+  }
+  $("#nightLog").textContent = (st.log || []).slice(-1)[0] || "";
+}
+$("#nightGo").onclick = async () => {
+  if (S.night && S.night.running) {
+    if (!await ask("Stop the night shift", "Stop the night shift? The engine it's running now is stopped too.", "Stop")) return;
+    await api("/api/night/stop", {}); return;
+  }
+  const busy = ENGINES.filter(e => S.job[e] && S.job[e].running);
+  if (busy.length && !await ask("Engines already running", `${busy.map(e => NAME[e]).join(", ")} ${busy.length > 1 ? "are" : "is"} running. A stage whose engine is already running takes over that run (and its time limit). Start anyway?`, "Start")) return;
+  try { await api("/api/night/start", { night: S.settings.night }); toast("Night shift " + (S.settings.night.start_at ? "armed for " + S.settings.night.start_at : "started"), "good"); poll(); }
+  catch (e) { toast(esc(e.message), "err"); }
+};
+$("#nightCfg").onclick = () => {
+  const cfg = JSON.parse(JSON.stringify(S.settings.night));
+  const srcOpts = (s) => `<option value="__sel" ${s.source.type === "selection" ? "selected" : ""}>Current selection (${S.sel.length}, frozen now)</option>` +
+    S.lists.map(l => `<option value="${esc(l.id)}" ${s.source.type === "list" && s.source.list === l.id ? "selected" : ""}>${esc(l.name)} (${l.funcs.length})</option>`).join("");
+  const rows = () => cfg.stages.map((s, i) => `<div class="nrow" data-i="${i}">
+      <label class="tog"><input type="checkbox" data-n="on" ${s.on ? "checked" : ""}><i></i></label>
+      <span class="eng" style="color:${ENGC[s.engine]}">${i + 1}. ${NAME[s.engine].toUpperCase()}</span>
+      <select data-n="source">${srcOpts(s)}</select>
+      <div class="fld"><input type="number" min="0.1" step="0.25" value="${s.hours}" data-n="hours" title="hours (paused time not counted)"></div>
+    </div>`).join("");
+  const m = modal(`<header><h2>Night shift<small>stages run in order; each runs until its engine is done or its hours are used up</small></h2><button class="btn sm ghost" data-x>✕</button></header>
+    <div class="body">
+      <div class="nrow" style="color:var(--faint);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:0;padding:0 0 4px"><span></span><span>Engine</span><span>Works on</span><span>Hours</span></div>
+      <div id="nrows">${rows()}</div>
+      <div class="form" style="grid-template-columns:1fr 2fr;margin-top:16px">
+        <div class="fld"><label>Start at (blank = now)</label><input type="text" id="nStart" placeholder="23:00" value="${esc(cfg.start_at || "")}"></div>
+        <div class="note" style="margin:22px 0 0">Each engine uses its own Tune settings. Pausing an engine also pauses its stage clock, and the CPU guard keeps working during the night shift. The default order drafts new candidates with m2c, permutes the queue, then has the LLM polish the permuter's best results.</div>
+      </div>
+    </div>
+    <footer><button class="btn ghost" data-x>Cancel</button><button class="btn" id="nSave" style="border-color:#7cf0c5">Save</button></footer>`);
+  m.onclick = e => {
+    if (e.target.closest("[data-x]")) return closeModal();
+    if (e.target.id !== "nSave") return;
+    for (const r of $$("#nrows .nrow", m)) {
+      const s = cfg.stages[+r.dataset.i];
+      s.on = $("[data-n=on]", r).checked;
+      s.hours = Math.max(0.05, +$("[data-n=hours]", r).value || 1);
+      const v = $("[data-n=source]", r).value;
+      s.source = v === "__sel" ? { type: "selection", funcs: [...S.sel] } : { type: "list", list: v };
+    }
+    const st = $("#nStart", m).value.trim();
+    if (st && !/^\d{1,2}:\d\d$/.test(st)) return toast("Start time must look like 23:00", "warn");
+    cfg.start_at = st;
+    S.settings.night = cfg; saveSettingsSoon(); renderNight(S.night); closeModal(); toast("Night shift saved", "good");
+  };
+};
+
 /* ---------------------------------------------------------------- polling */
 let fnT = 0, wasRunning = { perm: false, llm: false, m2c: false };
 async function loadFunctions() {
@@ -946,7 +1472,10 @@ let polling = false;
 async function poll() {
   if (polling) return; polling = true;
   try {
-    const r = await api(`/api/state?` + ENGINES.map(e => `${e}=${S.seq[e]}`).join("&"));
+    const r = await api(`/api/state?` + ENGINES.map(e => `${e}=${S.seq[e]}`).join("&") + `&ev=${S.lastEv}`);
+    if (r.events) onEvents(r.events, false);
+    if (r.night) { S.night = r.night; renderNight(r.night); }
+    if (r.guard) renderHeaderHw(r.hw, r.guard);
     $("#pillKey").classList.toggle("ok", r.key); $("#pillKey").classList.toggle("bad", !r.key);
     $("#pillKey").title = r.key ? "STRATA_API_KEY reached WSL" : "STRATA_API_KEY is not set: run  setx STRATA_API_KEY \"key\"  then restart run_gui.bat";
     let finished = false;
@@ -987,7 +1516,11 @@ let qT; $("#q").oninput = () => { clearTimeout(qT); qT = setTimeout(renderMap, 1
     for (const e of missing) { const g = $(`#${e}Go`); g.disabled = true; g.title = "restart run_gui.bat"; }
   }
   bindSettings();
+  setView(S.view);
   await Promise.all([loadFunctions(), loadLists()]);
+  renderNight(null);
+  try { onEvents(await api("/api/events?after=0&limit=1500"), true); } catch (e) {}
+  if (!S.seenEv && S.lastEv) { S.seenEv = S.lastEv; localStorage.seenEv = S.seenEv; badge(); }
   loadModels(); poll(); setInterval(poll, 1000); setInterval(loadModels, 60000);
 })().catch(e => toast("Couldn't load: " + esc(e.message), "err", 15000));
 </script>

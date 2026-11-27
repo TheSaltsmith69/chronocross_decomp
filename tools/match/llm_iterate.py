@@ -44,6 +44,9 @@ Windows' 127.0.0.1 isn't reachable from WSL directly.
 """
 import argparse, glob, json, os, re, shutil, subprocess, sys, time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pauseclock import active_time      # time.time() minus time paused from the control panel
+
 MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
 OUT = os.path.join(MAIN, "permuter", "llm")
@@ -858,7 +861,7 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
     asm = target_asm(func)
     best, (best_r, best_m, best_fb) = sp
     log(f"{func}: budget {compiles} compiles, {minutes:g} min")
-    t0 = time.time()
+    t0 = active_time()
     t_end = t0 + minutes * 60
     turn = last_index(d)
     used, fails, restarts, turns, cuts = 0, 0, 0, 0, 0
@@ -866,10 +869,10 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
     system = session_system(variants)
 
     def budget():
-        return (f"Budget left: {compiles - used} compiles, {max(0, round((t_end - time.time()) / 60))} "
+        return (f"Budget left: {compiles - used} compiles, {max(0, round((t_end - active_time()) / 60))} "
                 f"minutes; up to {variants} variants per reply.")
 
-    while not best_m and used < compiles and time.time() < t_end:
+    while not best_m and used < compiles and active_time() < t_end:
         if msgs is None or est_tokens(msgs) > ctx_tokens * 0.35:
             if msgs is not None:
                 restarts += 1
@@ -932,9 +935,9 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
         log(f"{func} turn {turn}: " + "; ".join(tags))
         msgs.append({"role": "user", "content": "\n\n".join(results) + "\n\n" + budget()})
     why = ("" if best_m else "compile budget used" if used >= compiles
-           else "time up" if time.time() >= t_end else "requests failing")
+           else "time up" if active_time() >= t_end else "requests failing")
     finish(func, d, best, best_r, best_m,
-           f" ({used} compiles, {turns} turns, {int((time.time() - t0) / 60)} min"
+           f" ({used} compiles, {turns} turns, {int((active_time() - t0) / 60)} min"
            + (f", {restarts} restarts" if restarts else "") + (f", thinking cut {cuts}x" if cuts else "")
            + (f"; {why}" if why else "") + ")")
 
