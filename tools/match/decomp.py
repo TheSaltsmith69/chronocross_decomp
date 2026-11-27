@@ -402,6 +402,10 @@ def draft(func, raw=False):
                 l = re.sub(r"(?<![\w*])\?(?= )", "s32", l)
             lines.append(l)
         out = house_style("\n".join(lines)).strip() + "\n"
+        if "M2C_ERROR(" in out and not re.search(r"\bM2C_ERROR\s*\(\s*\)\s*;", out):
+            # code m2c couldn't decompile: declare it, so gcc and the permuter's type checker
+            # (which crashes on an undeclared function) both accept the draft
+            out = "s32 M2C_ERROR();\n" + out
         out = fix_compile(out, func, ctx)
         # globals the file only knows under asm aliases (it may also declare the plain name
         # further down with another type): give the block its own alias, typed like the

@@ -32,6 +32,18 @@ li.WORK = os.path.expanduser(os.environ.get("REFILL_WORKDIR", "~/chronocross-ref
 li.STREAM = False
 
 
+GTE = re.compile(r"\b(cfc2|ctc2|mfc2|mtc2|lwc2|swc2|cop2)\b")
+
+
+def uses_gte(func):
+    """GTE (coprocessor 2) instructions only come from inline asm: no C draft can match them,
+    and m2c leaves M2C_ERROR() in their place."""
+    for p in glob.glob(f"{MAIN}/asm/**/nonmatchings/**/{func}.s", recursive=True):
+        if GTE.search(re.sub(r"/\*.*?\*/", "", open(p, errors="replace").read())):
+            return True
+    return False
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ov", default="ov_battle", help="overlay whose parked list to use (default ov_battle)")
@@ -77,6 +89,10 @@ def main():
     good, low, failed, matched = [], [], [], []
     for k, func in enumerate(todo, 1):
         t0 = time.time()
+        if uses_gte(func):
+            failed.append((func, "GTE (cop2) instructions: needs inline asm, not a permuter job"))
+            print(f"[{k}/{len(todo)}] {func}: uses GTE (cop2) instructions, which need inline asm; not queued")
+            continue
         code = li.start_code(func)
         if code is None:
             failed.append((func, "m2c could not draft it"))

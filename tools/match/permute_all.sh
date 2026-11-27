@@ -175,6 +175,13 @@ while [ ${#LINE[@]} -gt 0 ]; do
       || { echo "$func: import failed (permuter/$func.import.log)" | tee -a permuter/summary.txt
            [ -n "$first" ] && echo "done $func" > "$STATE"; continue; }
   fi
+  # GTE (coprocessor 2) instructions only come from inline asm, which the permuter can't write:
+  # the function can't match from its C, so don't spend the time
+  if grep -qE '\b(cfc2|ctc2|mfc2|mtc2|lwc2|swc2|cop2)\b' "$dir/target.s" 2> /dev/null; then
+    echo "$func: uses GTE (cop2) instructions, which need inline asm; the permuter can't match it, skipped"
+    [ -n "$first" ] && echo "done $func" > "$STATE"
+    continue
+  fi
   apply_weights "$dir"
   if [ -z "$FROM_DRAFT" ]; then
     start_from_best "$dir" "$func"
@@ -183,6 +190,12 @@ while [ ${#LINE[@]} -gt 0 ]; do
   elif [ -f "$dir/base.orig.c" ]; then
     cp "$dir/base.orig.c" "$dir/base.c"; rm -f "$dir/base.from"
     echo "$func: starting from the original draft (draft option)"
+  fi
+  # m2c writes M2C_ERROR(...) where it couldn't decompile something; gcc takes it as an
+  # undeclared function, but the permuter's type checker crashes on it (KeyError 'M2C_ERROR')
+  if grep -q 'M2C_ERROR' "$dir/base.c" && ! grep -q '^int M2C_ERROR();' "$dir/base.c"; then
+    sed -i '1i int M2C_ERROR();' "$dir/base.c"
+    echo "$func: its C has M2C_ERROR() (code m2c couldn't decompile): declared it so the permuter can run"
   fi
   # auto: weights chosen from what still differs in the C this visit starts from
   [ -n "$AUTO" ] && nice -n 10 "$PY" tools/match/perm_profiles.py --auto "$dir"
