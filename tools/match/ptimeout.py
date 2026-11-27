@@ -3,8 +3,9 @@
 but paused time (see pauseclock.py) doesn't count, so a job paused from the control panel
 gets its whole budget after it resumes. Exit status: CMD's, or 124 when the budget ran out.
 --used-file F: write the active seconds used to F at the end.
-A SIGINT/SIGTERM to this process is passed on to CMD (if CMD didn't get it already), and CMD is
-killed 30 s later if it is still running (the permuter can hang on exit).
+A SIGINT/SIGTERM to this process is passed on to CMD, and CMD is killed 30 s later if it is
+still running (the permuter can hang on exit). CMD runs in its own process group, which is
+killed when CMD ends, so no worker it spawned outlives it.
 """
 import os, signal, subprocess, sys, time
 
@@ -21,9 +22,19 @@ if args and args[0] == "--":
     args.pop(0)
 
 start = active_time()
-p = subprocess.Popen(args)
+# CMD gets its own process group (same session, so the control panel's pause still reaches it),
+# so that what it leaves behind can be killed with it: the permuter's multiprocessing forkserver
+# and workers outlive a killed permuter and would hold the output pipe open forever.
+p = subprocess.Popen(args, preexec_fn=os.setpgrp)
 kill_at = None
 timed_out = False
+
+
+def kill_group():
+    try:
+        os.killpg(p.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
 
 
 def on_signal(sig, _):
@@ -48,12 +59,10 @@ while p.poll() is None:
             pass
         kill_at = time.monotonic() + 30
     if kill_at is not None and time.monotonic() >= kill_at:
-        try:
-            p.kill()
-        except ProcessLookupError:
-            pass
+        kill_group()
         kill_at = float("inf")
 code = p.wait()
+kill_group()          # leftover workers of CMD
 if used_file:
     with open(used_file, "w") as f:
         f.write(f"{int(active_time() - start)}\n")

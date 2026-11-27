@@ -102,6 +102,31 @@ ANSI_K = re.compile(r"\x1b\[[0-9]*[KJHG]|\x1b\[\?[0-9;]*[hl]")
 ANSI_ALL = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 
+def session_pgids(sid):
+    """Process groups of every process in session SID (a job runs in its own session, and
+    ptimeout.py puts the permuter in a group of its own inside it)."""
+    groups = set()
+    for d in os.listdir("/proc"):
+        if not d.isdigit():
+            continue
+        try:
+            with open(f"/proc/{d}/stat") as f:
+                fields = f.read().rsplit(")", 1)[1].split()
+        except (OSError, IndexError):
+            continue
+        if int(fields[3]) == sid:              # state ppid pgrp session ...
+            groups.add(int(fields[2]))
+    return groups
+
+
+def signal_session(sid, sig):
+    for g in session_pgids(sid):
+        try:
+            os.killpg(g, sig)
+        except (ProcessLookupError, PermissionError):
+            pass
+
+
 class Job:
     def __init__(self, name):
         self.name = name
@@ -139,10 +164,7 @@ class Job:
         return (time.time() - self.started - self.paused_now()) if self.started else 0.0
 
     def _signal_all(self, sig):
-        try:
-            os.killpg(self.proc.pid, sig)
-        except (ProcessLookupError, PermissionError):
-            pass
+        signal_session(self.proc.pid, sig)
 
     def pause(self, by="you"):
         if not self.running() or self.pause_since > 0:
@@ -206,7 +228,15 @@ class Job:
             self.stopping = False
             self._commit(f"\x1b[2m{time.strftime('%H:%M:%S')} $ {' '.join(argv)}\x1b[0m")
         threading.Thread(target=self._reader, args=(master, self.proc), daemon=True).start()
+        threading.Thread(target=self._reap, args=(self.proc,), daemon=True).start()
         EVENTS.add("job", None, f"{NAMES[self.name]} started: {desc}")
+
+    def _reap(self, proc):
+        """Once the job's own process has exited, kill whatever it left in its session
+        (orphaned workers would keep the pty open, so the reader would never finish)."""
+        proc.wait()
+        time.sleep(2)
+        signal_session(proc.pid, signal.SIGKILL)
 
     def _reader(self, fd, proc):
         dec = codecs.getincrementaldecoder("utf-8")(errors="replace")
@@ -264,12 +294,16 @@ class Job:
 
         def escalate():
             for sig, wait in ((signal.SIGINT, 20), (signal.SIGTERM, 15), (signal.SIGKILL, 0)):
-                try:
-                    os.killpg(proc.pid, sig)
-                except ProcessLookupError:
-                    return
+                if sig == signal.SIGKILL:
+                    signal_session(proc.pid, sig)       # every group, incl. ptimeout's child group
+                else:
+                    try:
+                        os.killpg(proc.pid, sig)        # the job's own group; ptimeout passes it on
+                    except ProcessLookupError:
+                        return
                 for _ in range(wait * 4):
                     if proc.poll() is not None:
+                        signal_session(proc.pid, signal.SIGKILL)    # leftovers holding the pty
                         return
                     time.sleep(0.25)
         threading.Thread(target=escalate, daemon=True).start()
