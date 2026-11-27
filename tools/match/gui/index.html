@@ -134,7 +134,7 @@ select option { background: #11131a; }
 .map { flex: 1; overflow: auto; padding: 4px 18px 24px; min-height: 0; }
 .map { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 16px 26px; }
 .grp { flex: 0 1 auto; max-width: 100%; min-width: 0; }
-.grp.big { flex-basis: 100%; }
+.grp.big { flex-basis: 100%; display: block; margin-top: 0; }   /* not the Hardware tab's .big */
 .grp h4 {
   margin: 0 0 7px; font: 500 11px var(--mono); color: var(--muted); letter-spacing: .03em; display: flex; gap: 10px; align-items: baseline;
 }
@@ -304,7 +304,9 @@ pre.code { margin: 0; font: 12px/1.55 var(--mono); white-space: pre; color: #cdd
 .wrow button { all: unset; cursor: pointer; color: var(--faint); text-align: center; }
 .wrow button:hover { color: var(--bad); }
 textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,0.4); padding: 12px; font: 12px/1.55 var(--mono); outline: 0; }
-.insp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.insp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.sortbox { display: inline-flex; align-items: center; gap: 6px; }
+.sortbox #sortDir { min-width: 28px; padding: 0 6px; font-size: 13px; }
 .box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: rgba(255,255,255,0.025); }
 .box .k { color: var(--faint); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
 .box .v { font: 600 14px var(--mono); margin-top: 3px; }
@@ -459,10 +461,25 @@ table.sbs tr.ins td.r { background: rgba(125,255,158,0.10); color: #b8ffca; }
       <label class="tog"><input type="checkbox" id="onlyCand"><i></i>Has candidate</label>
       <label class="tog v"><input type="checkbox" id="onlyParked"><i></i>Parked</label>
       <span class="spacer"></span>
+      <span class="sortbox">
+        <select id="sortBy" title="Order of the squares">
+          <option value="addr">Sort: address</option>
+          <option value="pct">Sort: % insns matched</option>
+          <option value="left">Sort: insns left to match</option>
+          <option value="insns">Sort: instruction count</option>
+          <option value="perm">Sort: permuter gain</option>
+          <option value="llm">Sort: LLM ratio</option>
+          <option value="status">Sort: status</option>
+          <option value="name">Sort: name</option>
+        </select>
+        <button class="btn sm ghost" id="sortDir" title="Reverse the order">↓</button>
+        <label class="tog" title="Keep squares grouped by source file (off: one list across files)"><input type="checkbox" id="groupFiles" checked><i></i>By file</label>
+      </span>
       <select id="colorMode" title="Colour squares by">
         <option value="status">Colour: status</option>
         <option value="perm">Colour: permuter gain</option>
         <option value="llm">Colour: LLM ratio</option>
+        <option value="ins">Colour: % insns matched</option>
         <option value="size">Colour: size</option>
       </select>
       <button class="btn" id="selVisible" title="Add every visible square to the selection">Select visible</button>
@@ -722,6 +739,32 @@ const mix = (a, b, t) => { // hex mix
   return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
 };
 function gain(f) { return f.p && f.p.base && f.p.best != null ? Math.max(0, 1 - f.p.best / f.p.base) : null; }
+/* instructions: total from the compiled original when known, else size / 4; matched = the closest
+   version's exact instructions (server: gui_diff.InsnCounts), all of them once it's matched */
+function insTotal(f) { return Math.max(1, Math.round(f.b / 4)); }
+function insMatched(f) { return f.m ? insTotal(f) : f.i ? Math.min(f.i[0], insTotal(f)) : null; }
+function insPct(f) { const m = insMatched(f); return m == null ? null : m / Math.max(1, insTotal(f)); }
+function insText(f) {
+  const m = insMatched(f), t = insTotal(f);
+  return m == null ? `–/${t}` : `${m}/${t}`;
+}
+const STATUS_ORDER = ["ready", "permuted", "llm", "queued", "parked", "todo", "matched"];
+/* sort keys; dir 1 = natural order (best first for scores), nulls always last */
+const SORTS = {
+  addr: [f => parseInt(f.a, 16), 1], name: [f => f.n, 1], insns: [f => insTotal(f), 1],
+  pct: [f => insPct(f), -1], left: [f => insMatched(f) == null ? null : insTotal(f) - insMatched(f), 1],
+  perm: [f => gain(f), -1], llm: [f => f.l && f.l.ratio, -1], status: [f => STATUS_ORDER.indexOf(status(f)), 1],
+};
+function sortFuncs(list) {
+  const key = $("#sortBy").value, rev = $("#sortDir").dataset.rev === "1";
+  if (key === "addr" && !rev) return list;
+  const [get, nat] = SORTS[key] || SORTS.addr, dir = rev ? -nat : nat;
+  return list.map((f, i) => [get(f), i, f]).sort((a, b) => {
+    if (a[0] == null || b[0] == null) return a[0] == null && b[0] == null ? a[1] - b[1] : a[0] == null ? 1 : -1;
+    const c = typeof a[0] === "string" ? a[0].localeCompare(b[0]) : a[0] - b[0];
+    return c ? c * dir : a[1] - b[1];
+  }).map(x => x[2]);
+}
 function colour(f, mode) {
   if (mode === "status" || f.m) {
     const st = status(f);
@@ -731,6 +774,7 @@ function colour(f, mode) {
   }
   if (mode === "perm") { const g = gain(f); return g == null ? "#232838" : mix("#0d2a36", "#2ee6ff", Math.min(1, .15 + g)); }
   if (mode === "llm") { const r = f.l && f.l.ratio; return r == null ? "#232838" : mix("#24143a", "#e2a6ff", Math.max(0, (r - .3) / .7)); }
+  if (mode === "ins") { const p = insPct(f); return p == null ? "#232838" : p >= 1 ? "#b6ff4d" : mix("#3a1420", "#ffd24d", Math.max(0, Math.min(1, p))); }
   if (mode === "size") { const t = Math.min(1, Math.log2(f.b / 8) / 11); return t < .5 ? mix("#1f2a44", "#6d7dff", t * 2) : mix("#6d7dff", "#ff4d7d", (t - .5) * 2); }
 }
 function legend() {
@@ -739,6 +783,7 @@ function legend() {
   if (mode === "status") items = Object.keys(STATUS).map(k => [STATUS[k][1], STATUS[k][0]]);
   else if (mode === "perm") items = [["#0d2a36", "little gain"], ["#2ee6ff", "big gain vs base"], ["#232838", "not permuted"]];
   else if (mode === "llm") items = [["#24143a", "ratio ≤0.3"], ["#e2a6ff", "ratio → 1.0"], ["#232838", "not tried"]];
+  else if (mode === "ins") items = [["#3a1420", "few insns matched"], ["#ffd24d", "most matched"], ["#b6ff4d", "all matched"], ["#232838", "no C yet"]];
   else items = [["#1f2a44", "tiny"], ["#6d7dff", "medium"], ["#ff4d7d", "huge"]];
   items.push(["transparent;box-shadow:0 0 0 2px var(--m2c)", "m2c on it"], ["transparent;box-shadow:0 0 0 2px var(--perm)", "permuter on it"], ["transparent;box-shadow:0 0 0 2px var(--llm)", "LLM on it"]);
   $("#legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
@@ -770,13 +815,20 @@ function filtered() {
 function renderMap() {
   const mode = $("#colorMode").value;
   const list = filtered();
-  S.visible = list.map(f => f.n);
   const groups = new Map();
-  for (const f of list) { if (!groups.has(f.f)) groups.set(f.f, []); groups.get(f.f).push(f); }
+  if ($("#groupFiles").checked) {
+    for (const f of list) { if (!groups.has(f.f)) groups.set(f.f, []); groups.get(f.f).push(f); }
+    for (const [k, fs] of groups) groups.set(k, sortFuncs(fs));
+  } else if (list.length) groups.set("", sortFuncs(list));
+  S.visible = [...groups.values()].flat().map(f => f.n);
+  const sortName = $("#sortBy").selectedOptions[0].textContent.replace(/^Sort: /, "");
   let html = "";
   for (const [file, fs] of groups) {
     const left = fs.filter(f => !f.m).length;
-    html += `<div class="grp${fs.length > 40 ? " big" : ""}"><h4><b>${esc(file)}</b><small>${fs.length === left ? left : fs.length + " · " + left + " left"}</small><a data-selgrp="${esc(file)}" title="add this group to the selection">+ all</a></h4><div class="sqs">`;
+    const known = fs.filter(f => insMatched(f) != null);
+    const im = known.reduce((a, f) => a + insMatched(f), 0), it = known.reduce((a, f) => a + insTotal(f), 0);
+    const insSum = it ? ` · ${im}/${it} insns` : "";
+    html += `<div class="grp${fs.length > 40 || !file ? " big" : ""}"><h4><b>${file ? esc(file) : "All files · by " + esc(sortName)}</b><small>${fs.length === left ? left : fs.length + " · " + left + " left"}${insSum}</small>${file ? `<a data-selgrp="${esc(file)}" title="add this group to the selection">+ all</a>` : ""}</h4><div class="sqs">`;
     for (const f of fs) html += `<div class="sq${f.m ? " m" : ""}" data-n="${f.n}" style="background:${colour(f, mode)}"></div>`;
     html += `</div></div>`;
   }
@@ -837,7 +889,9 @@ $("#map").addEventListener("mousemove", e => {
   const sq = e.target.closest(".sq"); if (!sq) return hideTip();
   const f = S.byName.get(sq.dataset.n); if (!f) return;
   const st = status(f), o = S.sel.indexOf(f.n);
-  const rows = [["file", f.f], ["size", f.b + " B"]];
+  const im = insMatched(f), ip = insPct(f);
+  const rows = [["file", f.f], ["size", f.b + " B"],
+    ["insns", im == null ? `–/${insTotal(f)} (no C compared yet)` : `${insText(f)} matched (${(ip * 100).toFixed(ip >= 1 || ip === 0 ? 0 : 1)}%)` + (f.i && !f.m && SRC[f.i[2]] ? " · " + SRC[f.i[2]][0].toLowerCase() : "")]];
   if (f.q) rows.push(["cand", f.q.cands.replace("permuter/cands/", "") + " #" + f.q.idx]);
   if (f.p) rows.push(["permuter", f.p.matched ? "matched" : `best ${f.p.best ?? "–"} / base ${f.p.base ?? "?"}` + (gain(f) != null ? ` (−${(gain(f) * 100).toFixed(0)}%)` : "")]);
   if (f.l) rows.push(["llm", f.l.match ? "MATCH" : f.l.ratio != null ? "best " + f.l.ratio.toFixed(4) : "started"]);
@@ -1123,6 +1177,7 @@ async function inspect(n) {
     <div class="body">
       <div class="insp-grid">
         <div class="box"><div class="k">Size</div><div class="v">${f.b}<small> bytes</small></div></div>
+        <div class="box"><div class="k">Insns matched</div><div class="v" id="insBox">${insText(f)}<small>${insPct(f) != null ? " · " + (insPct(f) * 100).toFixed(1) + "%" : " instructions"}</small></div></div>
         <div class="box"><div class="k">Permuter</div><div class="v">${f.p ? (f.p.matched ? "match" : (f.p.best ?? "–")) : "–"}<small>${f.p && f.p.base ? " / " + f.p.base : ""}${g != null ? " · −" + (g * 100).toFixed(0) + "%" : ""}</small></div></div>
         <div class="box"><div class="k">LLM</div><div class="v">${f.l ? (f.l.match ? "MATCH" : f.l.ratio != null ? f.l.ratio.toFixed(4) : "started") : "–"}</div></div>
         <div class="box"><div class="k">Candidate</div><div class="v" style="font-size:12px">${f.q ? esc(f.q.cands.replace("permuter/cands/", "")) + " <small>#" + f.q.idx + "</small>" : f.p ? "<small>permuter dir</small>" : "<small>none (LLM will m2c)</small>"}</div></div>
@@ -1170,6 +1225,12 @@ async function inspect(n) {
       el.innerHTML = s.diffs != null
         ? `<div class="k">${SRC[k][0]}${o.best === k ? '<span style="color:var(--lock)">BEST</span>' : ""}</div><div class="v" style="color:${s.diffs === 0 ? "var(--lock)" : SRC[k][1]}">${s.diffs === 0 ? "MATCH" : s.diffs + " off"}<small> / ${s.total} insns${s.regs_only ? " · " + s.regs_only + " regs only" : ""}</small></div>`
         : `<div class="k">${SRC[k][0]}</div><div class="v" style="color:var(--faint)">–</div><div class="err" title="${esc(s.error)}">${esc(s.error)}</div>`;
+    }
+    // freshest count: the closest version's exact instructions
+    const eqs = Object.values(o.sources).filter(s => s.eq != null);
+    if (eqs.length && $("#insBox") && !f.m) {
+      const t = insTotal(f), b = Math.min(t, Math.max(...eqs.map(s => s.eq))), p = b / t;
+      $("#insBox").innerHTML = `${b}/${t}<small> · ${(p * 100).toFixed(1)}%</small>`;
     }
     $("#ovNote").textContent = o.best ? `· ${SRC[o.best][0]} is closest (${o.sources[o.best].diffs} instruction${o.sources[o.best].diffs === 1 ? "" : "s"} off). Click a card for its diff.` : "· nothing to compare yet";
     if (o.best && !picked) showDiff(o.best);
@@ -1504,6 +1565,13 @@ for (const id of ["hideMatched", "onlyCand", "onlyParked"]) {
 }
 if (localStorage.colorMode) $("#colorMode").value = localStorage.colorMode;
 $("#colorMode").onchange = () => { localStorage.colorMode = $("#colorMode").value; legend(); renderMap(); };
+if (localStorage.sortBy && SORTS[localStorage.sortBy]) $("#sortBy").value = localStorage.sortBy;
+if (localStorage.groupFiles != null) $("#groupFiles").checked = localStorage.groupFiles === "1";
+const sortArrow = () => { const r = $("#sortDir").dataset.rev === "1"; $("#sortDir").textContent = r ? "↑" : "↓"; $("#sortDir").title = r ? "Reversed order (click for the natural order)" : "Natural order: best/lowest first (click to reverse)"; };
+$("#sortDir").dataset.rev = localStorage.sortRev || "0"; sortArrow();
+$("#sortBy").onchange = () => { localStorage.sortBy = $("#sortBy").value; renderMap(); };
+$("#sortDir").onclick = () => { $("#sortDir").dataset.rev = localStorage.sortRev = $("#sortDir").dataset.rev === "1" ? "0" : "1"; sortArrow(); renderMap(); };
+$("#groupFiles").onchange = () => { localStorage.groupFiles = $("#groupFiles").checked ? "1" : "0"; renderMap(); };
 let qT; $("#q").oninput = () => { clearTimeout(qT); qT = setTimeout(renderMap, 120); };
 (async () => {
   legend(); renderSel();

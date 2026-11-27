@@ -209,7 +209,7 @@ def compile_obj(func, text):
     out = src[:-2] + ".o"
     try:
         open(src, "w").write(text)
-        r = subprocess.run(["bash", os.path.join(d, "compile.sh"), src, "-o", out], cwd=ROOT,
+        r = subprocess.run(["nice", "-n", "10", "bash", os.path.join(d, "compile.sh"), src, "-o", out], cwd=ROOT,
                            capture_output=True, text=True, timeout=120)
         if r.returncode or not os.path.exists(out):
             err = [l for l in (r.stderr + r.stdout).splitlines() if "error" in l.lower() or ": " in l]
@@ -266,12 +266,90 @@ def overall(func):
     for k in ("perm", "llm", "cand", "base"):
         try:
             r = diff(func, k)
-            out[k] = {"diffs": r["diffs"], "total": r["total"], "regs_only": r["regs_only"], "path": r["path"]}
+            out[k] = {"diffs": r["diffs"], "total": r["total"], "regs_only": r["regs_only"], "path": r["path"],
+                      "eq": sum(1 for row in r["rows"] if row[2] == "eq")}
         except Exception as e:
             out[k] = {"error": str(e)}
     ok = {k: v for k, v in out.items() if "diffs" in v}
     best = min(ok, key=lambda k: (ok[k]["diffs"], ok[k]["diffs"] - ok[k]["regs_only"])) if ok else None
     return {"sources": out, "best": best}
+
+
+# ---------------------------------------------------------------- matched-instruction counts
+
+class InsnCounts:
+    """Per function with a permuter folder: how many of the original's instructions the closest
+    version (permuter best, LLM best, candidate or base) reproduces exactly, i.e. the "eq" rows
+    of its diff. Kept in permuter/gui/insns.json and refreshed in the background when a
+    source changes (one compile per source, niced)."""
+
+    def __init__(self, path):
+        self.path = path
+        self.lock = threading.Lock()
+        try:
+            import json
+            self.data = json.load(open(path))
+        except (OSError, ValueError):
+            self.data = {}
+        self.poke_ev = threading.Event()
+
+    @staticmethod
+    def signature(func):
+        d = permdir(func)
+        files = [os.path.join(d, "base.c"), os.path.join(d, "target.o"), best_output(d) or "",
+                 os.path.join(LLM, func, "best.c"), os.path.join(ROOT, "permuter", "queue.txt")]
+        return [round(os.path.getmtime(p), 2) if p and os.path.exists(p) else 0 for p in files]
+
+    def get(self, func):
+        with self.lock:
+            e = self.data.get(func)
+        return [e["m"], e["t"], e["src"]] if e and "m" in e else None
+
+    def poke(self):
+        self.poke_ev.set()
+
+    def refresh_one(self, func):
+        sig = self.signature(func)
+        with self.lock:
+            e = self.data.get(func)
+            if e and e.get("sig") == sig:
+                return False
+        o = overall(func)
+        ok = {k: v for k, v in o["sources"].items() if "diffs" in v}
+        best = None
+        for k in ok:
+            r = diff(func, k)                         # cached by overall()
+            m = sum(1 for row in r["rows"] if row[2] == "eq")
+            if best is None or m > best[0]:
+                best = (m, r["total"], k)
+        entry = {"sig": sig, "m": best[0], "t": best[1], "src": best[2]} if best else {"sig": sig}
+        with self.lock:
+            self.data[func] = entry
+        return True
+
+    def save(self):
+        import json
+        with self.lock:
+            tmp = self.path + ".tmp"
+            json.dump(self.data, open(tmp, "w"))
+            os.replace(tmp, self.path)
+
+    def run(self, every=60):
+        while True:
+            changed = False
+            for d in sorted(glob.glob(os.path.join(NONM, "func_*"))):
+                func = os.path.basename(d).replace(".matched", "")
+                try:
+                    changed |= self.refresh_one(func)
+                except Exception:
+                    pass
+            if changed:
+                self.save()
+            self.poke_ev.wait(every)
+            self.poke_ev.clear()
+
+    def start(self):
+        threading.Thread(target=self.run, daemon=True).start()
 
 
 # ---------------------------------------------------------------- trends

@@ -283,6 +283,7 @@ class Job:
             self.current = None
         EVENTS.add("job", None, f"{NAMES[self.name]} finished ({self.desc}, exit {code})")
         WATCH.poke()
+        INSNS.poke()
 
     def stop(self):
         if not self.running():
@@ -470,7 +471,8 @@ def functions():
                 src = os.path.exists(os.path.join(ROOT, "src", r["file"] + ".c"))
                 matched = (n not in asm) if src else r["matched"] == "1"
                 rows.append({"n": n, "a": r["addr"], "f": r["file"], "c": r["category"], "b": int(r["bytes"]),
-                             "m": matched, "pk": n in pk, "q": q.get(n), "p": pi.get(n), "l": li.get(n)})
+                             "m": matched, "pk": n in pk, "q": q.get(n), "p": pi.get(n), "l": li.get(n),
+                             "i": INSNS.get(n)})      # [matched insns, total, source] or None
         _cache.update(t=time.time(), data=rows)
         return rows
 
@@ -982,6 +984,7 @@ class Guard:
 
 GUARD = Guard()
 HW = None          # gui_hw.Hardware, created in main()
+INSNS = gui_diff.InsnCounts(os.path.join(GUI, "insns.json"))    # started in main()
 
 
 # ---------------------------------------------------------------- code viewer
@@ -1151,6 +1154,7 @@ def main():
     global HW
     HW = gui_hw.Hardware(GUI, load_settings, GUARD.on_sample)
     WATCH.start()
+    INSNS.start()
     srv = ThreadingHTTPServer((a.host, a.port), H)
     srv.daemon_threads = True
     print(f"control panel on http://localhost:{a.port}/  (Ctrl+C here stops it and any running job)", flush=True)
