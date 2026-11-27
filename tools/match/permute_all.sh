@@ -39,7 +39,7 @@ for a in "${@:4}"; do
 done
 cd "$ROOT"
 mkdir -p permuter
-STATE=permuter/resume.txt
+STATE=${PERM_STATE:-permuter/resume.txt}   # control_gui.py uses its own for picked selections
 JOBS=$(grep -v '^\s*\(#\|$\)' "$Q" | tr -d '\r')
 STALL=$(awk -v m="$STALL_MIN" 'BEGIN {printf "%d", m * 60}')
 

@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross // Match Control</title>
+<style>
+:root {
+  --bg: #06070b;
+  --panel: rgba(255,255,255,0.028);
+  --panel-2: rgba(255,255,255,0.045);
+  --line: rgba(255,255,255,0.075);
+  --line-2: rgba(255,255,255,0.13);
+  --text: #e8ebf3;
+  --muted: #8a90a2;
+  --faint: #565c6e;
+  --perm: #2ee6ff;
+  --perm-2: #0ea5e9;
+  --llm: #c77dff;
+  --llm-2: #8b5cf6;
+  --lock: #b6ff4d;
+  --park: #ffb020;
+  --queue: #6d7dff;
+  --bad: #ff4d7d;
+  --sq: 15px;
+  --gap: 3px;
+  --mono: "JetBrains Mono", "Cascadia Code", "Cascadia Mono", Consolas, monospace;
+  --sans: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background:
+    radial-gradient(1200px 600px at -10% -20%, rgba(46,230,255,0.09), transparent 60%),
+    radial-gradient(1000px 700px at 110% 120%, rgba(199,125,255,0.10), transparent 60%),
+    radial-gradient(700px 400px at 60% -10%, rgba(109,125,255,0.06), transparent 70%),
+    var(--bg);
+  color: var(--text); font: 13px/1.45 var(--sans);
+  display: grid; grid-template-rows: 58px 1fr auto; overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {   /* faint scanline grain */
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+::selection { background: rgba(46,230,255,0.3); }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 9px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.16); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------------- header */
+header {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 22px; padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+  backdrop-filter: blur(14px);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.brand b {
+  font-weight: 800; letter-spacing: .22em; font-size: 14px;
+  background: linear-gradient(90deg, var(--perm), #9fb4ff 50%, var(--llm));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.brand span { color: var(--faint); font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.stats { display: flex; gap: 18px; flex: 1; min-width: 0; overflow: hidden; }
+.stat { min-width: 108px; }
+.stat .k { color: var(--muted); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; display: flex; justify-content: space-between; gap: 8px; }
+.stat .k em { font-style: normal; color: var(--text); font-family: var(--mono); letter-spacing: 0; }
+.bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.07); margin-top: 5px; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--perm-2), var(--perm)); box-shadow: 0 0 10px var(--perm); }
+.stat.total .bar i { background: linear-gradient(90deg, var(--llm-2), var(--perm)); }
+.pills { display: flex; gap: 8px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-size: 11.5px; white-space: nowrap;
+}
+.pill .d { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+.pill.ok .d { background: var(--lock); box-shadow: 0 0 8px var(--lock); }
+.pill.bad .d { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
+
+/* ---------------- main */
+main { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 410px; min-height: 0; }
+.mapwrap { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px 10px; }
+.tabs { display: inline-flex; padding: 3px; border-radius: 11px; background: rgba(0,0,0,0.35); border: 1px solid var(--line); }
+.tabs button {
+  border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; cursor: pointer; color: var(--muted);
+  font-size: 12px; display: inline-flex; gap: 7px; align-items: center; transition: .15s;
+}
+.tabs button small { font: 10.5px var(--mono); color: var(--faint); }
+.tabs button:hover { color: var(--text); }
+.tabs button.on { background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.tabs button.on small { color: var(--perm); }
+.search {
+  flex: 0 1 220px; display: flex; align-items: center; gap: 7px; padding: 0 10px; height: 32px; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(0,0,0,0.3);
+}
+.search:focus-within { border-color: rgba(46,230,255,0.45); box-shadow: 0 0 0 3px rgba(46,230,255,0.08); }
+.search input { border: 0; outline: 0; background: transparent; width: 100%; font-family: var(--mono); font-size: 12px; }
+.search svg { flex: none; opacity: .5; }
+.tog { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); cursor: pointer; user-select: none; font-size: 12px; }
+.tog input { display: none; }
+.tog i { width: 28px; height: 16px; border-radius: 99px; background: rgba(255,255,255,0.09); position: relative; transition: .2s; flex: none; }
+.tog i::after { content: ""; position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #9aa0b2; transition: .2s; }
+.tog input:checked + i { background: rgba(46,230,255,0.35); }
+.tog input:checked + i::after { left: 14px; background: var(--perm); box-shadow: 0 0 8px var(--perm); }
+.tog.v input:checked + i { background: rgba(199,125,255,0.35); }
+.tog.v input:checked + i::after { background: var(--llm); box-shadow: 0 0 8px var(--llm); }
+.sel, select {
+  height: 32px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,0.35); padding: 0 28px 0 10px;
+  appearance: none; cursor: pointer; font-size: 12px;
+  background-image: linear-gradient(45deg, transparent 50%, #8a90a2 50%), linear-gradient(135deg, #8a90a2 50%, transparent 50%);
+  background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px; background-size: 5px 5px; background-repeat: no-repeat;
+}
+select option { background: #11131a; }
+.btn {
+  height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer;
+  color: var(--text); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; transition: .15s; white-space: nowrap;
+}
+.btn:hover { border-color: var(--line-2); background: rgba(255,255,255,0.08); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.ghost { background: transparent; }
+.btn.sm { height: 26px; padding: 0 9px; border-radius: 8px; font-size: 11.5px; }
+.btn.danger:hover { border-color: rgba(255,77,125,0.5); color: #ff8fac; }
+.spacer { flex: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 0 18px 10px; color: var(--muted); font-size: 11.5px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.map { flex: 1; overflow: auto; padding: 4px 18px 24px; min-height: 0; }
+.map { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 16px 26px; }
+.grp { flex: 0 1 auto; max-width: 100%; min-width: 0; }
+.grp.big { flex-basis: 100%; }
+.grp h4 {
+  margin: 0 0 7px; font: 500 11px var(--mono); color: var(--muted); letter-spacing: .03em; display: flex; gap: 10px; align-items: baseline;
+}
+.grp h4 b { color: var(--text); font-weight: 600; }
+.grp h4 small { color: var(--faint); }
+.grp h4 a { color: var(--faint); cursor: pointer; text-decoration: none; font-size: 10.5px; }
+.grp h4 a:hover { color: var(--perm); }
+.sqs { display: flex; flex-wrap: wrap; gap: var(--gap); }
+.sq {
+  width: var(--sq); height: var(--sq); border-radius: 4px; cursor: pointer; position: relative;
+  background: #232838; transition: transform .08s, box-shadow .15s;
+}
+.sq:hover { transform: scale(1.35); z-index: 3; box-shadow: 0 0 0 1.5px #fff, 0 4px 14px rgba(0,0,0,0.6); }
+.sq.m { background: #152420; }
+.sq.on { box-shadow: 0 0 0 2px #fff, 0 0 12px rgba(255,255,255,0.55); z-index: 2; }
+.sq.on::after {
+  content: attr(data-o); position: absolute; inset: 0; display: grid; place-items: center;
+  font: 700 8.5px var(--mono); color: #000; mix-blend-mode: normal; text-shadow: 0 0 2px rgba(255,255,255,.6);
+}
+.sq.inrun-perm { outline: 1px dashed rgba(46,230,255,0.75); outline-offset: 1px; }
+.sq.inrun-llm { outline: 1px dashed rgba(199,125,255,0.8); outline-offset: 1px; }
+.sq.run-perm { animation: pulseP 1.2s ease-in-out infinite; z-index: 4; }
+.sq.run-llm { animation: pulseL 1.2s ease-in-out infinite; z-index: 4; }
+@keyframes pulseP { 0%,100% { box-shadow: 0 0 0 2px var(--perm), 0 0 6px var(--perm); } 50% { box-shadow: 0 0 0 3px var(--perm), 0 0 22px 4px var(--perm); } }
+@keyframes pulseL { 0%,100% { box-shadow: 0 0 0 2px var(--llm), 0 0 6px var(--llm); } 50% { box-shadow: 0 0 0 3px var(--llm), 0 0 22px 4px var(--llm); } }
+.empty { color: var(--faint); padding: 40px 0; text-align: center; }
+
+/* ---------------- side */
+aside { overflow-y: auto; padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.card {
+  border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  padding: 14px; position: relative; overflow: hidden;
+}
+.card h3 { margin: 0; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+.card h3 small { font: 11px var(--mono); letter-spacing: 0; color: var(--muted); text-transform: none; font-weight: 400; }
+.card .row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.chips {
+  margin-top: 10px; max-height: 128px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 5px; min-height: 30px;
+  padding: 7px; border-radius: 11px; background: rgba(0,0,0,0.28); border: 1px dashed var(--line);
+}
+.chips .hint { color: var(--faint); font-size: 11.5px; padding: 2px 4px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 4px 2px 6px; border-radius: 7px; font: 11px var(--mono);
+  background: rgba(255,255,255,0.06); border: 1px solid var(--line); cursor: grab; user-select: none;
+}
+.chip b { color: var(--faint); font-weight: 500; }
+.chip button { border: 0; background: transparent; color: var(--faint); cursor: pointer; padding: 0 3px; font-size: 13px; line-height: 1; }
+.chip button:hover { color: var(--bad); }
+.chip.drag { opacity: .35; }
+.chip.over { border-color: var(--perm); }
+
+.engine { --acc: var(--perm); --acc2: var(--perm-2); }
+.engine.llm { --acc: var(--llm); --acc2: var(--llm-2); }
+.engine::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: .7;
+}
+.engine.live { border-color: color-mix(in srgb, var(--acc) 45%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 15%, transparent), 0 10px 40px -10px color-mix(in srgb, var(--acc) 35%, transparent); }
+.engine h3 { color: var(--acc); }
+.engine .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.engine.live .dot { background: var(--acc); box-shadow: 0 0 10px var(--acc); animation: blink 1.4s infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+.seg { display: inline-flex; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,0.35); padding: 2px; }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 11px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.seg button.on { color: #000; background: var(--acc); font-weight: 600; box-shadow: 0 0 14px color-mix(in srgb, var(--acc) 50%, transparent); }
+.engine select { flex: 1; min-width: 0; }
+.go {
+  width: 100%; margin-top: 12px; height: 46px; border-radius: 13px; border: 0; cursor: pointer; position: relative; overflow: hidden;
+  font-weight: 800; letter-spacing: .25em; font-size: 12.5px; color: #021014;
+  background: linear-gradient(100deg, var(--acc2), var(--acc));
+  box-shadow: 0 8px 28px -8px var(--acc), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform .1s, filter .2s;
+}
+.engine.llm .go { color: #13041f; }
+.go:hover { filter: brightness(1.1) saturate(1.1); }
+.go:active { transform: translateY(1px) scale(.995); }
+.go::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent); transform: skewX(-20deg);
+  animation: sheen 3.2s ease-in-out infinite;
+}
+@keyframes sheen { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+.go.stop { background: linear-gradient(100deg, #b3123f, var(--bad)); color: #fff; box-shadow: 0 8px 28px -8px var(--bad), inset 0 1px 0 rgba(255,255,255,0.25); }
+.go.stop::after { animation-duration: 1.6s; }
+.go:disabled { filter: grayscale(.7) brightness(.6); cursor: default; }
+.live-box { margin-top: 11px; border-radius: 11px; background: rgba(0,0,0,0.35); border: 1px solid var(--line); padding: 9px 11px; font: 11.5px var(--mono); display: none; }
+.engine.live .live-box, .live-box.show { display: block; }
+.live-box .cur { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); }
+.live-box .cur b { color: var(--acc); font-weight: 600; cursor: pointer; }
+.live-box .status { margin-top: 5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; opacity: .85; }
+.prog { height: 4px; background: rgba(255,255,255,0.07); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--acc); box-shadow: 0 0 10px var(--acc); transition: width .4s; }
+details.tune { margin-top: 11px; border-top: 1px solid var(--line); padding-top: 9px; }
+details.tune summary { cursor: pointer; color: var(--muted); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 6px; }
+details.tune summary::-webkit-details-marker { display: none; }
+details.tune summary::before { content: "▸"; transition: .2s; color: var(--acc); }
+details.tune[open] summary::before { transform: rotate(90deg); }
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 11px; }
+.form .full { grid-column: 1 / -1; }
+.fld label { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-bottom: 4px; }
+.fld label em { font-style: normal; font-family: var(--mono); color: var(--acc); }
+.fld input[type=number], .fld input[type=text], .fld select {
+  width: 100%; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: rgba(0,0,0,0.35); padding: 0 9px;
+  font: 12px var(--mono); outline: 0;
+}
+.fld input:focus, .fld select:focus { border-color: color-mix(in srgb, var(--acc) 55%, transparent); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--acc) var(--p, 50%), rgba(255,255,255,0.1) var(--p, 50%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 45%, transparent), 0 0 12px var(--acc); }
+.note { color: var(--faint); font-size: 11px; margin-top: 8px; }
+
+/* ---------------- consoles */
+.consoles { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); height: var(--ch, 250px); background: rgba(0,0,0,0.35); }
+.consoles.min { height: 36px; }
+.grip { position: absolute; top: -4px; left: 0; right: 0; height: 8px; cursor: ns-resize; z-index: 5; }
+.con { display: flex; flex-direction: column; min-width: 0; min-height: 0; --acc: var(--perm); }
+.con + .con { border-left: 1px solid var(--line); --acc: var(--llm); }
+.con header { all: unset; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--acc); font-weight: 700; }
+.con header .st { flex: 1; min-width: 0; font: 11px var(--mono); letter-spacing: 0; text-transform: none; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
+.con header button { all: unset; cursor: pointer; color: var(--faint); font: 10.5px var(--mono); letter-spacing: .05em; text-transform: none; }
+.con header button:hover, .con header button.on { color: var(--acc); }
+.log { flex: 1; overflow: auto; padding: 8px 14px 12px; font: 11.5px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; color: #c3c8d6; }
+.log .ln { min-height: 1em; }
+.log .partial { color: var(--acc); opacity: .9; }
+.log .partial::after { content: "▋"; animation: blink 1s infinite; margin-left: 1px; }
+.a1 { font-weight: 700; color: #fff; } .a2 { opacity: .55; } .a32 { color: #7dff9e; } .a31 { color: #ff7b9c; } .a33 { color: #ffd166; } .a34 { color: #7aa2ff; } .a35 { color: #e08bff; } .a36 { color: #6ff3ff; } .a90 { color: #6b7185; }
+.log .improved { color: #7dff9e; }
+
+/* ---------------- overlays */
+#tip {
+  position: fixed; z-index: 50; pointer-events: none; padding: 10px 12px; border-radius: 12px; min-width: 210px; max-width: 340px;
+  background: rgba(14,16,24,0.94); border: 1px solid var(--line-2); box-shadow: 0 16px 40px rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+  font-size: 11.5px; display: none;
+}
+#tip .t { font: 600 12.5px var(--mono); }
+#tip .s { color: var(--muted); font: 11px var(--mono); margin-top: 1px; }
+#tip .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin-top: 8px; font-size: 11px; }
+#tip .kv span:nth-child(odd) { color: var(--faint); }
+#tip .tag { display: inline-block; margin-top: 8px; padding: 2px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; }
+.modal-bg { position: fixed; inset: 0; z-index: 60; background: rgba(2,3,6,0.66); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; }
+.modal-bg.show { display: flex; animation: fade .15s; }
+@keyframes fade { from { opacity: 0; } }
+.modal {
+  width: min(880px, 92vw); max-height: 86vh; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden;
+  background: linear-gradient(180deg, #131622, #0c0e15); border: 1px solid var(--line-2); box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+}
+.modal.small { width: min(460px, 92vw); }
+.modal > header { all: unset; display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.modal > header h2 { margin: 0; font-size: 14px; flex: 1; font-weight: 600; }
+.modal > header h2 small { color: var(--muted); font: 12px var(--mono); margin-left: 8px; }
+.modal .body { padding: 16px 18px; overflow: auto; }
+.modal footer { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 18px; border-top: 1px solid var(--line); }
+pre.code { margin: 0; font: 12px/1.55 var(--mono); white-space: pre; color: #cdd3e1; tab-size: 4; }
+.wtab { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; }
+.wrow { display: grid; grid-template-columns: 1fr 64px 70px 18px; align-items: center; gap: 8px; font: 11.5px var(--mono); padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.wrow .wn { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wrow.set .wn { color: var(--perm); }
+.wrow .wb { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.07); overflow: hidden; }
+.wrow .wb i { display: block; height: 100%; background: var(--perm); }
+.wrow input { width: 100%; height: 24px; border-radius: 7px; border: 1px solid var(--line); background: rgba(0,0,0,0.35); padding: 0 6px; font: 11.5px var(--mono); outline: 0; }
+.wrow button { all: unset; cursor: pointer; color: var(--faint); text-align: center; }
+.wrow button:hover { color: var(--bad); }
+textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,0.4); padding: 12px; font: 12px/1.55 var(--mono); outline: 0; }
+.insp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: rgba(255,255,255,0.025); }
+.box .k { color: var(--faint); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+.box .v { font: 600 14px var(--mono); margin-top: 3px; }
+.box .v small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.insp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 12px; }
+.codebox { border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.4); max-height: 46vh; overflow: auto; padding: 12px; }
+.codebox .p { color: var(--faint); font: 11px var(--mono); margin-bottom: 8px; }
+#toasts { position: fixed; right: 18px; bottom: 18px; z-index: 80; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.toast {
+  max-width: 420px; padding: 10px 14px; border-radius: 12px; background: rgba(18,21,31,0.96); border: 1px solid var(--line-2);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5); font-size: 12px; animation: slide .25s; border-left: 3px solid var(--perm);
+}
+.toast.warn { border-left-color: var(--park); } .toast.err { border-left-color: var(--bad); } .toast.good { border-left-color: var(--lock); }
+@keyframes slide { from { transform: translateY(10px); opacity: 0; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>CROSS//MATCH</b><span>control</span></div>
+  <div class="stats" id="stats"></div>
+  <div class="pills">
+    <span class="pill" id="pillStrata" title="Strata model server"><span class="d"></span><span>Strata</span></span>
+    <span class="pill" id="pillKey" title="STRATA_API_KEY passed to WSL"><span class="d"></span><span>API key</span></span>
+  </div>
+</header>
+
+<main>
+  <section class="mapwrap">
+    <div class="toolbar">
+      <div class="tabs" id="tabs"></div>
+      <label class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" placeholder="func_800B… or file" spellcheck="false">
+      </label>
+      <label class="tog"><input type="checkbox" id="hideMatched" checked><i></i>Hide matched</label>
+      <label class="tog"><input type="checkbox" id="onlyCand"><i></i>Has candidate</label>
+      <label class="tog v"><input type="checkbox" id="onlyParked"><i></i>Parked</label>
+      <span class="spacer"></span>
+      <select id="colorMode" title="Colour squares by">
+        <option value="status">Colour: status</option>
+        <option value="perm">Colour: permuter gain</option>
+        <option value="llm">Colour: LLM ratio</option>
+        <option value="size">Colour: size</option>
+      </select>
+      <button class="btn" id="selVisible" title="Add every visible square to the selection">Select visible</button>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="map" id="map"></div>
+  </section>
+
+  <aside>
+    <div class="card">
+      <h3>Selection <small id="selCount">0 picked</small><span class="spacer"></span>
+        <button class="btn sm ghost" id="selClear">Clear</button>
+        <button class="btn sm" id="selSave">Save as list…</button></h3>
+      <div class="chips" id="chips"></div>
+      <div class="row">
+        <select id="listPick" style="flex:1;min-width:0"></select>
+        <button class="btn sm" id="listLoad" title="Replace the selection with this list">Load</button>
+        <button class="btn sm" id="listAdd" title="Append this list to the selection">Add</button>
+        <button class="btn sm danger" id="listDel" title="Delete this saved list">✕</button>
+      </div>
+      <div class="note">Click squares to pick (order = run order), shift-click for a range, right-click for details. Drag chips to reorder.</div>
+    </div>
+
+    <div class="card engine perm" id="engPerm">
+      <h3><span class="dot"></span>Permuter <small id="permSub">idle</small></h3>
+      <div class="row">
+        <div class="seg" data-eng="perm"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
+        <select id="permList" style="display:none"></select>
+      </div>
+      <button class="go" id="permGo">START</button>
+      <div class="live-box" id="permLive">
+        <div class="cur"><span>now <b id="permCur">—</b></span><span id="permTime">0:00</span></div>
+        <div class="status" id="permStatus"></div>
+        <div class="prog"><i id="permProg" style="width:0"></i></div>
+      </div>
+      <details class="tune" id="permTune">
+        <summary>Tune</summary>
+        <div class="form">
+          <div class="fld"><label>Minutes / function <em data-v="perm.minutes"></em></label><input type="range" min="1" max="120" step="1" data-k="perm.minutes"></div>
+          <div class="fld"><label>Threads <em data-v="perm.threads"></em></label><input type="range" min="1" max="20" step="1" data-k="perm.threads"></div>
+          <div class="fld"><label>Stall timer (min) <em data-v="perm.stall"></em></label><input type="range" min="0" max="30" step="1" data-k="perm.stall"></div>
+          <div class="fld"><label>Priority (nice) <em data-v="perm.nice"></em></label><input type="range" min="0" max="19" step="1" data-k="perm.nice"></div>
+          <label class="tog"><input type="checkbox" data-k="perm.fresh"><i></i>Fresh (ignore resume)</label>
+          <label class="tog"><input type="checkbox" data-k="perm.every"><i></i>Log every compile</label>
+          <div class="full row" style="margin-top:2px">
+            <button class="btn sm" id="openWeights">Randomization weights…</button>
+            <span class="note" style="margin:0">stall 0 = off · nice 19 = lowest priority</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card engine llm" id="engLlm">
+      <h3><span class="dot"></span>LLM <small id="llmSub">idle</small></h3>
+      <div class="row">
+        <div class="seg" data-eng="llm"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
+        <select id="llmList" style="display:none"></select>
+      </div>
+      <button class="go" id="llmGo">START</button>
+      <div class="live-box" id="llmLive">
+        <div class="cur"><span>now <b id="llmCur">—</b></span><span id="llmTime">0:00</span></div>
+        <div class="status" id="llmStatus"></div>
+        <div class="prog"><i id="llmProg" style="width:0"></i></div>
+      </div>
+      <details class="tune" id="llmTune">
+        <summary>Tune</summary>
+        <div class="form">
+          <div class="fld"><label>Compiles / function <em data-v="llm.compiles"></em></label><input type="range" min="5" max="300" step="5" data-k="llm.compiles"></div>
+          <div class="fld"><label>Minutes / function <em data-v="llm.minutes"></em></label><input type="range" min="5" max="180" step="5" data-k="llm.minutes"></div>
+          <div class="fld"><label>Thinking</label>
+            <select data-k="llm.think_mode"><option value="budget">Budget</option><option value="off">Off</option><option value="unlimited">Unlimited</option></select></div>
+          <div class="fld"><label>Think budget (tokens) <em data-v="llm.think"></em></label><input type="range" min="500" max="32000" step="500" data-k="llm.think"></div>
+          <div class="fld"><label>Temperature <em data-v="llm.temperature"></em></label><input type="range" min="0" max="1.5" step="0.05" data-k="llm.temperature"></div>
+          <div class="fld"><label>Variants / reply <em data-v="llm.variants"></em></label><input type="range" min="1" max="6" step="1" data-k="llm.variants"></div>
+          <div class="fld"><label>Similar examples <em data-v="llm.examples"></em></label><input type="range" min="0" max="6" step="1" data-k="llm.examples"></div>
+          <div class="fld"><label>Context (tokens)</label><input type="number" min="8192" step="1024" data-k="llm.ctx"></div>
+          <div class="fld"><label>Rounds mode <em data-v="llm.rounds"></em></label><input type="range" min="0" max="20" step="1" data-k="llm.rounds" title="0 = normal session mode"></div>
+          <div class="fld"><label>Model</label><select data-k="llm.model" id="modelSel"><option value="">(server default)</option></select></div>
+          <div class="fld full"><label>Server URL</label><input type="text" data-k="llm.base_url" placeholder="http://127.0.0.1:47831/v1"></div>
+          <label class="tog v"><input type="checkbox" data-k="llm.skip_done"><i></i>Skip already tried</label>
+          <label class="tog v"><input type="checkbox" data-k="llm.quiet"><i></i>Hide streamed thinking</label>
+          <div class="full row" style="margin-top:2px">
+            <button class="btn sm" id="openTips">Edit LLM tips…</button>
+            <button class="btn sm ghost" id="refreshModels">Refresh models</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </aside>
+</main>
+
+<section class="consoles" id="consoles">
+  <div class="grip" id="grip"></div>
+  <div class="con" id="conPerm"><header>Permuter<span class="st" id="permSt"></span><button data-auto="perm" class="on">autoscroll</button><button data-clear="perm">clear</button><button data-min>▾</button></header><div class="log" id="logPerm"></div></div>
+  <div class="con" id="conLlm"><header>LLM<span class="st" id="llmSt"></span><button data-auto="llm" class="on">autoscroll</button><button data-clear="llm">clear</button><button data-min>▾</button></header><div class="log" id="logLlm"></div></div>
+</section>
+
+<div id="tip"></div>
+<div id="toasts"></div>
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok || j.error) throw new Error(j.error || r.statusText);
+  return j;
+}
+function toast(msg, kind = "", ms = 5000) {
+  const t = document.createElement("div");
+  t.className = "toast " + kind; t.innerHTML = msg; $("#toasts").append(t);
+  setTimeout(() => { t.style.transition = ".3s"; t.style.opacity = 0; setTimeout(() => t.remove(), 300); }, ms);
+}
+
+/* ---------------------------------------------------------------- state */
+const S = {
+  funcs: [], byName: new Map(), lists: [], settings: null,
+  tab: localStorage.tab || "ov_battle", sel: JSON.parse(localStorage.sel || "[]"),
+  src: { perm: localStorage.srcPerm || "selection", llm: localStorage.srcLlm || "selection" },
+  listChoice: { perm: localStorage.listPerm || "queue", llm: localStorage.listLlm || "parked:ov_battle" },
+  seq: { perm: 0, llm: 0 }, job: { perm: null, llm: null }, auto: { perm: true, llm: true },
+  visible: [], lastClick: null,
+};
+const MODS = [["all", "All"], ["ov_battle", "Battle"], ["ov_field", "Field"], ["game", "Game"], ["lib", "Lib"]];
+const saveSel = () => localStorage.sel = JSON.stringify(S.sel);
+
+/* ---------------------------------------------------------------- status of a function */
+function ready(f) { return !f.m && ((f.p && f.p.best === 0) || (f.l && f.l.match)); }
+function status(f) {
+  if (f.m) return "matched";
+  if (ready(f)) return "ready";
+  if (f.p && f.p.outputs) return "permuted";
+  if (f.l) return "llm";
+  if (f.q || f.p) return "queued";
+  if (f.pk) return "parked";
+  return "todo";
+}
+const STATUS = {
+  ready: ["Ready to lock", "#b6ff4d"], permuted: ["Permuter improved", "#2ee6ff"], llm: ["LLM tried", "#c77dff"],
+  queued: ["Has candidate", "#6d7dff"], parked: ["Parked", "#ffb020"], todo: ["Unmatched", "#2b3145"], matched: ["Matched", "#183029"],
+};
+const mix = (a, b, t) => { // hex mix
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const A = p(a), B = p(b);
+  return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
+};
+function gain(f) { return f.p && f.p.base && f.p.best != null ? Math.max(0, 1 - f.p.best / f.p.base) : null; }
+function colour(f, mode) {
+  if (mode === "status" || f.m) {
+    const st = status(f);
+    if (st === "permuted") { const g = gain(f) ?? .3; return mix("#0d3a4a", "#2ee6ff", Math.min(1, .25 + g)); }
+    if (st === "llm" && f.l.ratio != null) return mix("#2b1840", "#c77dff", Math.min(1, Math.max(.2, (f.l.ratio - .4) / .6)));
+    return STATUS[st][1];
+  }
+  if (mode === "perm") { const g = gain(f); return g == null ? "#232838" : mix("#0d2a36", "#2ee6ff", Math.min(1, .15 + g)); }
+  if (mode === "llm") { const r = f.l && f.l.ratio; return r == null ? "#232838" : mix("#24143a", "#e2a6ff", Math.max(0, (r - .3) / .7)); }
+  if (mode === "size") { const t = Math.min(1, Math.log2(f.b / 8) / 11); return t < .5 ? mix("#1f2a44", "#6d7dff", t * 2) : mix("#6d7dff", "#ff4d7d", (t - .5) * 2); }
+}
+function legend() {
+  const mode = $("#colorMode").value;
+  let items;
+  if (mode === "status") items = Object.keys(STATUS).map(k => [STATUS[k][1], STATUS[k][0]]);
+  else if (mode === "perm") items = [["#0d2a36", "little gain"], ["#2ee6ff", "big gain vs base"], ["#232838", "not permuted"]];
+  else if (mode === "llm") items = [["#24143a", "ratio ≤0.3"], ["#e2a6ff", "ratio → 1.0"], ["#232838", "not tried"]];
+  else items = [["#1f2a44", "tiny"], ["#6d7dff", "medium"], ["#ff4d7d", "huge"]];
+  items.push(["transparent;box-shadow:0 0 0 2px var(--perm)", "permuter on it"], ["transparent;box-shadow:0 0 0 2px var(--llm)", "LLM on it"]);
+  $("#legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
+}
+
+/* ---------------------------------------------------------------- header stats & tabs */
+function renderStats() {
+  const by = {};
+  for (const f of S.funcs) { const b = by[f.c] ??= { n: 0, m: 0, b: 0, mb: 0 }; b.n++; b.b += f.b; if (f.m) { b.m++; b.mb += f.b; } }
+  const tot = Object.values(by).reduce((a, b) => ({ n: a.n + b.n, m: a.m + b.m, b: a.b + b.b, mb: a.mb + b.mb }), { n: 0, m: 0, b: 0, mb: 0 });
+  const readyN = S.funcs.filter(ready).length;
+  const cell = (name, b, cls = "") => `<div class="stat ${cls}"><div class="k">${name}<em>${b.m}/${b.n}</em></div><div class="bar"><i style="width:${(100 * b.mb / Math.max(1, b.b)).toFixed(2)}%"></i></div></div>`;
+  $("#stats").innerHTML = cell(`Total ${(100 * tot.mb / Math.max(1, tot.b)).toFixed(2)}%`, tot, "total") +
+    MODS.slice(1).filter(([k]) => by[k]).map(([k, n]) => cell(n, by[k])).join("") +
+    (readyN ? `<div class="stat"><div class="k" style="color:var(--lock)">Ready to lock<em style="color:var(--lock)">${readyN}</em></div><div class="bar"><i style="width:100%;background:var(--lock);box-shadow:0 0 10px var(--lock)"></i></div></div>` : "");
+  $("#tabs").innerHTML = MODS.map(([k, n]) => {
+    const left = S.funcs.filter(f => (k === "all" || f.c === k) && !f.m).length;
+    return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${n}<small>${left}</small></button>`;
+  }).join("");
+}
+
+/* ---------------------------------------------------------------- map */
+function filtered() {
+  const q = $("#q").value.trim().toLowerCase();
+  const hm = $("#hideMatched").checked, oc = $("#onlyCand").checked, op = $("#onlyParked").checked;
+  return S.funcs.filter(f => (S.tab === "all" || f.c === S.tab) && (!hm || !f.m) && (!oc || f.q || f.p) && (!op || f.pk) &&
+    (!q || f.n.toLowerCase().includes(q) || f.f.toLowerCase().includes(q) || f.a.toLowerCase().includes(q)));
+}
+function renderMap() {
+  const mode = $("#colorMode").value;
+  const list = filtered();
+  S.visible = list.map(f => f.n);
+  const groups = new Map();
+  for (const f of list) { if (!groups.has(f.f)) groups.set(f.f, []); groups.get(f.f).push(f); }
+  let html = "";
+  for (const [file, fs] of groups) {
+    const left = fs.filter(f => !f.m).length;
+    html += `<div class="grp${fs.length > 40 ? " big" : ""}"><h4><b>${esc(file)}</b><small>${fs.length === left ? left : fs.length + " · " + left + " left"}</small><a data-selgrp="${esc(file)}" title="add this group to the selection">+ all</a></h4><div class="sqs">`;
+    for (const f of fs) html += `<div class="sq${f.m ? " m" : ""}" data-n="${f.n}" style="background:${colour(f, mode)}"></div>`;
+    html += `</div></div>`;
+  }
+  $("#map").innerHTML = html || `<div class="empty">Nothing matches these filters.</div>`;
+  decorate();
+}
+function decorate() {
+  const order = new Map(S.sel.map((n, i) => [n, i + 1]));
+  const pj = S.job.perm, lj = S.job.llm;
+  const pr = pj && pj.running ? new Set(pj.order) : null, lr = lj && lj.running ? new Set(lj.order) : null;
+  for (const el of $$("#map .sq")) {
+    const n = el.dataset.n, o = order.get(n);
+    el.classList.toggle("on", !!o);
+    if (o) el.dataset.o = o < 100 ? o : ""; else delete el.dataset.o;
+    el.classList.toggle("run-perm", !!(pj && pj.running && pj.current === n));
+    el.classList.toggle("run-llm", !!(lj && lj.running && lj.current === n));
+    el.classList.toggle("inrun-perm", !!(pr && pr.has(n)));
+    el.classList.toggle("inrun-llm", !!(lr && lr.has(n) && !(pr && pr.has(n))));
+  }
+}
+function toggleSel(n, force) {
+  const i = S.sel.indexOf(n);
+  if (i >= 0 && force !== true) S.sel.splice(i, 1);
+  else if (i < 0 && force !== false) S.sel.push(n);
+}
+$("#map").addEventListener("click", e => {
+  const a = e.target.closest("[data-selgrp]");
+  if (a) {
+    const file = a.dataset.selgrp;
+    S.funcs.filter(f => f.f === file && S.visible.includes(f.n)).forEach(f => toggleSel(f.n, true));
+    saveSel(); renderSel(); decorate(); return;
+  }
+  const sq = e.target.closest(".sq"); if (!sq) return;
+  const n = sq.dataset.n;
+  if (e.shiftKey && S.lastClick) {
+    const a1 = S.visible.indexOf(S.lastClick), b1 = S.visible.indexOf(n);
+    if (a1 >= 0 && b1 >= 0) {
+      const [lo, hi] = a1 < b1 ? [a1, b1] : [b1, a1];
+      const seq = S.visible.slice(lo, hi + 1); if (a1 > b1) seq.reverse();
+      seq.forEach(x => toggleSel(x, true));
+    }
+  } else toggleSel(n);
+  S.lastClick = n; saveSel(); renderSel(); decorate();
+});
+$("#map").addEventListener("contextmenu", e => {
+  const sq = e.target.closest(".sq"); if (!sq) return;
+  e.preventDefault(); hideTip(); inspect(sq.dataset.n);
+});
+/* tooltip */
+const tip = $("#tip");
+function hideTip() { tip.style.display = "none"; }
+$("#map").addEventListener("mousemove", e => {
+  const sq = e.target.closest(".sq"); if (!sq) return hideTip();
+  const f = S.byName.get(sq.dataset.n); if (!f) return;
+  const st = status(f), o = S.sel.indexOf(f.n);
+  const rows = [["file", f.f], ["size", f.b + " B"]];
+  if (f.q) rows.push(["cand", f.q.cands.replace("permuter/cands/", "") + " #" + f.q.idx]);
+  if (f.p) rows.push(["permuter", f.p.matched ? "matched" : `best ${f.p.best ?? "–"} / base ${f.p.base ?? "?"}` + (gain(f) != null ? ` (−${(gain(f) * 100).toFixed(0)}%)` : "")]);
+  if (f.l) rows.push(["llm", f.l.match ? "MATCH" : f.l.ratio != null ? "best " + f.l.ratio.toFixed(4) : "started"]);
+  if (o >= 0) rows.push(["picked", "#" + (o + 1)]);
+  const [label, c] = STATUS[st];
+  tip.innerHTML = `<div class="t">${f.n}</div><div class="s">0x${f.a} · ${f.c}</div><div class="kv">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>
+    <span class="tag" style="background:${c}22;color:${st === "todo" || st === "matched" ? "#aab" : c};border:1px solid ${c}55">${label.toUpperCase()}</span>`;
+  tip.style.display = "block";
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + 16, y = e.clientY + 16;
+  if (x + w > innerWidth - 8) x = e.clientX - w - 12;
+  if (y + h > innerHeight - 8) y = e.clientY - h - 12;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+});
+$("#map").addEventListener("mouseleave", hideTip);
+
+/* ---------------------------------------------------------------- selection tray & lists */
+function renderSel() {
+  $("#selCount").textContent = `${S.sel.length} picked`;
+  const c = $("#chips");
+  c.innerHTML = S.sel.length ? S.sel.map((n, i) => `<span class="chip" draggable="true" data-i="${i}"><b>${i + 1}</b>${n.replace(/^func_/, "")}<button data-rm="${i}" title="remove">×</button></span>`).join("")
+    : `<span class="hint">Nothing picked: click squares on the map, or load a list.</span>`;
+  for (const eng of ["perm", "llm"]) $(`.seg[data-eng=${eng}] [data-src=selection]`).textContent = `Selection${S.sel.length ? " · " + S.sel.length : ""}`;
+}
+$("#chips").addEventListener("click", e => {
+  const b = e.target.closest("[data-rm]"); if (!b) return;
+  S.sel.splice(+b.dataset.rm, 1); saveSel(); renderSel(); decorate();
+});
+let dragI = null;
+$("#chips").addEventListener("dragstart", e => { const ch = e.target.closest(".chip"); if (!ch) return; dragI = +ch.dataset.i; ch.classList.add("drag"); });
+$("#chips").addEventListener("dragend", () => { dragI = null; renderSel(); });
+$("#chips").addEventListener("dragover", e => { e.preventDefault(); $$(".chip.over").forEach(x => x.classList.remove("over")); e.target.closest(".chip")?.classList.add("over"); });
+$("#chips").addEventListener("drop", e => {
+  e.preventDefault(); const ch = e.target.closest(".chip"); if (dragI == null || !ch) return;
+  const to = +ch.dataset.i, [it] = S.sel.splice(dragI, 1); S.sel.splice(to, 0, it); saveSel(); renderSel(); decorate();
+});
+$("#chips").addEventListener("mouseover", e => { const ch = e.target.closest(".chip"); if (ch) ch.title = S.sel[+ch.dataset.i]; });
+$("#selClear").onclick = () => { S.sel = []; saveSel(); renderSel(); decorate(); };
+$("#selVisible").onclick = () => { S.visible.forEach(n => toggleSel(n, true)); saveSel(); renderSel(); decorate(); toast(`${S.visible.length} visible functions added to the selection`); };
+function listOptions(sel) {
+  const b = S.lists.filter(l => l.kind === "builtin"), u = S.lists.filter(l => l.kind === "user");
+  const opt = l => `<option value="${esc(l.id)}" ${l.id === sel ? "selected" : ""}>${esc(l.name)} (${l.funcs.length})</option>`;
+  return `<optgroup label="Built-in">${b.map(opt).join("")}</optgroup>` + (u.length ? `<optgroup label="Saved lists">${u.map(opt).join("")}</optgroup>` : "");
+}
+function renderLists() {
+  const cur = $("#listPick").value || "queue";
+  $("#listPick").innerHTML = listOptions(cur);
+  $("#permList").innerHTML = listOptions(S.listChoice.perm);
+  $("#llmList").innerHTML = listOptions(S.listChoice.llm);
+  $("#listDel").disabled = !($("#listPick").value || "").startsWith("user:");
+}
+async function loadLists() { S.lists = await api("/api/lists"); renderLists(); }
+const getList = id => S.lists.find(l => l.id === id);
+$("#listPick").onchange = () => { $("#listDel").disabled = !$("#listPick").value.startsWith("user:"); };
+$("#listLoad").onclick = () => { const l = getList($("#listPick").value); if (!l) return; S.sel = [...new Set(l.funcs)]; saveSel(); renderSel(); decorate(); toast(`Loaded <b>${esc(l.name)}</b> (${S.sel.length})`); };
+$("#listAdd").onclick = () => { const l = getList($("#listPick").value); if (!l) return; l.funcs.forEach(n => toggleSel(n, true)); saveSel(); renderSel(); decorate(); };
+$("#listDel").onclick = async () => {
+  const l = getList($("#listPick").value); if (!l || l.kind !== "user") return;
+  if (!await ask("Delete list", `Delete the saved list <b>${esc(l.name)}</b>? (A .deleted copy is kept in permuter/lists/.)`, "Delete")) return;
+  await api("/api/lists/delete", { name: l.name }); await loadLists(); toast("List deleted", "warn");
+};
+$("#selSave").onclick = async () => {
+  if (!S.sel.length) return toast("Pick some functions first", "warn");
+  const name = await prompt2("Save selection as list", "Saved to permuter/lists/NAME.txt, one function per line, in this order. Both engines can run it.", "my-list");
+  if (!name) return;
+  try { const r = await api("/api/lists/save", { name, funcs: S.sel }); await loadLists(); $("#listPick").value = r.id; toast(`Saved list <b>${esc(name)}</b>`, "good"); }
+  catch (e) { toast(esc(e.message), "err"); }
+};
+
+/* ---------------------------------------------------------------- engines */
+for (const eng of ["perm", "llm"]) {
+  const seg = $(`.seg[data-eng=${eng}]`);
+  const setSrc = v => {
+    S.src[eng] = v; localStorage["src" + (eng === "perm" ? "Perm" : "Llm")] = v;
+    $$("button", seg).forEach(b => b.classList.toggle("on", b.dataset.src === v));
+    $(`#${eng}List`).style.display = v === "list" ? "" : "none";
+  };
+  seg.addEventListener("click", e => { const b = e.target.closest("button"); if (b) setSrc(b.dataset.src); });
+  setSrc(S.src[eng]);
+  $(`#${eng}List`).onchange = e => { S.listChoice[eng] = e.target.value; localStorage["list" + (eng === "perm" ? "Perm" : "Llm")] = e.target.value; };
+  $(`#${eng}Go`).onclick = () => goStop(eng);
+}
+async function goStop(eng) {
+  const j = S.job[eng], other = eng === "perm" ? "llm" : "perm";
+  if (j && j.running) {
+    $(`#${eng}Go`).disabled = true;
+    await api(`/api/${eng}/stop`, {});
+    toast(`${eng === "perm" ? "Permuter" : "LLM"}: stopping (Ctrl+C, then harder if it hangs)…`, "warn");
+    return;
+  }
+  const source = S.src[eng] === "selection" ? { type: "selection", funcs: S.sel } : { type: "list", list: S.listChoice[eng] };
+  if (source.type === "selection" && !S.sel.length) return toast("Nothing picked. Click squares on the map or switch to a list.", "warn");
+  if (S.job[other] && S.job[other].running &&
+      !await ask("Both at once?", `The ${other === "llm" ? "LLM (Strata)" : "permuter"} is running. Running both makes them fight over the CPU: each gets much slower.`, "Start anyway")) return;
+  try {
+    const r = await api(`/api/${eng}/start`, { source, settings: S.settings[eng] });
+    let msg = `${eng === "perm" ? "Permuter" : "LLM"} started on ${r.count} function${r.count === 1 ? "" : "s"}`;
+    toast(msg, "good");
+    if (r.skipped && r.skipped.length) toast(`Skipped ${r.skipped.length} with no permuter candidate: <span style="font-family:var(--mono)">${r.skipped.slice(0, 8).join(", ")}${r.skipped.length > 8 ? "…" : ""}</span><br>Run them through the LLM (it drafts with m2c) or run_refill.bat first.`, "warn", 9000);
+    poll();
+  } catch (e) { toast(esc(e.message), "err", 8000); }
+}
+const fmtT = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s % 60).padStart(2, "0"); };
+function renderEngine(eng, j, now) {
+  const card = $(eng === "perm" ? "#engPerm" : "#engLlm");
+  const live = j.running;
+  card.classList.toggle("live", live);
+  const go = $(`#${eng}Go`);
+  go.disabled = !!j.stopping;
+  go.classList.toggle("stop", live);
+  go.textContent = j.stopping ? "STOPPING…" : live ? "STOP" : "START";
+  $(`#${eng}Sub`).textContent = live ? `running · ${j.desc}` : j.exit != null ? `idle · last run exited ${j.exit}` : "idle";
+  if (live) {
+    $(`#${eng}Cur`).textContent = j.current || "starting…";
+    $(`#${eng}Cur`).onclick = () => j.current && inspect(j.current);
+    $(`#${eng}Time`).textContent = fmtT(now - j.started);
+    const best = j.current && j.best[j.current];
+    const st = ANSI_STRIP(j.partial || "").trim();
+    $(`#${eng}Status`).textContent = eng === "perm" ? (st || (best ? best : "")) : (best ? `best ${best}` : "") + (j.done.length ? ` · ${j.done.length} finished` : "");
+    const n = j.order.length || 1, d = j.done.length;
+    $(`#${eng}Prog`).style.width = (100 * Math.min(1, d / n)).toFixed(1) + "%";
+  }
+  $(`#${eng}St`).textContent = live ? `${j.current || "…"} · ${fmtT(now - j.started)}` : (j.exit != null ? `exited ${j.exit}` : "idle");
+}
+
+/* ---------------------------------------------------------------- consoles */
+const ANSI_STRIP = s => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
+function ansi(s) {
+  let out = "", open = 0;
+  const parts = s.split(/\x1b\[([0-9;]*)m/);
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) { out += esc(parts[i]); continue; }
+    const codes = parts[i].split(";").filter(Boolean);
+    if (!codes.length || codes.includes("0")) { out += "</span>".repeat(open); open = 0; if (!codes.length || codes.every(c => c === "0")) continue; }
+    const cls = codes.filter(c => c !== "0").map(c => "a" + c).join(" ");
+    if (cls) { out += `<span class="${cls}">`; open++; }
+  }
+  return out + "</span>".repeat(open);
+}
+function appendLog(eng, j) {
+  const box = $(eng === "perm" ? "#logPerm" : "#logLlm");
+  if (j.reset) box.innerHTML = "";
+  box.querySelector(".partial")?.remove();
+  const frag = document.createDocumentFragment();
+  for (const l of j.lines) {
+    const d = document.createElement("div"); d.className = "ln";
+    if (/IMPROVED|new best|MATCH/.test(l) && !/\x1b/.test(l)) d.classList.add("improved");
+    d.innerHTML = ansi(l); frag.append(d);
+  }
+  box.append(frag);
+  while (box.childElementCount > 3000) box.firstElementChild.remove();
+  if (j.partial) { const p = document.createElement("div"); p.className = "ln partial"; p.innerHTML = ansi(j.partial.slice(-4000)); box.append(p); }
+  if (S.auto[eng] && (j.lines.length || j.partial)) box.scrollTop = box.scrollHeight;
+}
+$$("[data-auto]").forEach(b => b.onclick = () => { const e = b.dataset.auto; S.auto[e] = !S.auto[e]; b.classList.toggle("on", S.auto[e]); });
+$$("[data-clear]").forEach(b => b.onclick = () => { $(b.dataset.clear === "perm" ? "#logPerm" : "#logLlm").innerHTML = ""; });
+$$("[data-min]").forEach(b => b.onclick = () => { $("#consoles").classList.toggle("min"); });
+(() => { // resizable consoles
+  const g = $("#grip"); let y0, h0;
+  if (localStorage.ch) $("#consoles").style.setProperty("--ch", localStorage.ch);
+  g.onmousedown = e => { y0 = e.clientY; h0 = $("#consoles").offsetHeight; document.onmousemove = m => { const h = Math.max(80, Math.min(innerHeight * .75, h0 + y0 - m.clientY)) + "px"; $("#consoles").style.setProperty("--ch", h); localStorage.ch = h; }; document.onmouseup = () => document.onmousemove = null; };
+})();
+
+/* ---------------------------------------------------------------- settings binding */
+function bindSettings() {
+  for (const el of $$("[data-k]")) {
+    const [eng, k] = el.dataset.k.split(".");
+    const v = S.settings[eng][k];
+    if (el.type === "checkbox") el.checked = !!v; else el.value = v ?? "";
+    const show = () => {
+      const em = $(`[data-v="${el.dataset.k}"]`);
+      if (em) em.textContent = el.dataset.k === "llm.rounds" && +el.value === 0 ? "off" : el.dataset.k === "perm.stall" && +el.value === 0 ? "off" : el.value;
+      if (el.type === "range") el.style.setProperty("--p", (100 * (el.value - el.min) / (el.max - el.min)) + "%");
+    };
+    show();
+    el.oninput = el.onchange = () => {
+      let val = el.type === "checkbox" ? el.checked : el.type === "range" || el.type === "number" ? +el.value : el.value;
+      S.settings[eng][k] = val; show(); saveSettingsSoon();
+      if (el.dataset.k === "llm.think_mode") thinkVis();
+    };
+  }
+  thinkVis();
+}
+function thinkVis() { const r = $('[data-k="llm.think"]').closest(".fld"); r.style.opacity = S.settings.llm.think_mode === "budget" ? 1 : .35; }
+let saveT;
+function saveSettingsSoon() { clearTimeout(saveT); saveT = setTimeout(() => api("/api/settings", S.settings).catch(e => toast(esc(e.message), "err")), 400); }
+async function loadModels() {
+  const pill = $("#pillStrata");
+  try {
+    const r = await api("/api/models");
+    pill.classList.toggle("ok", r.ok && r.models.length > 0); pill.classList.toggle("bad", !(r.ok && r.models.length));
+    pill.title = r.ok && r.models.length ? `Strata at ${r.base}: ${r.models.length} model(s)` : `No answer from ${r.base} (is Strata running?)`;
+    const sel = $("#modelSel"), cur = S.settings.llm.model;
+    sel.innerHTML = `<option value="">(server default${r.models[0] ? ": " + esc(r.models[0]) : ""})</option>` +
+      [...new Set([...r.models, ...(cur ? [cur] : [])])].map(m => `<option ${m === cur ? "selected" : ""}>${esc(m)}</option>`).join("");
+  } catch (e) { pill.classList.add("bad"); }
+}
+$("#refreshModels").onclick = loadModels;
+
+/* ---------------------------------------------------------------- modals */
+function modal(html, cls = "") {
+  const m = $("#modal"); m.className = "modal " + cls; m.innerHTML = html; $("#modalBg").classList.add("show");
+  return m;
+}
+function closeModal() { $("#modalBg").classList.remove("show"); }
+$("#modalBg").addEventListener("mousedown", e => { if (e.target === $("#modalBg")) closeModal(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") { e.preventDefault(); $("#q").focus(); } });
+function ask(title, text, ok = "OK") {
+  return new Promise(res => {
+    const m = modal(`<header><h2>${title}</h2></header><div class="body">${text}</div><footer><button class="btn ghost" data-r="0">Cancel</button><button class="btn" data-r="1" style="border-color:var(--perm)">${ok}</button></footer>`, "small");
+    m.onclick = e => { const b = e.target.closest("[data-r]"); if (b) { closeModal(); res(b.dataset.r === "1"); } };
+  });
+}
+function prompt2(title, text, val) {
+  return new Promise(res => {
+    const m = modal(`<header><h2>${title}</h2></header><div class="body"><div class="note" style="margin:0 0 10px">${text}</div><div class="fld"><input type="text" id="p2" value="${esc(val)}" style="width:100%;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.35);padding:0 10px;font:13px var(--mono);outline:0"></div></div><footer><button class="btn ghost" data-r="0">Cancel</button><button class="btn" data-r="1" style="border-color:var(--perm)">Save</button></footer>`, "small");
+    const inp = $("#p2"); inp.focus(); inp.select();
+    const done = ok => { closeModal(); res(ok ? inp.value.trim() : null); };
+    inp.onkeydown = e => { if (e.key === "Enter") done(true); };
+    m.onclick = e => { const b = e.target.closest("[data-r]"); if (b) done(b.dataset.r === "1"); };
+  });
+}
+async function inspect(n) {
+  const f = S.byName.get(n); if (!f) return;
+  const g = gain(f), st = status(f);
+  const m = modal(`<header><h2>${f.n}<small>0x${f.a} · ${esc(f.f)}</small></h2><span class="pill" style="color:${STATUS[st][1]}">${STATUS[st][0]}</span><button class="btn sm ghost" data-x>✕</button></header>
+    <div class="body">
+      <div class="insp-grid">
+        <div class="box"><div class="k">Size</div><div class="v">${f.b}<small> bytes</small></div></div>
+        <div class="box"><div class="k">Permuter</div><div class="v">${f.p ? (f.p.matched ? "match" : (f.p.best ?? "–")) : "–"}<small>${f.p && f.p.base ? " / " + f.p.base : ""}${g != null ? " · −" + (g * 100).toFixed(0) + "%" : ""}</small></div></div>
+        <div class="box"><div class="k">LLM</div><div class="v">${f.l ? (f.l.match ? "MATCH" : f.l.ratio != null ? f.l.ratio.toFixed(4) : "started") : "–"}</div></div>
+        <div class="box"><div class="k">Candidate</div><div class="v" style="font-size:12px">${f.q ? esc(f.q.cands.replace("permuter/cands/", "")) + " <small>#" + f.q.idx + "</small>" : f.p ? "<small>permuter dir</small>" : "<small>none (LLM will m2c)</small>"}</div></div>
+      </div>
+      ${f.q && f.q.note ? `<div class="note">${esc(f.q.note)}</div>` : ""}
+      <div class="insp-actions">
+        <button class="btn sm" data-a="sel">${S.sel.includes(n) ? "Remove from selection" : "Add to selection"}</button>
+        <button class="btn sm" data-a="perm" style="color:var(--perm)">Permute just this</button>
+        <button class="btn sm" data-a="llm" style="color:var(--llm)">LLM just this</button>
+        <span class="spacer"></span>
+        <button class="btn sm ghost" data-c="perm">Permuter best</button>
+        <button class="btn sm ghost" data-c="llm">LLM best.c</button>
+        <button class="btn sm ghost" data-c="asm">Target asm</button>
+      </div>
+      <div class="codebox" id="codebox"><div class="p">Pick a source above.</div></div>
+    </div>`);
+  const showCode = async kind => {
+    $("#codebox").innerHTML = `<div class="p">loading…</div>`;
+    try { const r = await api(`/api/code?func=${n}&kind=${kind}`); $("#codebox").innerHTML = `<div class="p">${esc(r.path)}</div><pre class="code">${esc(r.text)}</pre>`; }
+    catch (e) { $("#codebox").innerHTML = `<div class="p">${esc(e.message)}</div>`; }
+  };
+  m.onclick = async e => {
+    if (e.target.closest("[data-x]")) return closeModal();
+    const c = e.target.closest("[data-c]"); if (c) return showCode(c.dataset.c);
+    const a = e.target.closest("[data-a]"); if (!a) return;
+    if (a.dataset.a === "sel") { toggleSel(n); saveSel(); renderSel(); decorate(); closeModal(); return; }
+    closeModal();
+    const eng = a.dataset.a, keep = S.sel; S.sel = [n];
+    const prevSrc = S.src[eng]; S.src[eng] = "selection";
+    await goStop(eng);
+    S.sel = keep; S.src[eng] = prevSrc;
+  };
+  showCode(f.p && f.p.outputs ? "perm" : f.l ? "llm" : "asm");
+}
+$("#openWeights").onclick = async () => {
+  const ws = await api("/api/weights");
+  const max = Math.max(...ws.map(w => w.value ?? w.default ?? 0), 1);
+  const row = w => { const v = w.value ?? w.default ?? 0; return `<div class="wrow ${w.value != null ? "set" : ""}" data-w="${w.name}"><span class="wn" title="${w.name}">${w.name.replace("perm_", "")}</span><span class="wb"><i style="width:${100 * v / max}%"></i></span><input type="number" step="any" min="0" value="${w.value ?? ""}" placeholder="${w.default ?? ""}"><button title="back to the default">↺</button></div>`; };
+  const m = modal(`<header><h2>Permuter randomization weights<small>tools/match/permuter_weights.toml</small></h2><button class="btn sm ghost" data-x>✕</button></header>
+    <div class="body"><div class="note" style="margin:0 0 12px">Higher = that change is tried more often, 0 = never. Empty = the permuter's gcc default (shown faded). Applied to every function at the start of its next visit.</div><div class="wtab">${ws.map(row).join("")}</div></div>
+    <footer><button class="btn ghost" data-x>Cancel</button><button class="btn" id="wSave" style="border-color:var(--perm)">Save weights</button></footer>`);
+  m.addEventListener("click", async e => {
+    if (e.target.closest("[data-x]")) return closeModal();
+    const r = e.target.closest(".wrow button"); if (r) { r.parentElement.querySelector("input").value = ""; return; }
+    if (e.target.id === "wSave") {
+      const ch = {}; for (const rw of $$(".wrow", m)) { const i = $("input", rw); ch[rw.dataset.w] = i.value === "" ? null : +i.value; }
+      try { await api("/api/weights", ch); closeModal(); toast("Weights saved", "good"); } catch (err) { toast(esc(err.message), "err"); }
+    }
+  });
+};
+$("#openTips").onclick = async () => {
+  const t = await api("/api/tips");
+  const m = modal(`<header><h2>LLM tips<small>tools/match/llm_tips.md · appended to the system prompt</small></h2><button class="btn sm ghost" data-x>✕</button></header>
+    <div class="body"><textarea class="tips" id="tipsTa" spellcheck="false"></textarea></div>
+    <footer><span class="note" style="margin:0 auto 0 0">One tip per line; # lines are ignored. Used from the next function on.</span><button class="btn ghost" data-x>Cancel</button><button class="btn" id="tSave" style="border-color:var(--llm)">Save tips</button></footer>`);
+  $("#tipsTa").value = t.text;
+  m.onclick = async e => {
+    if (e.target.closest("[data-x]")) return closeModal();
+    if (e.target.id === "tSave") { try { await api("/api/tips", { text: $("#tipsTa").value }); closeModal(); toast("Tips saved", "good"); } catch (err) { toast(esc(err.message), "err"); } }
+  };
+};
+
+/* ---------------------------------------------------------------- polling */
+let fnT = 0, wasRunning = { perm: false, llm: false };
+async function loadFunctions() {
+  S.funcs = await api("/api/functions");
+  S.byName = new Map(S.funcs.map(f => [f.n, f]));
+  renderStats(); renderMap(); fnT = Date.now();
+}
+let polling = false;
+async function poll() {
+  if (polling) return; polling = true;
+  try {
+    const r = await api(`/api/state?perm=${S.seq.perm}&llm=${S.seq.llm}`);
+    $("#pillKey").classList.toggle("ok", r.key); $("#pillKey").classList.toggle("bad", !r.key);
+    $("#pillKey").title = r.key ? "STRATA_API_KEY reached WSL" : "STRATA_API_KEY is not set: run  setx STRATA_API_KEY \"key\"  then restart run_gui.bat";
+    let finished = false;
+    for (const eng of ["perm", "llm"]) {
+      const j = r[eng];
+      appendLog(eng, j); S.seq[eng] = j.seq; S.job[eng] = j; renderEngine(eng, j, r.now);
+      if (wasRunning[eng] && !j.running) { finished = true; toast(`${eng === "perm" ? "Permuter" : "LLM"} finished (exit ${j.exit})`, j.exit ? "warn" : "good"); }
+      wasRunning[eng] = j.running;
+    }
+    decorate();
+    const anyRun = r.perm.running || r.llm.running;
+    if (finished || Date.now() - fnT > (anyRun ? 10000 : 30000)) loadFunctions();
+  } catch (e) { $("#permSt").textContent = $("#llmSt").textContent = "control server unreachable"; }
+  polling = false;
+}
+
+/* ---------------------------------------------------------------- boot */
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (!b) return; S.tab = localStorage.tab = b.dataset.tab; renderStats(); renderMap(); });
+for (const id of ["hideMatched", "onlyCand", "onlyParked"]) {
+  const el = $("#" + id); if (localStorage[id] != null) el.checked = localStorage[id] === "1";
+  el.onchange = () => { localStorage[id] = el.checked ? "1" : "0"; renderMap(); };
+}
+if (localStorage.colorMode) $("#colorMode").value = localStorage.colorMode;
+$("#colorMode").onchange = () => { localStorage.colorMode = $("#colorMode").value; legend(); renderMap(); };
+let qT; $("#q").oninput = () => { clearTimeout(qT); qT = setTimeout(renderMap, 120); };
+(async () => {
+  legend(); renderSel();
+  S.settings = await api("/api/settings"); bindSettings();
+  await Promise.all([loadFunctions(), loadLists()]);
+  loadModels(); poll(); setInterval(poll, 1000); setInterval(loadModels, 60000);
+})().catch(e => toast("Couldn't load: " + esc(e.message), "err", 15000));
+</script>
+</body>
+</html>
