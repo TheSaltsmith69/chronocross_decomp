@@ -950,6 +950,7 @@ async function poll() {
     let finished = false;
     for (const eng of ENGINES) {
       const j = r[eng];
+      if (!j) continue;          // older server without this engine
       appendLog(eng, j); S.seq[eng] = j.seq; S.job[eng] = j; renderEngine(eng, j, r.now);
       if (wasRunning[eng] && !j.running) {
         finished = true; toast(`${NAME[eng]} finished (exit ${j.exit})`, j.exit ? "warn" : "good");
@@ -958,7 +959,7 @@ async function poll() {
       wasRunning[eng] = j.running;
     }
     decorate();
-    const anyRun = ENGINES.some(e => r[e].running);
+    const anyRun = ENGINES.some(e => r[e] && r[e].running);
     if (finished || Date.now() - fnT > (anyRun ? 10000 : 30000)) loadFunctions();
   } catch (e) { for (const e2 of ENGINES) $(`#${e2}St`).textContent = "control server unreachable"; }
   polling = false;
@@ -975,7 +976,15 @@ $("#colorMode").onchange = () => { localStorage.colorMode = $("#colorMode").valu
 let qT; $("#q").oninput = () => { clearTimeout(qT); qT = setTimeout(renderMap, 120); };
 (async () => {
   legend(); renderSel();
-  S.settings = await api("/api/settings"); bindSettings();
+  S.settings = await api("/api/settings");
+  const DEF = { m2c: { min_ratio: 0.3, limit: 0, nice: 10, dry_run: false } };
+  const missing = ENGINES.filter(e => !S.settings[e]);
+  for (const e of missing) S.settings[e] = { ...(DEF[e] || {}) };
+  if (missing.length) {
+    toast(`The control server is older than this page (no ${missing.join(", ")} support). Close the run_gui.bat window and start it again.`, "warn", 30000);
+    for (const e of missing) { const g = $(`#${e}Go`); g.disabled = true; g.title = "restart run_gui.bat"; }
+  }
+  bindSettings();
   await Promise.all([loadFunctions(), loadLists()]);
   loadModels(); poll(); setInterval(poll, 1000); setInterval(loadModels, 60000);
 })().catch(e => toast("Couldn't load: " + esc(e.message), "err", 15000));
