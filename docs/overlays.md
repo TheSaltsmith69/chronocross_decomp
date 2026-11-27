@@ -37,7 +37,11 @@ field, battle and menu use the same files as Disc 1.
 A second batch (mostly Disc 2, possibly New Game+) placed #2053 at 0x801EE000:
 the party swap screen, now `ov_party` (code 0x0-0x4204, 14 functions, matches the
 dump 100%; rodata is one jump table, then data). #2057 is a close variant of
-it (60% of words identical). #2054 is unrelated and not seen yet. The
+it (60% of words identical). #2054 is unrelated and not seen yet. Both call
+only field-engine (and main-EXE) functions and are built for 0x801EE000, inside
+the menu's code range, so they run from the field rather than the menu. The
+in-field item menu, chest dialogue and the start-menu screen load no extra code
+(field engine, plus the menu for the latter). The
 battle-start dump confirms #7 (`ov_enct`) is the transition into battle.
 
 Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
