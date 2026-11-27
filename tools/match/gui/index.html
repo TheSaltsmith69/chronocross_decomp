@@ -735,7 +735,10 @@ const MODS = [["all", "All"], ["ov_battle", "Battle"], ["ov_field", "Field"], ["
 const saveSel = () => localStorage.sel = JSON.stringify(S.sel);
 
 /* ---------------------------------------------------------------- status of a function */
-function ready(f) { return !f.m && ((f.p && f.p.best === 0) || (f.l && f.l.match)); }
+// a draft that matches as it is: the instruction check compiled one of its sources with no
+// differences at all, or refill_queue.py queued it with ratio 1.0
+function draftMatch(f) { return !!((f.i && f.i[3] === 0 && f.i[0] === f.i[1]) || (f.q && /\bratio 1\.0+\b/.test(f.q.note || ""))); }
+function ready(f) { return !f.m && ((f.p && f.p.best === 0) || (f.l && f.l.match) || draftMatch(f)); }
 function status(f) {
   if (f.m) return "matched";
   if (ready(f)) return "ready";

@@ -45,6 +45,7 @@ DEFAULT_WEIGHTS = os.path.join(ROOT, "tools", "decomp-permuter", "default_weight
 TIPS = os.path.join(HERE, "llm_tips.md")
 SETTINGS = os.path.join(GUI, "settings.json")
 CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
+DRAFT_MATCH = re.compile(r"\bratio 1\.0+\b")     # refill_queue.py's note on a draft that matches
 FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)\b")
 
 DEFAULTS = {
@@ -998,7 +999,10 @@ class Watcher:
                     hist.append({"t": time.time(), "f": f, "s": "llm", "v": ratio})
                     EVENTS.add("improved", f, f"{f}: LLM best {old[0] if old[0] is not None else '-'} -> {ratio:.4f}")
             for f in sorted(set(snap["queue"]) - pq):
-                EVENTS.add("queued", f, f"{f}: new m2c draft queued for the permuter")
+                if DRAFT_MATCH.search(q[f].get("note", "")):
+                    EVENTS.add("match", f, f"{f}: the m2c draft MATCHES as it is")
+                else:
+                    EVENTS.add("queued", f, f"{f}: new m2c draft queued for the permuter")
         if hist:
             with open(self.HISTORY, "a") as fh:
                 fh.write("".join(json.dumps(h) + "\n" for h in hist))
