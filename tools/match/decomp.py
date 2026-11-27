@@ -151,6 +151,7 @@ def fix_compile(code, func, ctx):
 
 def draft(func, raw=False):
     ctx = m2ctx.context(func)
+    plain = dict(m2ctx.ALIASED)      # globals the file only declares under asm aliases
     ctx += extra_decls(ctx)
     alias = False
     protos = later_protos(func)
@@ -180,6 +181,22 @@ def draft(func, raw=False):
             lines.append(l)
         out = house_style("\n".join(lines)).strip() + "\n"
         out = fix_compile(out, func, ctx)
+        # globals the file only knows under asm aliases (it may also declare the plain name
+        # further down with another type): give the block its own alias, typed like the
+        # nearest one, e.g. extern s16 D_800E57A0_m2c[] asm("D_800E57A0");
+        src_text = open(m2ctx.find_source(func)[0]).read()
+        decls = []
+        for s, d in plain.items():
+            if not re.search(r"\b" + s + r"\b", out):
+                continue
+            new = s + "_m2c"
+            while re.search(r"\b" + new + r"\b", src_text):
+                new += "_"
+            out = re.sub(r"\b" + s + r"\b", new, out)
+            d = re.sub(r"\b" + s + r"\b", new, d, count=1)
+            decls.append(d[:-1].rstrip() + f' asm("{s}");')
+        if decls:
+            out = "\n".join(decls) + "\n" + out
         if alias:
             # define it under another C name so the later, differently typed
             # prototype doesn't conflict (the project's usual asm-alias pattern)

@@ -24,7 +24,7 @@ Settings from the page are saved in permuter/gui/settings.json; permuter weights
 tools/match/permuter_weights.toml (line by line, comments kept), LLM tips to tools/match/llm_tips.md.
 Stdlib only. Start it with C:\\Users\\...\\ChronoCross\\run_gui.bat.
 """
-import argparse, codecs, csv, fcntl, glob, json, os, re, signal, struct, subprocess, sys, termios
+import argparse, codecs, csv, fcntl, glob, json, os, re, shlex, signal, struct, subprocess, sys, termios
 import threading, time
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -45,7 +45,8 @@ CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
 FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)\b")
 
 DEFAULTS = {
-    "perm": {"minutes": 20, "threads": 8, "stall": 5, "nice": 19, "fresh": False, "every": False},
+    "perm": {"minutes": 20, "threads": 8, "stall": 5, "nice": 19, "fresh": False, "every": False,
+             "auto_draft": True},
     "llm": {"compiles": 40, "minutes": 30, "think": 8000, "think_mode": "budget", "variants": 3,
             "temperature": 0.6, "ctx": 131072, "examples": 2, "skip_done": True, "quiet": False,
             "rounds": 0, "model": "", "base_url": ""},
@@ -219,9 +220,9 @@ class PermJob(Job):
     LIVE = re.compile(r"best (\d+)")
 
     def parse(self, line):
-        m = self.START.search(line)
+        m = self.START.search(line) or DraftJob.STEP.search(line)
         if m:
-            self.current = m.group(1)
+            self.current = m.group(1) if m.re is self.START else m.group(3)
             return
         m = self.DONE.search(line)
         if m:
@@ -499,45 +500,78 @@ def resolve_source(src):
     raise ValueError(f"unknown list {lid}")
 
 
+SEL_QUEUE = "permuter/gui/selection_queue.txt"
+
+
+def build_queue(funcs, extra_queue=None):
+    """-> (queue lines, functions in them, functions with no candidate)"""
+    q = queue_lines()
+    if extra_queue:
+        q.update(queue_lines(extra_queue))
+    out, order, skipped = [], [], []
+    for f in dict.fromkeys(funcs):
+        if f in q:
+            out.append(f"{q[f]['cands']} {f} {q[f]['idx']}")
+        elif os.path.isdir(os.path.join(NONM, f)):
+            out.append(f"- {f} 0")
+        else:
+            skipped.append(f)
+            continue
+        order.append(f)
+    return out, order, skipped
+
+
+def write_queue(path, lines, label):
+    with open(os.path.join(ROOT, path), "w") as fh:
+        fh.write(f"# written by control_gui.py for: {label}\n" + "".join(l + "\n" for l in lines))
+
+
 def start_perm(src, s):
     kind, funcs, lst = resolve_source(src)
     p = s["perm"]
     env, skipped, opts = {}, [], []
+    tail = []
+    nice = ["nice", "-n", str(int(p["nice"]))]
+    pre = None                          # m2c drafting to run before the permuter
     if kind == "queue":
         qfile = "permuter/queue.txt"
         order = funcs
         if p["fresh"]:
             opts.append("fresh")
     else:
-        q = queue_lines()
-        if lst and lst.get("queue_style"):
-            q.update(queue_lines(os.path.join(ROOT, lst["path"])))
-        out, order = [], []
-        for f in dict.fromkeys(funcs):
-            if f in q:
-                out.append(f"{q[f]['cands']} {f} {q[f]['idx']}")
-            elif os.path.isdir(os.path.join(NONM, f)):
-                out.append(f"- {f} 0")
-            else:
-                skipped.append(f)
-                continue
-            order.append(f)
-        if not out:
+        extra = os.path.join(ROOT, lst["path"]) if lst and lst.get("queue_style") else None
+        out, order, skipped = build_queue(funcs, extra)
+        if skipped and p.get("auto_draft"):
+            # draft the missing ones first, then rebuild the queue with whatever got drafted
+            pre = (nice + [PY, "tools/match/refill_queue.py", "--min-ratio", "0"] + skipped,
+                   [PY, "tools/match/control_gui.py", "--make-queue", SEL_QUEUE]
+                   + (["--extra-queue", extra] if extra else []) + list(dict.fromkeys(funcs)))
+            order = list(dict.fromkeys(funcs))
+        elif not out:
             raise ValueError("none of these functions has a permuter candidate (queue line or "
-                             "permuter/nonmatchings folder): run refill or let the LLM draft them")
-        qfile = "permuter/gui/selection_queue.txt"
-        with open(os.path.join(ROOT, qfile), "w") as fh:
-            fh.write(f"# written by control_gui.py for: {kind}\n" + "\n".join(out) + "\n")
+                             "permuter/nonmatchings folder): draft them with m2c first, or turn on "
+                             "'Draft missing with m2c first' in the permuter's Tune section")
+        else:
+            write_queue(SEL_QUEUE, out, kind)
+        qfile = SEL_QUEUE
         env["PERM_STATE"] = "permuter/gui/resume_selection.txt"
         opts.append("fresh")
     opts.append(f"stall={p['stall']}")
     if p["every"]:
         opts.append("all")
-    argv = ["nice", "-n", str(int(p["nice"])), "bash", "tools/match/permute_all.sh", qfile,
-            str(p["minutes"]), str(int(p["threads"]))] + opts
+    perm = nice + ["bash", "tools/match/permute_all.sh", qfile, str(p["minutes"]), str(int(p["threads"]))] + opts
+    if pre:
+        script = (f"echo '== m2c: drafting {len(skipped)} function(s) without a candidate'\n"
+                  f"{shlex.join(pre[0])}\n"
+                  f"echo; echo '== permuter'\n"
+                  f"{shlex.join(pre[1])} || exit 1\n"
+                  f"exec {shlex.join(perm)}\n")
+        argv = ["bash", "-c", script]
+    else:
+        argv = perm
     name = lst["name"] if lst else f"{len(order)} picked"
     JOBS["perm"].start(argv, env, name, order)
-    return {"skipped": skipped, "count": len(order)}
+    return {"skipped": [] if pre else skipped, "drafting": skipped if pre else [], "count": len(order)}
 
 
 def start_llm(src, s):
@@ -582,8 +616,10 @@ def start_llm(src, s):
 def start_m2c(src, s):
     kind, funcs, lst = resolve_source(src)
     p = s["m2c"]
+    # functions picked by hand are queued whenever their draft compiles (on tiny functions one
+    # wrong instruction already sinks the ratio); the minimum ratio only filters whole lists
     argv = ["nice", "-n", str(int(p["nice"])), PY, "tools/match/refill_queue.py",
-            "--min-ratio", str(p["min_ratio"]), "--limit", str(int(p["limit"]))]
+            "--min-ratio", str(0 if kind == "selection" else p["min_ratio"]), "--limit", str(int(p["limit"]))]
     if p["dry_run"]:
         argv.append("--dry-run")
     if kind.startswith("parked:"):
@@ -719,7 +755,19 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--make-queue", metavar="OUT", help="(used by chained runs) write a permuter queue for FUNCs")
+    ap.add_argument("--extra-queue", help="with --make-queue: another queue file to take candidates from")
+    ap.add_argument("funcs", nargs="*")
     a = ap.parse_args()
+    if a.make_queue:
+        out, order, skipped = build_queue(a.funcs, a.extra_queue)
+        for f in skipped:
+            print(f"{f}: still no candidate (its draft failed), left out")
+        if not out:
+            sys.exit("nothing left to permute")
+        write_queue(a.make_queue, out, "picked")
+        print(f"permuter queue: {len(out)} function(s)")
+        return
     srv = ThreadingHTTPServer((a.host, a.port), H)
     srv.daemon_threads = True
     print(f"control panel on http://localhost:{a.port}/  (Ctrl+C here stops it and any running job)", flush=True)

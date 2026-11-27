@@ -48,6 +48,17 @@ line = line.replace(rel, '"$INPUT"', 1)
 line = line[: line.rindex(" -o ")] + ' -o "$OUTPUT"'
 jobs = sorted(glob.glob(f"{ROOT}/permuter/nonmatchings/{func}*"), key=os.path.getmtime)
 job = jobs[-1]
+
+# Top-level __asm__("...") statements (e.g. the ".section .rodata / .align 3" jump-table
+# alignment lines in the field overlay) are not C the permuter's parser can read; they only
+# move other functions' rodata, which the permuter never compares, so drop them from base.c.
+base = f"{job}/base.c"
+text = open(base).read()
+fixed, n = re.subn(r'^[ \t]*(?:_permuter_ignore_line[ \t]+)?(?:__asm__|asm)[ \t]*\((?:[^;"]|"(?:\\.|[^"\\])*")*\)[ \t]*;[ \t]*$',
+                   "", text, flags=re.M)
+if n:
+    open(base, "w").write(fixed)
+    print(f"base.c: dropped {n} top-level asm statement(s)")
 with open(f"{job}/compile.sh", "w") as f:
     f.write("#!/usr/bin/env bash\nset -euo pipefail\n")
     f.write('INPUT="$(realpath "$1")"\nOUTPUT="$(realpath "$3")"\n')

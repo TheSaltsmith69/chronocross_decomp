@@ -386,7 +386,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
       <details class="tune" id="m2cTune">
         <summary>Tune</summary>
         <div class="form">
-          <div class="fld"><label>Min ratio to queue <em data-v="m2c.min_ratio"></em></label><input type="range" min="0" max="1" step="0.05" data-k="m2c.min_ratio"></div>
+          <div class="fld"><label title="Only for lists: picked functions are queued whenever their draft compiles">Min ratio (lists) <em data-v="m2c.min_ratio"></em></label><input type="range" min="0" max="1" step="0.05" data-k="m2c.min_ratio"></div>
           <div class="fld"><label>Limit (0 = all) <em data-v="m2c.limit"></em></label><input type="range" min="0" max="100" step="1" data-k="m2c.limit"></div>
           <div class="fld"><label>Priority (nice) <em data-v="m2c.nice"></em></label><input type="range" min="0" max="19" step="1" data-k="m2c.nice"></div>
           <label class="tog"><input type="checkbox" data-k="m2c.dry_run"><i></i>Dry run (don't queue)</label>
@@ -416,6 +416,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
           <div class="fld"><label>Priority (nice) <em data-v="perm.nice"></em></label><input type="range" min="0" max="19" step="1" data-k="perm.nice"></div>
           <label class="tog"><input type="checkbox" data-k="perm.fresh"><i></i>Fresh (ignore resume)</label>
           <label class="tog"><input type="checkbox" data-k="perm.every"><i></i>Log every compile</label>
+          <label class="tog full" title="Picked functions with no queue line or permuter folder get an m2c draft first, then the permuter runs on all of them"><input type="checkbox" data-k="perm.auto_draft"><i></i>Draft missing with m2c first</label>
           <div class="full row" style="margin-top:2px">
             <button class="btn sm" id="openWeights">Randomization weights…</button>
             <span class="note" style="margin:0">stall 0 = off · nice 19 = lowest priority</span>
@@ -737,7 +738,8 @@ async function goStop(eng) {
     const r = await api(`/api/${eng}/start`, { source, settings: S.settings[eng] });
     let msg = `${NAME[eng]} started on ${r.count} function${r.count === 1 ? "" : "s"}`;
     toast(msg, "good");
-    if (r.skipped && r.skipped.length) toast(`Skipped ${r.skipped.length} with no permuter candidate: <span style="font-family:var(--mono)">${r.skipped.slice(0, 8).join(", ")}${r.skipped.length > 8 ? "…" : ""}</span><br>Draft them with <b style="color:var(--m2c)">m2c</b> first (they stay picked), or run them through the LLM.`, "warn", 9000);
+    if (r.drafting && r.drafting.length) toast(`Drafting ${r.drafting.length} with <b style="color:var(--m2c)">m2c</b> first (no candidate yet): <span style="font-family:var(--mono)">${r.drafting.slice(0, 8).join(", ")}${r.drafting.length > 8 ? "…" : ""}</span>`, "", 8000);
+    if (r.skipped && r.skipped.length) toast(`Skipped ${r.skipped.length} with no permuter candidate: <span style="font-family:var(--mono)">${r.skipped.slice(0, 8).join(", ")}${r.skipped.length > 8 ? "…" : ""}</span><br>Draft them with <b style="color:var(--m2c)">m2c</b> first (they stay picked), or turn on "Draft missing with m2c first" under the permuter's Tune.`, "warn", 9000);
     poll();
   } catch (e) { toast(esc(e.message), "err", 8000); }
 }

@@ -111,21 +111,33 @@ def context(func, keep_aliases=False):
             n = declared_name(t[:-1])
             if n:
                 direct.add(n)
-    out, seen = [], set()
-    for t in items:
+    # when there are several aliases of one symbol, the last one (nearest the function,
+    # usually written for its neighbours) gives the type
+    last = {}
+    for i, t in enumerate(items):
+        m = ASM_LABEL.search(t)
+        if m and declared_name(ASM_LABEL.sub("", t)[:-1]):
+            last[m.group(1)] = i
+    out = []
+    ALIASED.clear()
+    for i, t in enumerate(items):
         m = ASM_LABEL.search(t)
         if m:
             real = m.group(1)
-            if real in direct or real in seen:
+            if real in direct or last.get(real) != i:
                 continue
             body = ASM_LABEL.sub("", t)
             alias = declared_name(body[:-1])
-            if not alias:
-                continue
             t = re.sub(r"\b" + re.escape(alias) + r"\b", real, body, count=1)
-            seen.add(real)
+            if not re.search(r"\(", body):       # a data symbol, not a function alias
+                ALIASED[real] = t
         out.append(t)
     return "\n".join(out) + "\n"
+
+
+# symbol -> plain-name declaration, for data symbols the last context() call took from an
+# asm alias (the source file itself never declares them under that name)
+ALIASED = {}
 
 
 if __name__ == "__main__":
