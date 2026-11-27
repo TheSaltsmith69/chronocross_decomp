@@ -589,65 +589,7 @@ def current_weights():
 PROFILES_FILE = os.path.join(GUI, "perm_profiles.json")
 TUNE_KEYS = ("minutes", "threads", "stall", "keep_prob", "speed", "stack_diffs")
 
-# the overrides every built-in keeps: these passes make C that gcc 2.8.1 rejects or that
-# can never match (function/extern retyping, float literals, deleting statements)
-_SAFE = {"randomize_function_type": 0, "randomize_external_type": 0, "float_literal": 0,
-         "remove_ast": 0, "inline": 1, "randomize_internal_type": 20}
-
-
-def _w(**kw):
-    return {"perm_" + k: float(v) for k, v in dict(_SAFE, **kw).items()}
-
-
-BUILTIN_PROFILES = [
-    {"id": "balanced", "name": "Balanced",
-     "desc": "The everyday setting: 20 min per function, gives up after 5 min without progress. "
-             "Default weights minus the passes that make broken C.",
-     "perm": {"minutes": 20, "threads": 8, "stall": 5, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
-     "weights": _w()},
-    {"id": "quick", "name": "Quick sweep",
-     "desc": "A cheap first pass over a long queue: 5 min each, stall after 2. Finds the easy "
-             "wins and shows which functions are worth a deep dive.",
-     "perm": {"minutes": 5, "threads": 8, "stall": 2, "keep_prob": 0.5, "speed": 100, "stack_diffs": False},
-     "weights": _w()},
-    {"id": "deep", "name": "Deep dive",
-     "desc": "For a function that is close (low score): 90 min, 20 min stall, and a higher "
-             "keep probability so it stacks more changes on top of each other.",
-     "perm": {"minutes": 90, "threads": 12, "stall": 20, "keep_prob": 0.8, "speed": 100, "stack_diffs": False},
-     "weights": _w()},
-    {"id": "regalloc", "name": "Register allocation",
-     "desc": "Wrong registers or swapped s-registers, logic otherwise right. Leans on temporaries, "
-             "declaration and statement order, split/chained assignments and operand order.",
-     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.7, "speed": 100, "stack_diffs": False},
-     "weights": _w(temp_for_expr=120, reorder_decls=40, reorder_stmts=25, split_assignment=25,
-                   commutative=20, chain_assignment=15, remove_var=15, refer_to_var=5,
-                   expand_expr=10, struct_ref=5, ins_block=5, condition=0.5)},
-    {"id": "flow", "name": "Control flow",
-     "desc": "Branches and blocks laid out differently: reversed conditions, inequalities, "
-             "inserted blocks, conditional blocks, compound assignments.",
-     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
-     "weights": _w(condition=15, reverse_cond=15, inequalities=20, ins_block=25, var_cond_block=15,
-                   empty_stmt=5, compound_assignment=10, temp_for_expr=40, reorder_stmts=15,
-                   expand_expr=10)},
-    {"id": "types", "name": "Types & casts",
-     "desc": "Wrong load/store widths, sign extension or struct access: retypes locals, adds "
-             "casts and masks, rewrites struct references and array aliases.",
-     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
-     "weights": _w(randomize_internal_type=60, cast_simple=30, struct_ref=25, alias_array=10,
-                   add_mask=5, temp_for_expr=50, factor_shift=5, factor_mult=5)},
-    {"id": "stack", "name": "Stack layout",
-     "desc": "Right code, wrong stack offsets. Scores stack differences too and favours "
-             "declaration order, padding variables and array aliases. Those scores run higher "
-             "than normal ones, so the stall timer is off (it compares with earlier runs).",
-     "perm": {"minutes": 30, "threads": 8, "stall": 0, "keep_prob": 0.6, "speed": 100, "stack_diffs": True},
-     "weights": _w(reorder_decls=50, pad_var_decl=15, alias_array=10, randomize_internal_type=25,
-                   temp_for_expr=40, remove_var=10)},
-    {"id": "light", "name": "Background (light)",
-     "desc": "Keeps working while you use the PC: 3 threads at half speed (the permuter sleeps "
-             "between compiles), otherwise Balanced.",
-     "perm": {"minutes": 30, "threads": 3, "stall": 8, "keep_prob": 0.6, "speed": 50, "stack_diffs": False},
-     "weights": _w()},
-]
+from perm_profiles import BUILTIN_PROFILES      # also used by permute_all.sh (Auto)
 
 
 def user_profiles():
@@ -836,6 +778,8 @@ def start_perm(src, s):
         opts.append("all")
     if p.get("from_draft"):
         opts.append("draft")
+    if any(x["id"] == p.get("profile") and x.get("auto") for x in all_profiles()):
+        opts.append("auto")             # weights picked per function (perm_profiles.py --auto)
     env["PERM_EXTRA"] = " ".join(perm_flags(p))
     perm = nice + ["bash", "tools/match/permute_all.sh", qfile, str(p["minutes"]), str(int(p["threads"]))] + opts
     if pre:

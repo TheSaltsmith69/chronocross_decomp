@@ -20,3 +20,6 @@ tools/maspsx/
 permuter/
 tools/decomp-permuter/
 tools/m2c/
+
+# per-function notes (tools/match/fnotes.py): local only
+notes/

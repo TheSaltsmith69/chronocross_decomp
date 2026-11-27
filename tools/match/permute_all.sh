@@ -22,6 +22,8 @@
 #
 # Randomization weights: tools/match/permuter_weights.toml is copied into each function's
 # settings.toml before every visit (it turns off the changes that make wrong C).
+# "auto" replaces those weights per function, before each visit, with the ones that fit what
+# still differs (tools/match/perm_profiles.py --auto).
 # PERM_EXTRA (env): more decomp-permuter options, e.g. "--keep-prob=0.8 --speed=50 --stack-diffs"
 # (the control panel sets it from the chosen tuning profile).
 #
@@ -32,15 +34,16 @@
 # has been through once, the next run starts from the top. "fresh" ignores resume.txt.
 . "$(dirname -- "${BASH_SOURCE[0]}")/common.sh"
 Q=$(abspath "$1"); MIN=${2:-30}; J=${3:-16}
-EVERY=; FRESH=; FROM_DRAFT=; STALL_MIN=5
+EVERY=; FRESH=; FROM_DRAFT=; AUTO=; STALL_MIN=5
 for a in "${@:4}"; do
   case "$a" in
     all) EVERY=--every-compile ;;
     fresh) FRESH=1 ;;
     stall=*) STALL_MIN=${a#stall=} ;;
     draft) FROM_DRAFT=1 ;;
+    auto) AUTO=1 ;;
     '') ;;
-    *) echo "permute_all.sh: unknown option '$a' (expected all, fresh, draft or stall=MINUTES)" >&2; exit 2 ;;
+    *) echo "permute_all.sh: unknown option '$a' (expected all, fresh, draft, auto or stall=MINUTES)" >&2; exit 2 ;;
   esac
 done
 cd "$ROOT"
@@ -178,6 +181,8 @@ while [ ${#LINE[@]} -gt 0 ]; do
     cp "$dir/base.orig.c" "$dir/base.c"; rm -f "$dir/base.from"
     echo "$func: starting from the original draft (draft option)"
   fi
+  # auto: weights chosen from what still differs in the C this visit starts from
+  [ -n "$AUTO" ] && nice -n 10 "$PY" tools/match/perm_profiles.py --auto "$dir"
   rem=${LEFT[$func]}
   rem_min=$(awk -v s="$rem" 'BEGIN {printf "%.4g", s / 60}')
   prior=$(best_score "$dir")
@@ -225,6 +230,10 @@ while [ ${#LINE[@]} -gt 0 ]; do
     ended=      # stopped early (Ctrl+C): leave "running FUNC" for the next run
   fi
   [ -n "$first" ] && [ -n "$ended" ] && echo "done $func" > "$STATE"
+  # a summary of what its best output still gets wrong, in notes/FUNC.md for the LLM and you
+  if [ -n "$ended" ] && [ "$best" != 0 ] && [ -n "$best" ]; then
+    nice -n 10 "$PY" tools/match/perm_profiles.py --note "$dir" "$([ -n "$stalled" ] && echo stalled || echo time used)"
+  fi
 done
 
 # the queue has been through once: the next run starts from the top

@@ -54,12 +54,18 @@ types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio)
 
 ## Function notes
 
-`notes/FUNC.md` (repo root, committed) holds free-form notes on one function: what it does,
+`notes/FUNC.md` (repo root, kept out of git by `.gitignore`) holds free-form notes on one function: what it does,
 struct layouts, what was tried and failed. You edit them in the control panel's function window
 (saved on Ctrl+S or when you leave the box; changes made elsewhere show up live), or in any
 editor. The LLM loop puts the file in every prompt for that function, and a model can add to it
 with `NOTE:` lines in its reply, appended as `- (LLM, date) ...` (`fnotes.py`). Claude reads and
-writes the same files.
+writes the same files. After each permuter visit that doesn't match, `permute_all.sh` rewrites a
+`<!-- permuter -->` block in the file: best score, how many instructions still differ and of what
+kind, and the first few differences (`perm_profiles.py --note`). Edit outside that block.
+
+Permuter profile **Auto**: before each visit, `perm_profiles.py --auto` compiles the C the visit
+starts from, sorts what still differs (registers only, branches, load/store widths) and writes the
+matching profile's weights into that function's `settings.toml` (`permute_all.sh ... auto`).
 
 ## Local LLM loop
 

@@ -65,6 +65,22 @@ def append(func, lines, who="LLM"):
     return new
 
 
+def set_section(func, name, body):
+    """Replace (or add, at the end) the block between <!-- NAME --> and <!-- /NAME -->: a part
+    of the notes a tool rewrites each time instead of appending to. Empty BODY removes it."""
+    cur = read(func)
+    start, end = f"<!-- {name} -->", f"<!-- /{name} -->"
+    block = f"{start}\n{body.strip()}\n{end}\n" if body.strip() else ""
+    pat = re.compile(re.escape(start) + r"[\s\S]*?" + re.escape(end) + r"\n?")
+    if pat.search(cur):
+        new = pat.sub(lambda m: block, cur, count=1)
+    elif block:
+        new = (cur.rstrip() + "\n\n" if cur.strip() else f"# {func}\n\n") + block
+    else:
+        return
+    write(func, new)
+
+
 def listing():
     """{func: mtime} of every function with notes"""
     out = {}
