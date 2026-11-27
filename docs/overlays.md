@@ -15,9 +15,22 @@ file #7 (28 KB, 35 functions) at 0x801EE000 next to the battle engine, now
 `ov_enct`: a battle effect module (it holds the path
 `c:\work\cdrom\battle\effects\enct.prd`, probably the encounter transition). Code
 0x801EE000-0x801F3034, then a jump table + that string (rodata), then data.
-Other code files not yet seen in a dump: #8 (~0x801EA000), #37 and #225 (both
-built for 0x801D2800, the menu's slot), #2053-2057 (~0x801EE000), and about 60
-small modules at ~0x801C5E00 (#4338-#5946).
+Dumps from more game states (2026-11-27) placed three more:
+
+| File | Size | Load address | What |
+|---|---|---|---|
+| #8 | 0xC000 | 0x801EA000 | after-battle results screen (victory and boss "star up"), runs with the field engine |
+| #37 | 0x4000 | 0x801D2800 (slot B) | name-entry screen |
+| #225 | 0xE000 | 0x801D2800 (slot B) | Element shop and smith |
+
+Save/load screens are the menu overlay. Both world maps, cutscenes and the game
+over screen are plain field engine. Not seen yet: #2053-2057 (~0x801EE000).
+
+Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
+that matches no single disc file, even with j/jal/lui words ignored. About 500
+small files in #4300-#6000 start with a header word (mostly 0x4A/0x4C) and code,
+so they are probably compressed or assembled at load time. Pinning them down
+needs a trace of the game's file loader, not RAM dumps.
 
 The menu overlay's layout differs from field/battle: one data word, code from
 0x801D2804, then its rodata (strings + jump tables, 0x801F1B7C-0x801F317C), then
