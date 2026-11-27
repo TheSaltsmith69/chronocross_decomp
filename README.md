@@ -42,10 +42,11 @@ its own:
 | `ov_field` (field engine, title) | #3 | `0x800A3308` | `ed96f819aa8ba1982bda8b767cdff9164d1c2fa5` |
 | `ov_battle` (battle engine) | #5 | `0x800A3308` | `67825d31d9ad59b1cc939fbd39e7c03a1b073598` |
 | `ov_menu` (menu, runs on top of the field engine) | #39 | `0x801D2800` | `0c8bf75bab12d78b468027142453fe4311acbc72` |
+| `ov_enct` (battle effect module, loaded with the battle engine) | #7 | `0x801EE000` | `915042e00a30849a789682832e8fef7ceab3abc9` |
 
 ```bash
-python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39   # extract disc files #3, #5, #39
-make split-ov_field split-ov_battle split-ov_menu                 # disassemble them
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7  # extract disc files #3, #5, #39, #7
+make split-ov_field split-ov_battle split-ov_menu split-ov_enct   # disassemble them
 make                                                              # now also checks the overlays
 ```
 
@@ -82,7 +83,7 @@ from power-on to the title screen (opening movie skipped with START).
 ## Layout
 
 - `slus_010.41.yaml` – splat config describing how the EXE is split
-- `ov_field.yaml`, `ov_battle.yaml`, `ov_menu.yaml` – splat configs for the overlays (disc files #3, #5, #39)
+- `ov_field.yaml`, `ov_battle.yaml`, `ov_menu.yaml`, `ov_enct.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7)
 - `symbol_addrs.txt` – known function/data names
 - `undefined_funcs.txt` – hand-maintained external symbols
 - `asm/`, `assets/`, `build/` – generated, not committed

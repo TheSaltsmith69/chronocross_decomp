@@ -23,6 +23,7 @@ MODULES = [
     ("ov_field", ROOT / "ov_field.yaml", "ov_field", ROOT / "build" / "ov_field.elf", ROOT / "src" / "ov_field"),
     ("ov_battle", ROOT / "ov_battle.yaml", "ov_battle", ROOT / "build" / "ov_battle.elf", ROOT / "src" / "ov_battle"),
     ("ov_menu", ROOT / "ov_menu.yaml", "ov_menu", ROOT / "build" / "ov_menu.elf", ROOT / "src" / "ov_menu"),
+    ("ov_enct", ROOT / "ov_enct.yaml", "ov_enct", ROOT / "build" / "ov_enct.elf", ROOT / "src" / "ov_enct"),
 ]
 OVERLAYS = [m[0] for m in MODULES if m[0]]
 
