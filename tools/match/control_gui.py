@@ -49,7 +49,7 @@ FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)\b")
 
 DEFAULTS = {
     "perm": {"minutes": 20, "threads": 8, "stall": 5, "nice": 19, "fresh": False, "every": False,
-             "auto_draft": True},
+             "auto_draft": True, "keep_prob": 0.6, "speed": 100, "stack_diffs": False, "profile": "balanced"},
     "llm": {"compiles": 40, "minutes": 30, "think": 8000, "think_mode": "budget", "variants": 3,
             "temperature": 0.6, "ctx": 131072, "examples": 2, "skip_done": True, "quiet": False,
             "rounds": 0, "model": "", "base_url": ""},
@@ -574,6 +574,165 @@ def save_weights(changes):
     os.replace(WEIGHTS + ".tmp", WEIGHTS)
 
 
+def current_weights():
+    return {w["name"]: w["value"] for w in weights() if w["value"] is not None}
+
+
+# ---------------------------------------------------------------- permuter tuning profiles
+# A profile is a set of perm settings (TUNE_KEYS) plus the full set of weight overrides
+# (written to permuter_weights.toml when it is applied). Built-ins live here; profiles you save
+# from the panel go to permuter/gui/perm_profiles.json.
+
+PROFILES_FILE = os.path.join(GUI, "perm_profiles.json")
+TUNE_KEYS = ("minutes", "threads", "stall", "keep_prob", "speed", "stack_diffs")
+
+# the overrides every built-in keeps: these passes make C that gcc 2.8.1 rejects or that
+# can never match (function/extern retyping, float literals, deleting statements)
+_SAFE = {"randomize_function_type": 0, "randomize_external_type": 0, "float_literal": 0,
+         "remove_ast": 0, "inline": 1, "randomize_internal_type": 20}
+
+
+def _w(**kw):
+    return {"perm_" + k: float(v) for k, v in dict(_SAFE, **kw).items()}
+
+
+BUILTIN_PROFILES = [
+    {"id": "balanced", "name": "Balanced",
+     "desc": "The everyday setting: 20 min per function, gives up after 5 min without progress. "
+             "Default weights minus the passes that make broken C.",
+     "perm": {"minutes": 20, "threads": 8, "stall": 5, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
+     "weights": _w()},
+    {"id": "quick", "name": "Quick sweep",
+     "desc": "A cheap first pass over a long queue: 5 min each, stall after 2. Finds the easy "
+             "wins and shows which functions are worth a deep dive.",
+     "perm": {"minutes": 5, "threads": 8, "stall": 2, "keep_prob": 0.5, "speed": 100, "stack_diffs": False},
+     "weights": _w()},
+    {"id": "deep", "name": "Deep dive",
+     "desc": "For a function that is close (low score): 90 min, 20 min stall, and a higher "
+             "keep probability so it stacks more changes on top of each other.",
+     "perm": {"minutes": 90, "threads": 12, "stall": 20, "keep_prob": 0.8, "speed": 100, "stack_diffs": False},
+     "weights": _w()},
+    {"id": "regalloc", "name": "Register allocation",
+     "desc": "Wrong registers or swapped s-registers, logic otherwise right. Leans on temporaries, "
+             "declaration and statement order, split/chained assignments and operand order.",
+     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.7, "speed": 100, "stack_diffs": False},
+     "weights": _w(temp_for_expr=120, reorder_decls=40, reorder_stmts=25, split_assignment=25,
+                   commutative=20, chain_assignment=15, remove_var=15, refer_to_var=5,
+                   expand_expr=10, struct_ref=5, ins_block=5, condition=0.5)},
+    {"id": "flow", "name": "Control flow",
+     "desc": "Branches and blocks laid out differently: reversed conditions, inequalities, "
+             "inserted blocks, conditional blocks, compound assignments.",
+     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
+     "weights": _w(condition=15, reverse_cond=15, inequalities=20, ins_block=25, var_cond_block=15,
+                   empty_stmt=5, compound_assignment=10, temp_for_expr=40, reorder_stmts=15,
+                   expand_expr=10)},
+    {"id": "types", "name": "Types & casts",
+     "desc": "Wrong load/store widths, sign extension or struct access: retypes locals, adds "
+             "casts and masks, rewrites struct references and array aliases.",
+     "perm": {"minutes": 30, "threads": 8, "stall": 8, "keep_prob": 0.6, "speed": 100, "stack_diffs": False},
+     "weights": _w(randomize_internal_type=60, cast_simple=30, struct_ref=25, alias_array=10,
+                   add_mask=5, temp_for_expr=50, factor_shift=5, factor_mult=5)},
+    {"id": "stack", "name": "Stack layout",
+     "desc": "Right code, wrong stack offsets. Scores stack differences too and favours "
+             "declaration order, padding variables and array aliases. Those scores run higher "
+             "than normal ones, so the stall timer is off (it compares with earlier runs).",
+     "perm": {"minutes": 30, "threads": 8, "stall": 0, "keep_prob": 0.6, "speed": 100, "stack_diffs": True},
+     "weights": _w(reorder_decls=50, pad_var_decl=15, alias_array=10, randomize_internal_type=25,
+                   temp_for_expr=40, remove_var=10)},
+    {"id": "light", "name": "Background (light)",
+     "desc": "Keeps working while you use the PC: 3 threads at half speed (the permuter sleeps "
+             "between compiles), otherwise Balanced.",
+     "perm": {"minutes": 30, "threads": 3, "stall": 8, "keep_prob": 0.6, "speed": 50, "stack_diffs": False},
+     "weights": _w()},
+]
+
+
+def user_profiles():
+    try:
+        v = json.loads(read(PROFILES_FILE, "[]"))
+        return [p for p in v if isinstance(p, dict) and p.get("id", "").startswith("user:")]
+    except ValueError:
+        return []
+
+
+def write_user_profiles(ps):
+    with open(PROFILES_FILE + ".tmp", "w") as f:
+        json.dump(ps, f, indent=2)
+    os.replace(PROFILES_FILE + ".tmp", PROFILES_FILE)
+
+
+def all_profiles():
+    return [dict(p, builtin=True) for p in BUILTIN_PROFILES] + [dict(p, builtin=False) for p in user_profiles()]
+
+
+def _same(p, perm, cur):
+    def eq(a, b):
+        return (a == b) if isinstance(a, bool) or isinstance(b, bool) else abs(float(a) - float(b)) < 1e-9
+    if any(k in p["perm"] and not eq(p["perm"][k], perm.get(k)) for k in TUNE_KEYS):
+        return False
+    w = p.get("weights", {})
+    return set(w) == set(cur) and all(eq(w[k], cur[k]) for k in w)
+
+
+def profiles_state():
+    s, cur = load_settings()["perm"], current_weights()
+    ps = all_profiles()
+    match = [p["id"] for p in ps if _same(p, s, cur)]
+    active = s.get("profile") if s.get("profile") in match else (match[0] if match else s.get("profile", ""))
+    return {"profiles": ps, "current": active, "modified": not match,
+            "settings": {k: s[k] for k in TUNE_KEYS}, "weights": cur}
+
+
+def apply_profile(pid):
+    p = next((p for p in all_profiles() if p["id"] == pid), None)
+    if not p:
+        raise ValueError(f"no profile {pid!r}")
+    s = load_settings()
+    s["perm"].update({k: v for k, v in p["perm"].items() if k in TUNE_KEYS})
+    s["perm"]["profile"] = pid
+    save_settings(s)
+    changes = {k: None for k in current_weights()}
+    changes.update(p.get("weights", {}))
+    save_weights(changes)
+    return profiles_state()
+
+
+def save_profile(name, desc=""):
+    name = name.strip()[:40]
+    if not name:
+        raise ValueError("give the profile a name")
+    pid = "user:" + re.sub(r"[^\w-]+", "_", name).strip("_").lower()
+    s = load_settings()
+    prof = {"id": pid, "name": name, "desc": desc.strip()[:300] or "Saved from the panel.",
+            "perm": {k: s["perm"][k] for k in TUNE_KEYS}, "weights": current_weights()}
+    ps = [p for p in user_profiles() if p["id"] != pid] + [prof]
+    write_user_profiles(ps)
+    s["perm"]["profile"] = pid
+    save_settings(s)
+    return profiles_state()
+
+
+def delete_profile(pid):
+    if not pid.startswith("user:"):
+        raise ValueError("built-in profiles can't be deleted")
+    write_user_profiles([p for p in user_profiles() if p["id"] != pid])
+    return profiles_state()
+
+
+def perm_flags(p):
+    """extra decomp-permuter options from the perm settings"""
+    out = []
+    kp = float(p.get("keep_prob", 0.6))
+    if abs(kp - 0.6) > 1e-9:
+        out.append(f"--keep-prob={min(max(kp, 0.0), 1.0):g}")
+    sp = int(p.get("speed", 100))
+    if sp < 100:
+        out.append(f"--speed={max(sp, 1)}")
+    if p.get("stack_diffs"):
+        out.append("--stack-diffs")
+    return out
+
+
 def llm_base(s):
     return (s["llm"].get("base_url") or os.environ.get("LLM_BASE_URL") or "http://127.0.0.1:47831/v1").rstrip("/")
 
@@ -672,6 +831,7 @@ def start_perm(src, s):
     opts.append(f"stall={p['stall']}")
     if p["every"]:
         opts.append("all")
+    env["PERM_EXTRA"] = " ".join(perm_flags(p))
     perm = nice + ["bash", "tools/match/permute_all.sh", qfile, str(p["minutes"]), str(int(p["threads"]))] + opts
     if pre:
         script = (f"echo '== m2c: drafting {len(skipped)} function(s) without a candidate'\n"
@@ -1061,6 +1221,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send(load_settings())
             if u.path == "/api/weights":
                 return self.send(weights())
+            if u.path == "/api/profiles":
+                return self.send(profiles_state())
             if u.path == "/api/tips":
                 return self.send({"text": read(TIPS)})
             if u.path == "/api/models":
@@ -1124,6 +1286,12 @@ class H(BaseHTTPRequestHandler):
             if u.path == "/api/weights":
                 save_weights(b)
                 return self.send(weights())
+            if u.path == "/api/profiles/apply":
+                return self.send(apply_profile(b.get("id", "")))
+            if u.path == "/api/profiles/save":
+                return self.send(save_profile(b.get("name", ""), b.get("desc", "")))
+            if u.path == "/api/profiles/delete":
+                return self.send(delete_profile(b.get("id", "")))
             if u.path == "/api/tips":
                 with open(TIPS + ".tmp", "w") as f:
                     f.write(b.get("text", ""))

@@ -19,6 +19,8 @@
 #
 # Randomization weights: tools/match/permuter_weights.toml is copied into each function's
 # settings.toml before every visit (it turns off the changes that make wrong C).
+# PERM_EXTRA (env): more decomp-permuter options, e.g. "--keep-prob=0.8 --speed=50 --stack-diffs"
+# (the control panel sets it from the chosen tuning profile).
 #
 # Resume: permuter/resume.txt remembers where the first pass through the queue is. A run that was
 # stopped (window closed, Ctrl+C) starts again on the function it was working on; a function
@@ -160,7 +162,7 @@ while [ ${#LINE[@]} -gt 0 ]; do
   start=$(active_now)
   PYTHONUNBUFFERED=1 "$PY" tools/match/ptimeout.py "$rem" --used-file "$usedf" -- \
     "$PY" tools/decomp-permuter/permuter.py "$dir" \
-    -j"$J" --best-only --stop-on-zero < /dev/null 2>&1 \
+    -j"$J" --best-only --stop-on-zero $PERM_EXTRA < /dev/null 2>&1 \
     | "$PY" tools/match/permwatch.py "$func" "$rem_min" "permuter/$func.log" $EVERY || true
   [ -n "$watcher" ] && { kill "$watcher" 2> /dev/null; wait "$watcher" 2> /dev/null; }
   used=$(cat "$usedf" 2> /dev/null || echo $(( $(active_now) - start )))

@@ -558,10 +558,22 @@ table.sbs tr.ins td.r { background: rgba(125,255,158,0.10); color: #b8ffca; }
       <details class="tune" id="permTune">
         <summary>Tune</summary>
         <div class="form">
+          <div class="fld full profrow">
+            <label>Profile <em id="profMod"></em></label>
+            <div class="row" style="gap:6px;margin:0">
+              <select id="profSel" style="flex:1"></select>
+              <button class="btn sm" id="profSave" title="Save the current tuning and weights as a profile of your own">Save as…</button>
+              <button class="btn sm ghost" id="profDel" title="Delete this profile (only your own)">✕</button>
+            </div>
+            <div class="note" id="profDesc" style="margin:4px 0 0"></div>
+          </div>
           <div class="fld"><label>Minutes / function <em data-v="perm.minutes"></em></label><input type="range" min="1" max="120" step="1" data-k="perm.minutes"></div>
           <div class="fld"><label>Threads <em data-v="perm.threads"></em></label><input type="range" min="1" max="20" step="1" data-k="perm.threads"></div>
           <div class="fld"><label>Stall timer (min) <em data-v="perm.stall"></em></label><input type="range" min="0" max="30" step="1" data-k="perm.stall"></div>
           <div class="fld"><label>Priority (nice) <em data-v="perm.nice"></em></label><input type="range" min="0" max="19" step="1" data-k="perm.nice"></div>
+          <div class="fld"><label title="How often the permuter keeps randomizing its previous output instead of starting over from the base (permuter default 0.6). Higher = stacks more changes.">Keep probability <em data-v="perm.keep_prob"></em></label><input type="range" min="0" max="1" step="0.05" data-k="perm.keep_prob"></div>
+          <div class="fld"><label title="Below 100 the permuter sleeps between compiles to use less CPU">Speed % <em data-v="perm.speed"></em></label><input type="range" min="10" max="100" step="5" data-k="perm.speed"></div>
+          <label class="tog full" title="Count stack offset differences in the score (scores run higher than without it, so compare like with like)"><input type="checkbox" data-k="perm.stack_diffs"><i></i>Score stack differences</label>
           <label class="tog"><input type="checkbox" data-k="perm.fresh"><i></i>Fresh (ignore resume)</label>
           <label class="tog"><input type="checkbox" data-k="perm.every"><i></i>Log every compile</label>
           <label class="tog full" title="Picked functions with no queue line or permuter folder get an m2c draft first, then the permuter runs on all of them"><input type="checkbox" data-k="perm.auto_draft"><i></i>Draft missing with m2c first</label>
@@ -1108,7 +1120,61 @@ function bindSettings() {
 }
 function thinkVis() { const r = $('[data-k="llm.think"]').closest(".fld"); r.style.opacity = S.settings.llm.think_mode === "budget" ? 1 : .35; }
 let saveT;
-function saveSettingsSoon() { clearTimeout(saveT); saveT = setTimeout(() => api("/api/settings", S.settings).catch(e => toast(esc(e.message), "err")), 400); }
+function saveSettingsSoon() { clearTimeout(saveT); saveT = setTimeout(() => api("/api/settings", S.settings).then(loadProfiles).catch(e => toast(esc(e.message), "err")), 400); }
+
+/* ---------------------------------------------------------------- permuter tuning profiles */
+let PROF = null;
+async function loadProfiles() {
+  try { renderProfiles(await api("/api/profiles")); } catch (e) { $("#profSel").innerHTML = `<option>(restart run_gui.bat for profiles)</option>`; }
+}
+function renderProfiles(st) {
+  PROF = st;
+  // modified: a separate "X (modified)" entry is selected, so picking X itself resets to it
+  const cur = st.profiles.find(p => p.id === st.current), mod = st.modified || !cur;
+  const opt = p => `<option value="${esc(p.id)}" ${!mod && p.id === st.current ? "selected" : ""}>${esc(p.name)}</option>`;
+  const mine = st.profiles.filter(p => !p.builtin);
+  $("#profSel").innerHTML = (mod ? `<option value="" selected>${cur ? esc(cur.name) + " (modified)" : "(custom)"}</option>` : "")
+    + `<optgroup label="Built-in">${st.profiles.filter(p => p.builtin).map(opt).join("")}</optgroup>`
+    + (mine.length ? `<optgroup label="Yours">${mine.map(opt).join("")}</optgroup>` : "");
+  $("#profMod").textContent = st.modified ? "modified" : "";
+  $("#profMod").style.color = st.modified ? "var(--warn, #f0c060)" : "";
+  $("#profDesc").textContent = !cur ? "Your own mix of settings: Save as… to keep it as a profile."
+    : cur.desc + (st.modified ? " Tuning or weights changed since it was applied: pick it again to reset, or Save as… to keep this." : "");
+  $("#profDel").disabled = !cur || cur.builtin;
+}
+$("#profSel").onchange = async () => {
+  const id = $("#profSel").value; if (!id) return;
+  try {
+    const st = await api("/api/profiles/apply", { id });
+    Object.assign(S.settings.perm, st.settings, { profile: id });
+    bindSettings(); renderProfiles(st);
+    toast(`Profile <b>${esc(st.profiles.find(p => p.id === id).name)}</b> applied` + (wasRunning.perm ?": weights from the next function, the rest from the next start" : ""), "good");
+  } catch (e) { toast(esc(e.message), "err"); loadProfiles(); }
+};
+$("#profSave").onclick = () => {
+  const cur = PROF && PROF.profiles.find(p => p.id === PROF.current && !p.builtin);
+  const m = modal(`<header><h2>Save tuning profile<small>the permuter's Tune settings + randomization weights</small></h2><button class="btn sm ghost" data-x>✕</button></header>
+    <div class="body"><div class="form" style="grid-template-columns:1fr">
+      <div class="fld"><label>Name</label><input type="text" id="pName" maxlength="40" value="${esc(cur ? cur.name : "")}" placeholder="e.g. Battle regalloc"></div>
+      <div class="fld"><label>What it's for</label><input type="text" id="pDesc" maxlength="300" value="${esc(cur ? cur.desc : "")}"></div>
+      <div class="note" style="margin:0">Saves minutes, threads, stall, keep probability, speed, stack scoring and every weight override. A name you already used is overwritten.</div>
+    </div></div>
+    <footer><button class="btn ghost" data-x>Cancel</button><button class="btn" id="pOk" style="border-color:var(--perm)">Save profile</button></footer>`);
+  $("#pName", m).focus();
+  m.onclick = async e => {
+    if (e.target.closest("[data-x]")) return closeModal();
+    if (e.target.id !== "pOk") return;
+    try {
+      const st = await api("/api/profiles/save", { name: $("#pName", m).value, desc: $("#pDesc", m).value });
+      S.settings.perm.profile = st.current; renderProfiles(st); closeModal(); toast("Profile saved", "good");
+    } catch (err) { toast(esc(err.message), "err"); }
+  };
+};
+$("#profDel").onclick = async () => {
+  const cur = PROF && PROF.profiles.find(p => p.id === PROF.current);
+  if (!cur || cur.builtin || !confirm(`Delete the profile "${cur.name}"? Your current settings stay as they are.`)) return;
+  try { renderProfiles(await api("/api/profiles/delete", { id: cur.id })); toast("Profile deleted", "good"); } catch (e) { toast(esc(e.message), "err"); }
+};
 async function loadModels() {
   const pill = $("#pillStrata");
   try {
@@ -1273,7 +1339,7 @@ $("#openWeights").onclick = async () => {
     const r = e.target.closest(".wrow button"); if (r) { r.parentElement.querySelector("input").value = ""; return; }
     if (e.target.id === "wSave") {
       const ch = {}; for (const rw of $$(".wrow", m)) { const i = $("input", rw); ch[rw.dataset.w] = i.value === "" ? null : +i.value; }
-      try { await api("/api/weights", ch); closeModal(); toast("Weights saved", "good"); } catch (err) { toast(esc(err.message), "err"); }
+      try { await api("/api/weights", ch); closeModal(); toast("Weights saved", "good"); loadProfiles(); } catch (err) { toast(esc(err.message), "err"); }
     }
   });
 };
@@ -1600,6 +1666,7 @@ let qT; $("#q").oninput = () => { clearTimeout(qT); qT = setTimeout(renderMap, 1
     for (const e of missing) { const g = $(`#${e}Go`); g.disabled = true; g.title = "restart run_gui.bat"; }
   }
   bindSettings();
+  loadProfiles();
   setView(S.view);
   await Promise.all([loadFunctions(), loadLists()]);
   renderNight(null);
