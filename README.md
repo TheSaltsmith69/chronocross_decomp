@@ -43,10 +43,13 @@ its own:
 | `ov_battle` (battle engine) | #5 | `0x800A3308` | `67825d31d9ad59b1cc939fbd39e7c03a1b073598` |
 | `ov_menu` (menu, runs on top of the field engine) | #39 | `0x801D2800` | `0c8bf75bab12d78b468027142453fe4311acbc72` |
 | `ov_enct` (battle effect module, loaded with the battle engine) | #7 | `0x801EE000` | `915042e00a30849a789682832e8fef7ceab3abc9` |
+| `ov_result` (after-battle results screen) | #8 | `0x801EA000` | `1f2ad7deff356a6e60232be50ccd09ee1c1cb6fa` |
+| `ov_name` (name entry, runs on top of the field engine) | #37 | `0x801D2800` | `c6e6e0dfb7083938b5196b0f5cf1f58806d8e213` |
+| `ov_shop` (Element shop and smith, on top of the field engine) | #225 | `0x801D2800` | `53aefadb0fa980d295fc75c0db1cd85d6cdfd68e` |
 
 ```bash
-python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7  # extract disc files #3, #5, #39, #7
-make split-ov_field split-ov_battle split-ov_menu split-ov_enct   # disassemble them
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225   # extract the overlays
+for o in field battle menu enct result name shop; do make split-ov_$o; done  # disassemble them
 make                                                              # now also checks the overlays
 ```
 
@@ -83,7 +86,7 @@ from power-on to the title screen (opening movie skipped with START).
 ## Layout
 
 - `slus_010.41.yaml` – splat config describing how the EXE is split
-- `ov_field.yaml`, `ov_battle.yaml`, `ov_menu.yaml`, `ov_enct.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7)
+- `ov_*.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7, #8, #37, #225)
 - `symbol_addrs.txt` – known function/data names
 - `undefined_funcs.txt` – hand-maintained external symbols
 - `asm/`, `assets/`, `build/` – generated, not committed

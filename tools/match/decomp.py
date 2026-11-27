@@ -276,6 +276,13 @@ def repair(func, block, passes=8):
             return head + "\n" + body, []
         L = body.split("\n")
         changed = False
+        # m2c's soft-float helper prototypes (__gedf2(u64, ...)) and casts use u64, which
+        # common.h doesn't define (game code has struct fields named u64)
+        if not any("typedef unsigned long long u64;" in l for l in L) and any(
+                "`u64'" in msg or ("parse error" in msg and n and "u64" in L[n - 1]) for n, msg in errs):
+            L.insert(0, "typedef unsigned long long u64; /* m2c-fix */")
+            body = "\n".join(L)
+            continue                              # line numbers moved: recompile first
         # m2c's names for a stack area it couldn't type (byte offsets, so u8) and for a
         # callee-saved register read before it is set: declare them as locals, all at once
         und = sorted({m.group(1) for _, msg in errs for m in [re.search(r"`(sp|saved_reg_\w+)' undeclared", msg)] if m})

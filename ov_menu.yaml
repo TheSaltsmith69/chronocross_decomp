@@ -53,7 +53,8 @@ segments:
     vram: 0x801D2800
     subsegments:
       # an unreferenced word (0x0000000A) before the first function
-      - [0x0, textbin, header_801D2800]
+      # (named per overlay: splat writes textbin bytes to assets/<name>.textbin.bin)
+      - [0x0, textbin, menu_header]
       - [0x4, c, menu_801D2804]
       # Strings and jump tables of the code. splat flags misaligned jump tables at
       # 0x20338 and 0x208AC, i.e. the menu was probably three objects: rodata

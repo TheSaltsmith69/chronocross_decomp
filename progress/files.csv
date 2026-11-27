@@ -256,3 +256,6 @@ ov_battle/battle_800AA9DC,ov_battle,800AA9DC,153,116,38012,19872
 ov_battle/battle_800B3E58,ov_battle,800B3E58,570,394,149552,39684
 ov_menu/menu_801D2804,ov_menu,801D2804,224,1,127864,8
 ov_enct/enct_801EE000,ov_enct,801EE000,35,0,20532,0
+ov_result/result_801EA000,ov_result,801EA000,80,0,34300,0
+ov_name/name_801D2804,ov_name,801D2804,40,0,13944,0
+ov_shop/shop_801D2804,ov_shop,801D2804,122,0,52236,0

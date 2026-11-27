@@ -1,0 +1,58 @@
+name: OV_RESULT
+# Disc file #8 (LBA 607, 24 sectors): the after-battle results screen
+# (victory and boss "star up"). Loaded at 0x801EA000 after the battle engine
+# is replaced by the field engine (slot A); it calls field and main-EXE code.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 8
+sha1: 1f2ad7deff356a6e60232be50ccd09ee1c1cb6fa
+options:
+  basename: ov_result
+  target_path: iso/files/0008.bin
+  elf_path: build/ov_result.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_result
+  src_path: src/ov_result
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_result.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code first, then rodata (strings + jump tables), then data
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_result.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_result_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_result_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_result
+    type: code
+    start: 0x0
+    vram: 0x801EA000
+    subsegments:
+      - [0x0, c, result_801EA000]
+      # strings and jump tables of the code
+      - [0x85FC, .rodata, result_801EA000]
+      - [0x870C, data, data_801F270C]
+  - [0xC000]

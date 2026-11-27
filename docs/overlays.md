@@ -3,8 +3,13 @@
 Derived from PCSX-Redux RAM dumps (title, menu, field, battle), the
 retail SLUS_010.41 and the Disc 1 .bin.
 
-**Status:** `ov_field` (file #3), `ov_battle` (file #5), `ov_menu` (file #39)
-and `ov_enct` (file #7) are split and rebuild byte-for-byte. Extract disc files with
+**Status:** `ov_field` (file #3), `ov_battle` (file #5), `ov_menu` (file #39),
+`ov_enct` (file #7), `ov_result` (file #8), `ov_name` (file #37) and `ov_shop`
+(file #225) are split and rebuild byte-for-byte.
+
+The three slot-B programs (menu, name entry, shop) start with a header word
+(0xA, 0xB, 0xC), kept as a `textbin` subsegment. Its name must be different in each
+yaml (`menu_header`, ...) because splat writes it to `assets/<name>.textbin.bin`. Extract disc files with
 `tools/extract_files.py`.
 
 `tools/find_overlays.py --scan <disc.bin>` lists every file in the disc's file
@@ -19,9 +24,9 @@ Dumps from more game states (2026-11-27) placed three more:
 
 | File | Size | Load address | What |
 |---|---|---|---|
-| #8 | 0xC000 | 0x801EA000 | after-battle results screen (victory and boss "star up"), runs with the field engine |
-| #37 | 0x4000 | 0x801D2800 (slot B) | name-entry screen |
-| #225 | 0xE000 | 0x801D2800 (slot B) | Element shop and smith |
+| #8 → `ov_result` | 0xC000 | 0x801EA000 | after-battle results screen (victory and boss "star up"), runs with the field engine |
+| #37 → `ov_name` | 0x4000 | 0x801D2800 (slot B) | name-entry screen |
+| #225 → `ov_shop` | 0xE000 | 0x801D2800 (slot B) | Element shop and smith |
 
 Save/load screens are the menu overlay. Both world maps, cutscenes and the game
 over screen are plain field engine. Not seen yet: #2053-2057 (~0x801EE000).

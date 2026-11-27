@@ -1,0 +1,61 @@
+name: OV_NAME
+# Disc file #37 (LBA 920, 8 sectors): the name-entry screen. Loaded at
+# 0x801D2800 (slot B, where the menu goes) on top of the field engine.
+# Its rodata ends with initializers of local structs (0x801D617C-0x801D61AC).
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 37
+sha1: c6e6e0dfb7083938b5196b0f5cf1f58806d8e213
+options:
+  basename: ov_name
+  target_path: iso/files/0037.bin
+  elf_path: build/ov_name.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_name
+  src_path: src/ov_name
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_name.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code first, then rodata (strings + jump tables), then data
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_name.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_name_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_name_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_name
+    type: code
+    start: 0x0
+    vram: 0x801D2800
+    subsegments:
+      # header word (0xb) before the first function (named per overlay: splat
+      # writes textbin bytes to assets/<name>.textbin.bin)
+      - [0x0, textbin, name_header]
+      - [0x4, c, name_801D2804]
+      # strings and jump tables of the code
+      - [0x367C, .rodata, name_801D2804]
+      - [0x39AC, data, data_801D61AC]
+  - [0x4000]
