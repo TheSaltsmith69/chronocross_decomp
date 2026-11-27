@@ -39,6 +39,7 @@ body {
     var(--bg);
   color: var(--text); font: 13px/1.45 var(--sans);
   display: grid; grid-template-rows: 58px 1fr auto; overflow: hidden;
+  grid-template-columns: minmax(0, 1fr);   /* the header's content must never widen the page */
   -webkit-font-smoothing: antialiased;
 }
 body::before {   /* faint scanline grain */
@@ -55,7 +56,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ---------------- header */
 header {
   position: relative; z-index: 2;
-  display: flex; align-items: center; gap: 22px; padding: 0 20px;
+  display: flex; align-items: center; gap: 18px; padding: 0 20px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
   backdrop-filter: blur(14px);
@@ -67,8 +68,10 @@ header {
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .brand span { color: var(--faint); font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
-.stats { display: flex; gap: 18px; flex: 1; min-width: 0; overflow: hidden; }
-.stat { min-width: 108px; }
+.stats { display: flex; gap: 10px; flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.stats::-webkit-scrollbar { display: none; }   /* narrow windows: scroll it sideways with the wheel */
+.stat { min-width: 88px; flex: none; }
+.stat[title] { cursor: help; }
 .stat .k { color: var(--muted); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; display: flex; justify-content: space-between; gap: 8px; }
 .stat .k em { font-style: normal; color: var(--text); font-family: var(--mono); letter-spacing: 0; }
 .bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.07); margin-top: 5px; overflow: hidden; }
@@ -795,10 +798,18 @@ function renderStats() {
   for (const f of S.funcs) { const b = by[f.c] ??= { n: 0, m: 0, b: 0, mb: 0 }; b.n++; b.b += f.b; if (f.m) { b.m++; b.mb += f.b; } }
   const tot = Object.values(by).reduce((a, b) => ({ n: a.n + b.n, m: a.m + b.m, b: a.b + b.b, mb: a.mb + b.mb }), { n: 0, m: 0, b: 0, mb: 0 });
   const readyN = S.funcs.filter(ready).length;
-  const cell = (name, b, cls = "") => `<div class="stat ${cls}"><div class="k">${name}<em>${b.m}/${b.n}</em></div><div class="bar"><i style="width:${(100 * b.mb / Math.max(1, b.b)).toFixed(2)}%"></i></div></div>`;
-  $("#stats").innerHTML = cell(`Total ${(100 * tot.mb / Math.max(1, tot.b)).toFixed(2)}%`, tot, "total") +
-    MODS.slice(1).filter(([k]) => by[k]).map(([k, n]) => cell(n, by[k])).join("") +
-    (readyN ? `<div class="stat"><div class="k" style="color:var(--lock)">Ready to lock<em style="color:var(--lock)">${readyN}</em></div><div class="bar"><i style="width:100%;background:var(--lock);box-shadow:0 0 10px var(--lock)"></i></div></div>` : "");
+  const pct = b => (100 * b.mb / Math.max(1, b.b)).toFixed(2);
+  const cell = (name, b, cls = "", title = "") => `<div class="stat ${cls}"${title ? ` title="${esc(title)}"` : ""}><div class="k">${name}<em>${b.m}/${b.n}</em></div><div class="bar"><i style="width:${pct(b)}%"></i></div></div>`;
+  // the big modules get a cell each; the small overlays share one (breakdown on hover) so the
+  // header fits however many overlays get added
+  const BIG = new Set(["ov_battle", "ov_field", "game", "lib"]);
+  const small = MODS.slice(1).filter(([k]) => by[k] && !BIG.has(k));
+  const sum = small.reduce((a, [k]) => ({ n: a.n + by[k].n, m: a.m + by[k].m, b: a.b + by[k].b, mb: a.mb + by[k].mb }), { n: 0, m: 0, b: 0, mb: 0 });
+  const smallCell = small.length ? cell("Overlays", sum, "", small.map(([k, n]) => `${n}: ${by[k].m}/${by[k].n} funcs (${pct(by[k])}%)`).join("\n")) : "";
+  const big = k => by[k] ? cell(MODS.find(m => m[0] === k)[1], by[k]) : "";
+  $("#stats").innerHTML = cell(`Total ${pct(tot)}%`, tot, "total") +
+    big("ov_battle") + big("ov_field") + smallCell + big("game") + big("lib") +
+    (readyN ? `<div class="stat"><div class="k" style="color:var(--lock)">Ready<em style="color:var(--lock)">${readyN}</em></div><div class="bar"><i style="width:100%;background:var(--lock);box-shadow:0 0 10px var(--lock)"></i></div></div>` : "");
   $("#tabs").innerHTML = MODS.map(([k, n]) => {
     const left = S.funcs.filter(f => (k === "all" || f.c === k) && !f.m).length;
     return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${n}<small>${left}</small></button>`;
@@ -1559,6 +1570,11 @@ async function poll() {
 
 /* ---------------------------------------------------------------- boot */
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (!b) return; S.tab = localStorage.tab = b.dataset.tab; renderStats(); renderMap(); });
+// a header too narrow for every stat scrolls sideways with the mouse wheel
+$("#stats").addEventListener("wheel", e => {
+  const s = $("#stats"); if (s.scrollWidth <= s.clientWidth) return;
+  s.scrollLeft += e.deltaY || e.deltaX; e.preventDefault();
+}, { passive: false });
 for (const id of ["hideMatched", "onlyCand", "onlyParked"]) {
   const el = $("#" + id); if (localStorage[id] != null) el.checked = localStorage[id] === "1";
   el.onchange = () => { localStorage[id] = el.checked ? "1" : "0"; renderMap(); };
