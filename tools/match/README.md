@@ -52,6 +52,15 @@ with `fullbuild.sh`, which compares the real bytes.
 Expect a draft to compile and get the logic right, then need the usual pass for
 types, temporaries and loop shape (a raw draft typically diffs at 0.3-0.8 ratio).
 
+## Function notes
+
+`notes/FUNC.md` (repo root, committed) holds free-form notes on one function: what it does,
+struct layouts, what was tried and failed. You edit them in the control panel's function window
+(saved on Ctrl+S or when you leave the box; changes made elsewhere show up live), or in any
+editor. The LLM loop puts the file in every prompt for that function, and a model can add to it
+with `NOTE:` lines in its reply, appended as `- (LLM, date) ...` (`fnotes.py`). Claude reads and
+writes the same files.
+
 ## Local LLM loop
 
 `llm_iterate.py` hands unmatched functions to a local model over an OpenAI-compatible chat

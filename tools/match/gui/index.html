@@ -418,6 +418,14 @@ body.v-activity #viewActivity, body.v-hw #viewHw { display: block; }
 .osrc .err { color: var(--faint); font-size: 11px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .trend { height: 120px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.35); margin-top: 10px; position: relative; overflow: hidden; }
 .trend svg { width: 100%; height: 100%; display: block; }
+.fnotes { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.35); padding: 8px 10px 10px; }
+.fnhead { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.fnhead > span:first-child { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: 10.5px; }
+.fnhead small { color: var(--faint); font: 10.5px var(--mono); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fnhead #fnState { font: 10.5px var(--mono); color: var(--faint); }
+.fnhead #fnState.warn { color: #ffb020; }
+.fnotes textarea { width: 100%; min-height: 90px; height: 120px; resize: vertical; box-sizing: border-box; background: rgba(0,0,0,0.3); color: var(--text, #dfe3ee); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: 12px/1.5 var(--mono); }
+.fnotes textarea:focus { outline: none; border-color: var(--line-2); }
 .trend .lg { position: absolute; top: 6px; left: 10px; display: flex; gap: 14px; font: 10.5px var(--mono); color: var(--muted); }
 .trend .empty2 { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); font-size: 12px; }
 table.sbs { width: 100%; border-collapse: collapse; font: 12px/1.5 var(--mono); }
@@ -922,6 +930,7 @@ $("#map").addEventListener("mousemove", e => {
   if (f.q) rows.push(["cand", f.q.cands.replace("permuter/cands/", "") + " #" + f.q.idx]);
   if (f.p) rows.push(["permuter", f.p.matched ? "matched" : `best ${f.p.best ?? "–"} / base ${f.p.base ?? "?"}` + (gain(f) != null ? ` (−${(gain(f) * 100).toFixed(0)}%)` : "")]);
   if (f.l) rows.push(["llm", f.l.match ? "MATCH" : f.l.ratio != null ? "best " + f.l.ratio.toFixed(4) : "started"]);
+  if (f.nt) rows.push(["notes", "yes, " + ago(f.nt)]);
   if (o >= 0) rows.push(["picked", "#" + (o + 1)]);
   const [label, c] = STATUS[st];
   tip.innerHTML = `<div class="t">${f.n}</div><div class="s">0x${f.a} · ${f.c}</div><div class="kv">${rows.map(([k, v]) => `<span>${k}</span><span>${esc(v)}</span>`).join("")}</div>
@@ -1251,6 +1260,47 @@ function diffTable(r) {
   return `<div class="diffsum"><span><b>${r.diffs}</b> of ${r.total} instructions differ</span><span><i style="background:rgba(255,176,32,.5)"></i>${r.regs_only} registers only</span><span><i style="background:rgba(255,77,125,.5)"></i>${r.diffs - r.regs_only} other</span><span style="color:var(--faint)">${esc(r.path)}</span>${r.match ? '<span style="color:var(--lock)">MATCH</span>' : ""}</div>
     <table class="sbs"><thead><tr><th></th><th>Target (original)</th><th></th><th>${esc(SRC[r.kind][0])}</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
+/* per-function notes (notes/FUNC.md): loads, saves, and picks up changes the LLM loop or
+   Claude make while the window is open (unless you have unsaved edits) */
+function notesBox(n, m) {
+  const ta = $("#fnText", m), btn = $("#fnSave", m), st = $("#fnState", m);
+  let mt = null, saved = "";
+  const dirty = () => ta.value !== saved;
+  const mark = () => { btn.disabled = !dirty(); st.textContent = dirty() ? "unsaved" : mt ? "saved " + ago(mt) : ""; st.className = dirty() ? "warn" : ""; };
+  const load = async (force) => {
+    try {
+      const r = await api(`/api/notes?func=${n}`);
+      if (!document.body.contains(ta)) return clearInterval(timer);
+      if (r.mtime === mt && !force) return mark();
+      if (dirty() && !force) { st.textContent = "changed elsewhere: save to merge"; st.className = "warn"; return; }
+      mt = r.mtime; saved = ta.value = r.text; mark();
+    } catch (e) { st.textContent = e.message; }
+  };
+  const save = async () => {
+    if (!dirty()) return;
+    const text = ta.value;
+    try {
+      const r = await api("/api/notes", { func: n, text, mtime: mt });
+      mt = r.mtime; saved = text; mark();
+      const f = S.byName.get(n); if (f) f.nt = text.trim() ? mt : null;
+    } catch (e) {
+      if (/conflict|409/i.test(e.message)) {
+        // someone else wrote meanwhile: theirs on top, your edit below, for you to tidy and save
+        const r = await api(`/api/notes?func=${n}`);
+        mt = r.mtime; saved = r.text;
+        ta.value = r.text.trimEnd() + "\n\n--- your unsaved edit (the file changed while you typed) ---\n" + text;
+        mark(); toast("The notes changed elsewhere meanwhile: both versions are in the box, tidy up and save again", "warn", 9000);
+      } else toast(esc(e.message), "err");
+    }
+  };
+  ta.oninput = mark;
+  ta.onblur = save;                       // leaving the box (or closing the window) saves
+  ta.onkeydown = e => { if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); save(); } };
+  btn.onclick = save;
+  const timer = setInterval(() => load(false), 5000);
+  load(true);
+}
+function ago(t) { const s = Date.now() / 1000 - t; return s < 60 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " d ago"; }
 async function inspect(n) {
   const f = S.byName.get(n); if (!f) return;
   const g = gain(f), st = status(f);
@@ -1267,6 +1317,10 @@ async function inspect(n) {
       <div class="note" style="margin-top:14px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-size:10.5px">Overall best <span id="ovNote" style="text-transform:none;letter-spacing:0;color:var(--faint)">· compiling every version to compare instruction by instruction…</span></div>
       <div class="overall" id="overall">${Object.keys(SRC).map(k => `<div class="osrc" data-d="${k}"><div class="k">${SRC[k][0]}</div><div class="v" style="color:var(--faint)">…</div></div>`).join("")}</div>
       <div class="trend" id="trend"><div class="empty2">loading history…</div></div>
+      <div class="fnotes">
+        <div class="fnhead"><span>Notes</span><small id="fnPath">notes/${f.n}.md · you, the LLM loop and Claude all write here; the LLM reads it every prompt</small><span id="fnState"></span><button class="btn sm" id="fnSave" disabled>Save</button></div>
+        <textarea id="fnText" spellcheck="false" placeholder="What this function does, struct layouts, what was tried and didn't work… (Ctrl+S saves)"></textarea>
+      </div>
       <div class="insp-actions">
         <button class="btn sm" data-a="sel">${S.sel.includes(n) ? "Remove from selection" : "Add to selection"}</button>
         <button class="btn sm" data-a="m2c" style="color:var(--m2c)">Draft with m2c</button>
@@ -1296,6 +1350,7 @@ async function inspect(n) {
     try { $("#codebox").innerHTML = diffTable(await api(`/api/diff?func=${n}&kind=${kind}`)); }
     catch (e) { $("#codebox").innerHTML = `<div class="p">${esc(e.message)}</div>`; }
   };
+  notesBox(n, m);
   api(`/api/trend?func=${n}`).then(tr => { if ($("#trend")) $("#trend").innerHTML = trendSVG(tr, f.p && f.p.base); }).catch(() => {});
   let picked = false;
   api(`/api/overall?func=${n}`).then(o => {

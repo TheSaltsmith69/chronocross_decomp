@@ -46,6 +46,7 @@ import argparse, glob, json, os, re, shutil, subprocess, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pauseclock import active_time      # time.time() minus time paused from the control panel
+import fnotes                             # notes/FUNC.md, shared with the control panel
 
 MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
@@ -356,7 +357,12 @@ you think causes it, what you ruled out, what to try next. When the conversation
 restarted to free memory, and only the best code, its result and these handoffs are carried over.
 """
 
-SYSTEM_BODY = """- C89 only: declarations at the start of a block, no // comments inside code, no C99 features.
+SYSTEM_BODY = """- Lasting notes: a line starting with `NOTE:` (outside code blocks, one fact per line, at most 4 \
+per reply) is saved to the function's notes file, which every later session on this function is \
+shown. Use it only for facts worth keeping: what the function does, what an argument or struct field \
+is, a type the assembly confirms, an approach that definitely fails and why. Progress belongs in \
+the HANDOFF, not in notes. Notes from the user are the most reliable.
+- C89 only: declarations at the start of a block, no // comments inside code, no C99 features.
 - Project style: untyped pointers are u8 *, struct fields are *(T *)(p + 0xOFF) or a small typedef \
 struct; types u8/s8/u16/s16/u32/s32 exist. If a prototype elsewhere has different parameter types, \
 define the function under another C name with an asm label: `s32 f_m(u8 *a) asm("func_X"); s32 f_m(u8 *a) {...}`.
@@ -407,6 +413,20 @@ def session_system(k):
 
 
 NOTES_MAX = 9000        # characters of earlier rounds' handoffs kept in the prompt
+FNOTES_MAX = 6000       # characters of the function's notes file kept in the prompt (newest)
+
+
+def save_notes(func, answer, where):
+    """Store the reply's NOTE: lines in notes/FUNC.md; returns the answer without them."""
+    found, rest = fnotes.from_reply(answer)
+    if found:
+        try:
+            added = fnotes.append(func, found, "LLM")
+            if added:
+                log(f"{func} {where}: {len(added)} note(s) saved to notes/{func}.md")
+        except OSError as e:
+            log(f"{func} {where}: couldn't save notes: {e}")
+    return rest
 
 
 def notes_text(notes):
@@ -531,6 +551,12 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), 
              "Best C so far:\n```c\n" + best + "\n```", "Its result:\n```\n" + best_fb + "\n```"]
     if func in START_NOTES:
         parts.append(START_NOTES[func])
+    fn = fnotes.read(func).strip()
+    if fn:
+        if len(fn) > FNOTES_MAX:
+            fn = "[... older notes cut ...]\n" + fn[-FNOTES_MAX:]
+        parts.append(f"Notes on this function (notes/{func}.md, written by the user, by Claude and by "
+                     "earlier sessions; lines tagged (LLM, date) came from a model):\n" + fn)
     if last is not None and last.strip() != best.strip():
         parts += ["Your previous attempt (worse than the best):\n```c\n" + last + "\n```",
                   "Its result:\n```\n" + last_fb + "\n```"]
@@ -778,7 +804,7 @@ def iterate(model, func, cands, idx, rounds, temperature):
             continue
         open(f"{d}/round{i:02d}.txt", "w").write(
             (f"<think>\n{thinking}\n</think>\n" if thinking else "") + answer)
-        body, handoff = split_handoff(answer)
+        body, handoff = split_handoff(save_notes(func, answer, f"round {i}"))
         new = extract_code(body, func) or extract_code(answer, func)
         if new is None:
             log(f"{func} round {i}: no C block with {func} in the answer")
@@ -903,8 +929,8 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
         open(f"{d}/turn{turn:02d}.txt", "w").write(
             (f"<think>\n{thinking}\n</think>\n" if thinking else "") + answer)
         msgs.append({"role": "assistant", "content": answer})
-        body, handoff = split_handoff(answer)
-        blocks = (extract_codes(body, func) or extract_codes(answer, func))[:variants]
+        body, handoff = split_handoff(save_notes(func, answer, f"turn {turn}"))
+        blocks =(extract_codes(body, func) or extract_codes(answer, func))[:variants]
         if not blocks:
             log(f"{func} turn {turn}: no C block with {func} in the answer")
             notes.append((turn, "no code block found", handoff))

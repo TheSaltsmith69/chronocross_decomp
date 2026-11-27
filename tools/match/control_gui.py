@@ -31,7 +31,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import gui_diff, gui_hw, pauseclock
+import fnotes, gui_diff, gui_hw, pauseclock
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -465,7 +465,7 @@ def functions():
             return _cache["data"]
         asm = asm_funcs()
         q = queue_lines()
-        pi, li, pk = perm_info(), llm_info(), parked()
+        pi, li, pk, nt = perm_info(), llm_info(), parked(), fnotes.listing()
         rows = []
         with open(os.path.join(ROOT, "progress", "functions.csv"), newline="") as f:
             for r in csv.DictReader(f):
@@ -474,7 +474,8 @@ def functions():
                 matched = (n not in asm) if src else r["matched"] == "1"
                 rows.append({"n": n, "a": r["addr"], "f": r["file"], "c": r["category"], "b": int(r["bytes"]),
                              "m": matched, "pk": n in pk, "q": q.get(n), "p": pi.get(n), "l": li.get(n),
-                             "i": INSNS.get(n)})      # [matched insns, total, source] or None
+                             "i": INSNS.get(n),       # [matched insns, total, source, diffs] or None
+                             "nt": nt.get(n)})        # notes/FUNC.md mtime, if it has notes
         _cache.update(t=time.time(), data=rows)
         return rows
 
@@ -1230,6 +1231,10 @@ class H(BaseHTTPRequestHandler):
                 return self.send(weights())
             if u.path == "/api/profiles":
                 return self.send(profiles_state())
+            if u.path == "/api/notes":
+                f = q.get("func", "")
+                return self.send({"func": f, "text": fnotes.read(f), "mtime": fnotes.mtime(f),
+                                  "path": os.path.relpath(fnotes.path(f), ROOT)})
             if u.path == "/api/tips":
                 return self.send({"text": read(TIPS)})
             if u.path == "/api/models":
@@ -1293,6 +1298,15 @@ class H(BaseHTTPRequestHandler):
             if u.path == "/api/weights":
                 save_weights(b)
                 return self.send(weights())
+            if u.path == "/api/notes":
+                f = b.get("func", "")
+                # someone else (the LLM loop, Claude, an editor) changed it since you opened it
+                if b.get("mtime") is not None and abs(fnotes.mtime(f) - float(b["mtime"])) > 0.01:
+                    return self.send({"conflict": True, "text": fnotes.read(f), "mtime": fnotes.mtime(f)}, 409)
+                fnotes.write(f, b.get("text", ""))
+                with _cache_lock:
+                    _cache["t"] = 0
+                return self.send({"ok": True, "mtime": fnotes.mtime(f)})
             if u.path == "/api/profiles/apply":
                 return self.send(apply_profile(b.get("id", "")))
             if u.path == "/api/profiles/save":
