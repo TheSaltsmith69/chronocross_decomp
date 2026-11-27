@@ -23,6 +23,22 @@ def asm_path(func):
     return hits[0]
 
 
+def table_files(path):
+    """.s files holding jump tables the function at PATH uses but doesn't contain (splat leaves
+    a table in its own jtbl_X.s when it can't tie it to one function). m2c needs them to turn the
+    jump into a switch."""
+    text = open(path).read()
+    out = []
+    for j in sorted(set(re.findall(r"%hi\((jtbl_[0-9A-Fa-f]+)\)", text))):
+        if re.search(r"^dlabel " + j + r"\b", text, re.M):
+            continue
+        hits = glob.glob(f"{os.path.dirname(path)}/{j}.s") or \
+            glob.glob(f"{ROOT}/asm/**/nonmatchings/**/{j}.s", recursive=True)
+        if hits and hits[0] not in out:
+            out.append(hits[0])
+    return out
+
+
 def extra_decls(ctx):
     if not os.path.exists(EXTRA):
         return ""
@@ -367,9 +383,11 @@ def draft(func, raw=False):
     os.makedirs(f"{ROOT}/build/m2c", exist_ok=True)
     cf = f"{ROOT}/build/m2c/{func}.ctx.c"
     open(cf, "w").write(ctx)
+    tables = table_files(asm_path(func))
     r = subprocess.run([sys.executable, f"{ROOT}/tools/m2c/m2c.py", "-t", "mipsel-gcc-c",
                         "-P", "4", "--pointer-style", "left", "--context", cf]
-                       + ([] if raw else ["--valid-syntax"]) + [asm_path(func)],
+                       + ([] if raw else ["--valid-syntax"])
+                       + (["-f", func] if tables else []) + [asm_path(func)] + tables,
                        capture_output=True, text=True)
     out = r.stdout
     if r.returncode or not out.strip():
