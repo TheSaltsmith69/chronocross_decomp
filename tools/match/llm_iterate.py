@@ -660,7 +660,12 @@ def permuted_code(func, src, cands, idx):
     if not sp:
         return None
     start = sp[0]
-    base_p = os.path.join(os.path.dirname(os.path.dirname(src)), "base.c")
+    # what the permuter started from: base.orig.c once permute_all.sh has moved base.c on to
+    # the best output (helpers it added since the draft must count as new)
+    d = os.path.dirname(os.path.dirname(src))
+    base_p = os.path.join(d, "base.orig.c")
+    if not os.path.exists(base_p):
+        base_p = os.path.join(d, "base.c")
     if os.path.exists(base_p):
         import difflib
         base = open(base_p).read()
@@ -1036,24 +1041,40 @@ def main():
         jobs += [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.parked}.txt") if l.strip()]
         jobs.sort(key=lambda f: f not in starts)      # ones with a saved candidate first
     permuted_from = {}
+
+    def use_permuter(func, sc, name, code):
+        """offer FUNC's best permuter output as a starting point (scored with the others)"""
+        ALT_STARTS[func] = code
+        permuted_from[func] = f"{name}\n"
+        START_NOTES[func] = (
+            f"Note: the best C above came from decomp-permuter ({name}/source.c, permuter score {sc}; "
+            "lower is better, 0 = match). The permuter makes random changes to find better codegen, so it "
+            "can contain odd or wrong C: unused or uninitialised variables, a strange return type such as "
+            "`volatile unsigned long long`, identity helpers like inline_fn, reordered or merged statements. "
+            "Keep the changes that make the assembly closer, but send real, equivalent C: undo the ones "
+            "that change what the function does.")
+
     if a.permuted:
         pj = permuted_jobs(starts)
         if a.funcs:                       # --permuted FUNC...: only those
             pj = [x for x in pj if x[0] in a.funcs]
             a.funcs = []
-        for func, sc, name, code in pj:
-            ALT_STARTS[func] = code
-            permuted_from[func] = f"{name}\n"
-            START_NOTES[func] = (
-                f"Note: the best C above came from decomp-permuter ({name}/source.c, permuter score {sc}; "
-                "lower is better, 0 = match). The permuter makes random changes to find better codegen, so it "
-                "can contain odd or wrong C: unused or uninitialised variables, a strange return type such as "
-                "`volatile unsigned long long`, identity helpers like inline_fn, reordered or merged statements. "
-                "Keep the changes that make the assembly closer, but send real, equivalent C: undo the ones "
-                "that change what the function does.")
+        for x in pj:
+            use_permuter(*x)
         jobs += [f for f, *_ in pj]
         log(f"permuter outputs: " + ", ".join(f"{f} ({sc})" for f, sc, *_ in pj) if pj else "no permuter outputs")
     jobs += a.funcs
+    # every other function with a permuter output gets it as a starting point too (selection,
+    # lists, --queue, --parked), not only --permuted runs
+    for f in dict.fromkeys(jobs):
+        if f in ALT_STARTS:
+            continue
+        pb = permuted_best(f)
+        if pb:
+            cands, idx = starts.get(f, (None, 0))
+            code = permuted_code(f, pb[2], cands, idx)
+            if code is not None:
+                use_permuter(f, pb[0], pb[1], code)
     if a.skip_done and os.path.exists(f"{OUT}/summary.txt"):
         done = set(re.findall(r" (func_\w+): ", open(f"{OUT}/summary.txt").read()))
 
