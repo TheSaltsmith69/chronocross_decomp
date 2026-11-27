@@ -1,0 +1,58 @@
+name: OV_PARTY
+# Disc file #2053 (identical on Disc 2): the party swap screen. Loaded at
+# 0x801EE000 on top of the field engine (the slot ov_enct uses during battle).
+# #2057 is a close variant (60% of words identical), not seen in a dump yet.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 2053
+sha1: b956e8b3eae311ddd1b083797b6a6d406f6480a1
+options:
+  basename: ov_party
+  target_path: iso/files/2053.bin
+  elf_path: build/ov_party.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_party
+  src_path: src/ov_party
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_party.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code first, then rodata (strings + jump tables), then data
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_party.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_party_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_party_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_party
+    type: code
+    start: 0x0
+    vram: 0x801EE000
+    subsegments:
+      - [0x0, c, party_801EE000]
+      # strings and jump tables of the code
+      - [0x4204, .rodata, party_801EE000]
+      - [0x422C, data, data_801F222C]
+  - [0x7800]

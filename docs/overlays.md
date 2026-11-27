@@ -4,8 +4,10 @@ Derived from PCSX-Redux RAM dumps (title, menu, field, battle), the
 retail SLUS_010.41 and the Disc 1 .bin.
 
 **Status:** `ov_field` (file #3), `ov_battle` (file #5), `ov_menu` (file #39),
-`ov_enct` (file #7), `ov_result` (file #8), `ov_name` (file #37) and `ov_shop`
-(file #225) are split and rebuild byte-for-byte.
+`ov_enct` (file #7), `ov_result` (file #8), `ov_name` (file #37), `ov_shop`
+(file #225) and `ov_party` (file #2053) are split and rebuild byte-for-byte.
+Both discs carry byte-identical copies of every code file under the same file
+numbers, so Disc 1 is the extraction source for all of them.
 
 The three slot-B programs (menu, name entry, shop) start with a header word
 (0xA, 0xB, 0xC), kept as a `textbin` subsegment. Its name must be different in each
@@ -32,8 +34,9 @@ Save/load screens are the menu overlay. Both world maps, cutscenes, the game
 over screen, sailing and the mini-game dumped are plain field engine. Disc 2's
 field, battle and menu use the same files as Disc 1.
 
-A second batch placed #2053 at 0x801EE000: the party swap screen (its code
-0x0-0x4204, 16 functions, matches the dump 100%). #2057 is a close variant of
+A second batch (mostly Disc 2, possibly New Game+) placed #2053 at 0x801EE000:
+the party swap screen, now `ov_party` (code 0x0-0x4204, 14 functions, matches the
+dump 100%; rodata is one jump table, then data). #2057 is a close variant of
 it (60% of words identical). #2054 is unrelated and not seen yet. The
 battle-start dump confirms #7 (`ov_enct`) is the transition into battle.
 

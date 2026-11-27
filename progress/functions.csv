@@ -3309,3 +3309,17 @@ func_801DF0F8,801DF0F8,ov_shop/shop_801D2804,ov_shop,564,0
 func_801DF32C,801DF32C,ov_shop/shop_801D2804,ov_shop,152,0
 func_801DF3C4,801DF3C4,ov_shop/shop_801D2804,ov_shop,40,0
 func_801DF3EC,801DF3EC,ov_shop/shop_801D2804,ov_shop,36,0
+func_801EE000,801EE000,ov_party/party_801EE000,ov_party,60,0
+func_801EE03C,801EE03C,ov_party/party_801EE000,ov_party,60,0
+func_801EE078,801EE078,ov_party/party_801EE000,ov_party,124,0
+func_801EE0F4,801EE0F4,ov_party/party_801EE000,ov_party,876,0
+func_801EE460,801EE460,ov_party/party_801EE000,ov_party,564,0
+func_801EE694,801EE694,ov_party/party_801EE000,ov_party,1160,0
+func_801EEB1C,801EEB1C,ov_party/party_801EE000,ov_party,568,0
+func_801EED54,801EED54,ov_party/party_801EE000,ov_party,1480,0
+func_801EF31C,801EF31C,ov_party/party_801EE000,ov_party,56,0
+func_801EF354,801EF354,ov_party/party_801EE000,ov_party,80,0
+func_801EF3A4,801EF3A4,ov_party/party_801EE000,ov_party,3980,0
+func_801F0330,801F0330,ov_party/party_801EE000,ov_party,724,0
+func_801F0604,801F0604,ov_party/party_801EE000,ov_party,1748,0
+func_801F0CD8,801F0CD8,ov_party/party_801EE000,ov_party,5420,0

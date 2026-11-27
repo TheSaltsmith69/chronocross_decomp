@@ -27,6 +27,7 @@ MODULES = [
     ("ov_result", ROOT / "ov_result.yaml", "ov_result", ROOT / "build" / "ov_result.elf", ROOT / "src" / "ov_result"),
     ("ov_name", ROOT / "ov_name.yaml", "ov_name", ROOT / "build" / "ov_name.elf", ROOT / "src" / "ov_name"),
     ("ov_shop", ROOT / "ov_shop.yaml", "ov_shop", ROOT / "build" / "ov_shop.elf", ROOT / "src" / "ov_shop"),
+    ("ov_party", ROOT / "ov_party.yaml", "ov_party", ROOT / "build" / "ov_party.elf", ROOT / "src" / "ov_party"),
 ]
 OVERLAYS = [m[0] for m in MODULES if m[0]]
 

@@ -46,10 +46,11 @@ its own:
 | `ov_result` (after-battle results screen) | #8 | `0x801EA000` | `1f2ad7deff356a6e60232be50ccd09ee1c1cb6fa` |
 | `ov_name` (name entry, runs on top of the field engine) | #37 | `0x801D2800` | `c6e6e0dfb7083938b5196b0f5cf1f58806d8e213` |
 | `ov_shop` (Element shop and smith, on top of the field engine) | #225 | `0x801D2800` | `53aefadb0fa980d295fc75c0db1cd85d6cdfd68e` |
+| `ov_party` (party swap screen, on top of the field engine) | #2053 | `0x801EE000` | `b956e8b3eae311ddd1b083797b6a6d406f6480a1` |
 
 ```bash
-python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225   # extract the overlays
-for o in field battle menu enct result name shop; do make split-ov_$o; done  # disassemble them
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225 2053   # extract the overlays
+for o in field battle menu enct result name shop party; do make split-ov_$o; done  # disassemble them
 make                                                              # now also checks the overlays
 ```
 
@@ -86,7 +87,7 @@ from power-on to the title screen (opening movie skipped with START).
 ## Layout
 
 - `slus_010.41.yaml` – splat config describing how the EXE is split
-- `ov_*.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7, #8, #37, #225)
+- `ov_*.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7, #8, #37, #225, #2053)
 - `symbol_addrs.txt` – known function/data names
 - `undefined_funcs.txt` – hand-maintained external symbols
 - `asm/`, `assets/`, `build/` – generated, not committed
