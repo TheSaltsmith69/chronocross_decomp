@@ -124,6 +124,8 @@ def context(func, keep_aliases=False):
         m = ASM_LABEL.search(t)
         if m:
             real = m.group(1)
+            if not re.fullmatch(r"[A-Za-z_]\w*", real):
+                continue        # asm("D_x-2"): an offset label, not a C-nameable symbol
             if real in direct or last.get(real) != i:
                 continue
             body = ASM_LABEL.sub("", t)
