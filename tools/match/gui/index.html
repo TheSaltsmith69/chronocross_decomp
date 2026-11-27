@@ -22,6 +22,8 @@
   --park: #ffb020;
   --queue: #6d7dff;
   --bad: #ff4d7d;
+  --m2c: #ffa23d;
+  --m2c-2: #ff6b3d;
   --sq: 15px;
   --gap: 3px;
   --mono: "JetBrains Mono", "Cascadia Code", "Cascadia Mono", Consolas, monospace;
@@ -82,7 +84,7 @@ header {
 .pill.bad .d { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
 
 /* ---------------- main */
-main { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 410px; min-height: 0; }
+main { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 410px; grid-template-rows: minmax(0, 1fr); min-height: 0; }
 .mapwrap { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px 10px; }
 .tabs { display: inline-flex; padding: 3px; border-radius: 11px; background: rgba(0,0,0,0.35); border: 1px solid var(--line); }
@@ -154,8 +156,11 @@ select option { background: #11131a; }
 }
 .sq.inrun-perm { outline: 1px dashed rgba(46,230,255,0.75); outline-offset: 1px; }
 .sq.inrun-llm { outline: 1px dashed rgba(199,125,255,0.8); outline-offset: 1px; }
+.sq.inrun-m2c { outline: 1px dashed rgba(255,162,61,0.8); outline-offset: 1px; }
 .sq.run-perm { animation: pulseP 1.2s ease-in-out infinite; z-index: 4; }
 .sq.run-llm { animation: pulseL 1.2s ease-in-out infinite; z-index: 4; }
+.sq.run-m2c { animation: pulseM 1.2s ease-in-out infinite; z-index: 4; }
+@keyframes pulseM { 0%,100% { box-shadow: 0 0 0 2px var(--m2c), 0 0 6px var(--m2c); } 50% { box-shadow: 0 0 0 3px var(--m2c), 0 0 22px 4px var(--m2c); } }
 @keyframes pulseP { 0%,100% { box-shadow: 0 0 0 2px var(--perm), 0 0 6px var(--perm); } 50% { box-shadow: 0 0 0 3px var(--perm), 0 0 22px 4px var(--perm); } }
 @keyframes pulseL { 0%,100% { box-shadow: 0 0 0 2px var(--llm), 0 0 6px var(--llm); } 50% { box-shadow: 0 0 0 3px var(--llm), 0 0 22px 4px var(--llm); } }
 .empty { color: var(--faint); padding: 40px 0; text-align: center; }
@@ -164,7 +169,7 @@ select option { background: #11131a; }
 aside { overflow-y: auto; padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .card {
   border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-  padding: 14px; position: relative; overflow: hidden;
+  padding: 14px; position: relative; overflow: hidden; flex: none;
 }
 .card h3 { margin: 0; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 9px; }
 .card h3 small { font: 11px var(--mono); letter-spacing: 0; color: var(--muted); text-transform: none; font-weight: 400; }
@@ -186,6 +191,8 @@ aside { overflow-y: auto; padding: 14px 14px 20px; display: flex; flex-direction
 
 .engine { --acc: var(--perm); --acc2: var(--perm-2); }
 .engine.llm { --acc: var(--llm); --acc2: var(--llm-2); }
+.engine.m2c { --acc: var(--m2c); --acc2: var(--m2c-2); }
+.engine.m2c .go { color: #1f0c00; }
 .engine::before {
   content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: .7;
@@ -245,11 +252,12 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px;
 .note { color: var(--faint); font-size: 11px; margin-top: 8px; }
 
 /* ---------------- consoles */
-.consoles { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); height: var(--ch, 250px); background: rgba(0,0,0,0.35); }
+.consoles { position: relative; z-index: 1; display: grid; grid-template-columns: 0.75fr 1fr 1fr;border-top: 1px solid var(--line); height: var(--ch, 250px); background: rgba(0,0,0,0.35); }
 .consoles.min { height: 36px; }
 .grip { position: absolute; top: -4px; left: 0; right: 0; height: 8px; cursor: ns-resize; z-index: 5; }
 .con { display: flex; flex-direction: column; min-width: 0; min-height: 0; --acc: var(--perm); }
-.con + .con { border-left: 1px solid var(--line); --acc: var(--llm); }
+.con + .con { border-left: 1px solid var(--line); }
+#conLlm { --acc: var(--llm); } #conM2c { --acc: var(--m2c); }
 .con header { all: unset; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--acc); font-weight: 700; }
 .con header .st { flex: 1; min-width: 0; font: 11px var(--mono); letter-spacing: 0; text-transform: none; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
 .con header button { all: unset; cursor: pointer; color: var(--faint); font: 10.5px var(--mono); letter-spacing: .05em; text-transform: none; }
@@ -362,6 +370,31 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
       <div class="note">Click squares to pick (order = run order), shift-click for a range, right-click for details. Drag chips to reorder.</div>
     </div>
 
+    <div class="card engine m2c" id="engM2c">
+      <h3><span class="dot"></span>m2c drafts <small id="m2cSub">idle</small></h3>
+      <div class="note" style="margin-top:6px">Writes a first-draft C candidate for each function, scores it, and adds the ones that compile to the permuter queue (best first).</div>
+      <div class="row">
+        <div class="seg" data-eng="m2c"><button data-src="selection" class="on">Selection</button><button data-src="list">List</button></div>
+        <select id="m2cList" style="display:none"></select>
+      </div>
+      <button class="go" id="m2cGo">DRAFT</button>
+      <div class="live-box" id="m2cLive">
+        <div class="cur"><span>now <b id="m2cCur">—</b></span><span id="m2cTime">0:00</span></div>
+        <div class="status" id="m2cStatus"></div>
+        <div class="prog"><i id="m2cProg" style="width:0"></i></div>
+      </div>
+      <details class="tune" id="m2cTune">
+        <summary>Tune</summary>
+        <div class="form">
+          <div class="fld"><label>Min ratio to queue <em data-v="m2c.min_ratio"></em></label><input type="range" min="0" max="1" step="0.05" data-k="m2c.min_ratio"></div>
+          <div class="fld"><label>Limit (0 = all) <em data-v="m2c.limit"></em></label><input type="range" min="0" max="100" step="1" data-k="m2c.limit"></div>
+          <div class="fld"><label>Priority (nice) <em data-v="m2c.nice"></em></label><input type="range" min="0" max="19" step="1" data-k="m2c.nice"></div>
+          <label class="tog"><input type="checkbox" data-k="m2c.dry_run"><i></i>Dry run (don't queue)</label>
+          <div class="full note" style="margin:0">Skips functions already matched, already queued, or already in the permuter. Drafts that don't compile are listed in the console. Log: permuter/refill.log.</div>
+        </div>
+      </details>
+    </div>
+
     <div class="card engine perm" id="engPerm">
       <h3><span class="dot"></span>Permuter <small id="permSub">idle</small></h3>
       <div class="row">
@@ -432,6 +465,7 @@ textarea.tips { width: 100%; height: 52vh; resize: vertical; border-radius: 12px
 
 <section class="consoles" id="consoles">
   <div class="grip" id="grip"></div>
+  <div class="con" id="conM2c"><header>m2c<span class="st" id="m2cSt"></span><button data-auto="m2c" class="on">autoscroll</button><button data-clear="m2c">clear</button><button data-min>▾</button></header><div class="log" id="logM2c"></div></div>
   <div class="con" id="conPerm"><header>Permuter<span class="st" id="permSt"></span><button data-auto="perm" class="on">autoscroll</button><button data-clear="perm">clear</button><button data-min>▾</button></header><div class="log" id="logPerm"></div></div>
   <div class="con" id="conLlm"><header>LLM<span class="st" id="llmSt"></span><button data-auto="llm" class="on">autoscroll</button><button data-clear="llm">clear</button><button data-min>▾</button></header><div class="log" id="logLlm"></div></div>
 </section>
@@ -461,11 +495,14 @@ function toast(msg, kind = "", ms = 5000) {
 const S = {
   funcs: [], byName: new Map(), lists: [], settings: null,
   tab: localStorage.tab || "ov_battle", sel: JSON.parse(localStorage.sel || "[]"),
-  src: { perm: localStorage.srcPerm || "selection", llm: localStorage.srcLlm || "selection" },
-  listChoice: { perm: localStorage.listPerm || "queue", llm: localStorage.listLlm || "parked:ov_battle" },
-  seq: { perm: 0, llm: 0 }, job: { perm: null, llm: null }, auto: { perm: true, llm: true },
+  src: { perm: localStorage.srcPerm || "selection", llm: localStorage.srcLlm || "selection", m2c: localStorage.srcM2c || "selection" },
+  listChoice: { perm: localStorage.listPerm || "queue", llm: localStorage.listLlm || "parked:ov_battle", m2c: localStorage.listM2c || "parked:ov_battle" },
+  seq: { perm: 0, llm: 0, m2c: 0 }, job: { perm: null, llm: null, m2c: null }, auto: { perm: true, llm: true, m2c: true },
   visible: [], lastClick: null,
 };
+const ENGINES = ["m2c", "perm", "llm"];
+const NAME = { m2c: "m2c", perm: "Permuter", llm: "LLM" };
+const CAP = { m2c: "M2c", perm: "Perm", llm: "Llm" };
 const MODS = [["all", "All"], ["ov_battle", "Battle"], ["ov_field", "Field"], ["game", "Game"], ["lib", "Lib"]];
 const saveSel = () => localStorage.sel = JSON.stringify(S.sel);
 
@@ -508,7 +545,7 @@ function legend() {
   else if (mode === "perm") items = [["#0d2a36", "little gain"], ["#2ee6ff", "big gain vs base"], ["#232838", "not permuted"]];
   else if (mode === "llm") items = [["#24143a", "ratio ≤0.3"], ["#e2a6ff", "ratio → 1.0"], ["#232838", "not tried"]];
   else items = [["#1f2a44", "tiny"], ["#6d7dff", "medium"], ["#ff4d7d", "huge"]];
-  items.push(["transparent;box-shadow:0 0 0 2px var(--perm)", "permuter on it"], ["transparent;box-shadow:0 0 0 2px var(--llm)", "LLM on it"]);
+  items.push(["transparent;box-shadow:0 0 0 2px var(--m2c)", "m2c on it"], ["transparent;box-shadow:0 0 0 2px var(--perm)", "permuter on it"], ["transparent;box-shadow:0 0 0 2px var(--llm)", "LLM on it"]);
   $("#legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
 }
 
@@ -553,16 +590,18 @@ function renderMap() {
 }
 function decorate() {
   const order = new Map(S.sel.map((n, i) => [n, i + 1]));
-  const pj = S.job.perm, lj = S.job.llm;
-  const pr = pj && pj.running ? new Set(pj.order) : null, lr = lj && lj.running ? new Set(lj.order) : null;
+  const runs = ENGINES.map(e => { const j = S.job[e]; return [e, j && j.running ? j : null, j && j.running ? new Set(j.order) : null]; });
   for (const el of $$("#map .sq")) {
     const n = el.dataset.n, o = order.get(n);
     el.classList.toggle("on", !!o);
     if (o) el.dataset.o = o < 100 ? o : ""; else delete el.dataset.o;
-    el.classList.toggle("run-perm", !!(pj && pj.running && pj.current === n));
-    el.classList.toggle("run-llm", !!(lj && lj.running && lj.current === n));
-    el.classList.toggle("inrun-perm", !!(pr && pr.has(n)));
-    el.classList.toggle("inrun-llm", !!(lr && lr.has(n) && !(pr && pr.has(n))));
+    let dashed = false;
+    for (const [e, j, set] of runs) {
+      el.classList.toggle("run-" + e, !!(j && j.current === n));
+      const inr = !!(set && set.has(n)) && !dashed;
+      el.classList.toggle("inrun-" + e, inr);
+      if (inr) dashed = true;
+    }
   }
 }
 function toggleSel(n, force) {
@@ -623,7 +662,7 @@ function renderSel() {
   const c = $("#chips");
   c.innerHTML = S.sel.length ? S.sel.map((n, i) => `<span class="chip" draggable="true" data-i="${i}"><b>${i + 1}</b>${n.replace(/^func_/, "")}<button data-rm="${i}" title="remove">×</button></span>`).join("")
     : `<span class="hint">Nothing picked: click squares on the map, or load a list.</span>`;
-  for (const eng of ["perm", "llm"]) $(`.seg[data-eng=${eng}] [data-src=selection]`).textContent = `Selection${S.sel.length ? " · " + S.sel.length : ""}`;
+  for (const eng of ENGINES) $(`.seg[data-eng=${eng}] [data-src=selection]`).textContent = `Selection${S.sel.length ? " · " + S.sel.length : ""}`;
 }
 $("#chips").addEventListener("click", e => {
   const b = e.target.closest("[data-rm]"); if (!b) return;
@@ -648,8 +687,7 @@ function listOptions(sel) {
 function renderLists() {
   const cur = $("#listPick").value || "queue";
   $("#listPick").innerHTML = listOptions(cur);
-  $("#permList").innerHTML = listOptions(S.listChoice.perm);
-  $("#llmList").innerHTML = listOptions(S.listChoice.llm);
+  for (const e of ENGINES) $(`#${e}List`).innerHTML = listOptions(S.listChoice[e]);
   $("#listDel").disabled = !($("#listPick").value || "").startsWith("user:");
 }
 async function loadLists() { S.lists = await api("/api/lists"); renderLists(); }
@@ -671,47 +709,47 @@ $("#selSave").onclick = async () => {
 };
 
 /* ---------------------------------------------------------------- engines */
-for (const eng of ["perm", "llm"]) {
+for (const eng of ENGINES) {
   const seg = $(`.seg[data-eng=${eng}]`);
   const setSrc = v => {
-    S.src[eng] = v; localStorage["src" + (eng === "perm" ? "Perm" : "Llm")] = v;
+    S.src[eng] = v; localStorage["src" + CAP[eng]] = v;
     $$("button", seg).forEach(b => b.classList.toggle("on", b.dataset.src === v));
     $(`#${eng}List`).style.display = v === "list" ? "" : "none";
   };
   seg.addEventListener("click", e => { const b = e.target.closest("button"); if (b) setSrc(b.dataset.src); });
   setSrc(S.src[eng]);
-  $(`#${eng}List`).onchange = e => { S.listChoice[eng] = e.target.value; localStorage["list" + (eng === "perm" ? "Perm" : "Llm")] = e.target.value; };
+  $(`#${eng}List`).onchange = e => { S.listChoice[eng] = e.target.value; localStorage["list" + CAP[eng]] = e.target.value; };
   $(`#${eng}Go`).onclick = () => goStop(eng);
 }
 async function goStop(eng) {
-  const j = S.job[eng], other = eng === "perm" ? "llm" : "perm";
+  const j = S.job[eng], other = eng === "perm" ? "llm" : eng === "llm" ? "perm" : null;
   if (j && j.running) {
     $(`#${eng}Go`).disabled = true;
     await api(`/api/${eng}/stop`, {});
-    toast(`${eng === "perm" ? "Permuter" : "LLM"}: stopping (Ctrl+C, then harder if it hangs)…`, "warn");
+    toast(`${NAME[eng]}: stopping (Ctrl+C, then harder if it hangs)…`, "warn");
     return;
   }
   const source = S.src[eng] === "selection" ? { type: "selection", funcs: S.sel } : { type: "list", list: S.listChoice[eng] };
   if (source.type === "selection" && !S.sel.length) return toast("Nothing picked. Click squares on the map or switch to a list.", "warn");
-  if (S.job[other] && S.job[other].running &&
+  if (other && S.job[other] && S.job[other].running &&
       !await ask("Both at once?", `The ${other === "llm" ? "LLM (Strata)" : "permuter"} is running. Running both makes them fight over the CPU: each gets much slower.`, "Start anyway")) return;
   try {
     const r = await api(`/api/${eng}/start`, { source, settings: S.settings[eng] });
-    let msg = `${eng === "perm" ? "Permuter" : "LLM"} started on ${r.count} function${r.count === 1 ? "" : "s"}`;
+    let msg = `${NAME[eng]} started on ${r.count} function${r.count === 1 ? "" : "s"}`;
     toast(msg, "good");
-    if (r.skipped && r.skipped.length) toast(`Skipped ${r.skipped.length} with no permuter candidate: <span style="font-family:var(--mono)">${r.skipped.slice(0, 8).join(", ")}${r.skipped.length > 8 ? "…" : ""}</span><br>Run them through the LLM (it drafts with m2c) or run_refill.bat first.`, "warn", 9000);
+    if (r.skipped && r.skipped.length) toast(`Skipped ${r.skipped.length} with no permuter candidate: <span style="font-family:var(--mono)">${r.skipped.slice(0, 8).join(", ")}${r.skipped.length > 8 ? "…" : ""}</span><br>Draft them with <b style="color:var(--m2c)">m2c</b> first (they stay picked), or run them through the LLM.`, "warn", 9000);
     poll();
   } catch (e) { toast(esc(e.message), "err", 8000); }
 }
 const fmtT = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s % 60).padStart(2, "0"); };
 function renderEngine(eng, j, now) {
-  const card = $(eng === "perm" ? "#engPerm" : "#engLlm");
+  const card = $("#eng" + CAP[eng]);
   const live = j.running;
   card.classList.toggle("live", live);
   const go = $(`#${eng}Go`);
   go.disabled = !!j.stopping;
   go.classList.toggle("stop", live);
-  go.textContent = j.stopping ? "STOPPING…" : live ? "STOP" : "START";
+  go.textContent = j.stopping ? "STOPPING…" : live ? "STOP" : eng === "m2c" ? "DRAFT" : "START";
   $(`#${eng}Sub`).textContent = live ? `running · ${j.desc}` : j.exit != null ? `idle · last run exited ${j.exit}` : "idle";
   if (live) {
     $(`#${eng}Cur`).textContent = j.current || "starting…";
@@ -719,8 +757,10 @@ function renderEngine(eng, j, now) {
     $(`#${eng}Time`).textContent = fmtT(now - j.started);
     const best = j.current && j.best[j.current];
     const st = ANSI_STRIP(j.partial || "").trim();
-    $(`#${eng}Status`).textContent = eng === "perm" ? (st || (best ? best : "")) : (best ? `best ${best}` : "") + (j.done.length ? ` · ${j.done.length} finished` : "");
-    const n = j.order.length || 1, d = j.done.length;
+    $(`#${eng}Status`).textContent = eng === "perm" ? (st || (best ? best : "")) :
+      eng === "m2c" ? (best ? best : st || "preparing the workspace…") + (j.total ? ` · ${j.done.length}/${j.total}` : "") :
+      (best ? `best ${best}` : "") + (j.done.length ? ` · ${j.done.length} finished` : "");
+    const n = j.total || j.order.length || 1, d = j.done.length;
     $(`#${eng}Prog`).style.width = (100 * Math.min(1, d / n)).toFixed(1) + "%";
   }
   $(`#${eng}St`).textContent = live ? `${j.current || "…"} · ${fmtT(now - j.started)}` : (j.exit != null ? `exited ${j.exit}` : "idle");
@@ -741,7 +781,7 @@ function ansi(s) {
   return out + "</span>".repeat(open);
 }
 function appendLog(eng, j) {
-  const box = $(eng === "perm" ? "#logPerm" : "#logLlm");
+  const box = $("#log" + CAP[eng]);
   if (j.reset) box.innerHTML = "";
   box.querySelector(".partial")?.remove();
   const frag = document.createDocumentFragment();
@@ -756,7 +796,7 @@ function appendLog(eng, j) {
   if (S.auto[eng] && (j.lines.length || j.partial)) box.scrollTop = box.scrollHeight;
 }
 $$("[data-auto]").forEach(b => b.onclick = () => { const e = b.dataset.auto; S.auto[e] = !S.auto[e]; b.classList.toggle("on", S.auto[e]); });
-$$("[data-clear]").forEach(b => b.onclick = () => { $(b.dataset.clear === "perm" ? "#logPerm" : "#logLlm").innerHTML = ""; });
+$$("[data-clear]").forEach(b => b.onclick = () => { $("#log" + CAP[b.dataset.clear]).innerHTML = ""; });
 $$("[data-min]").forEach(b => b.onclick = () => { $("#consoles").classList.toggle("min"); });
 (() => { // resizable consoles
   const g = $("#grip"); let y0, h0;
@@ -837,6 +877,7 @@ async function inspect(n) {
       ${f.q && f.q.note ? `<div class="note">${esc(f.q.note)}</div>` : ""}
       <div class="insp-actions">
         <button class="btn sm" data-a="sel">${S.sel.includes(n) ? "Remove from selection" : "Add to selection"}</button>
+        <button class="btn sm" data-a="m2c" style="color:var(--m2c)">Draft with m2c</button>
         <button class="btn sm" data-a="perm" style="color:var(--perm)">Permute just this</button>
         <button class="btn sm" data-a="llm" style="color:var(--llm)">LLM just this</button>
         <span class="spacer"></span>
@@ -893,7 +934,7 @@ $("#openTips").onclick = async () => {
 };
 
 /* ---------------------------------------------------------------- polling */
-let fnT = 0, wasRunning = { perm: false, llm: false };
+let fnT = 0, wasRunning = { perm: false, llm: false, m2c: false };
 async function loadFunctions() {
   S.funcs = await api("/api/functions");
   S.byName = new Map(S.funcs.map(f => [f.n, f]));
@@ -903,20 +944,23 @@ let polling = false;
 async function poll() {
   if (polling) return; polling = true;
   try {
-    const r = await api(`/api/state?perm=${S.seq.perm}&llm=${S.seq.llm}`);
+    const r = await api(`/api/state?` + ENGINES.map(e => `${e}=${S.seq[e]}`).join("&"));
     $("#pillKey").classList.toggle("ok", r.key); $("#pillKey").classList.toggle("bad", !r.key);
     $("#pillKey").title = r.key ? "STRATA_API_KEY reached WSL" : "STRATA_API_KEY is not set: run  setx STRATA_API_KEY \"key\"  then restart run_gui.bat";
     let finished = false;
-    for (const eng of ["perm", "llm"]) {
+    for (const eng of ENGINES) {
       const j = r[eng];
       appendLog(eng, j); S.seq[eng] = j.seq; S.job[eng] = j; renderEngine(eng, j, r.now);
-      if (wasRunning[eng] && !j.running) { finished = true; toast(`${eng === "perm" ? "Permuter" : "LLM"} finished (exit ${j.exit})`, j.exit ? "warn" : "good"); }
+      if (wasRunning[eng] && !j.running) {
+        finished = true; toast(`${NAME[eng]} finished (exit ${j.exit})`, j.exit ? "warn" : "good");
+        if (eng === "m2c") loadLists();      // drafts landed in the permuter queue
+      }
       wasRunning[eng] = j.running;
     }
     decorate();
-    const anyRun = r.perm.running || r.llm.running;
+    const anyRun = ENGINES.some(e => r[e].running);
     if (finished || Date.now() - fnT > (anyRun ? 10000 : 30000)) loadFunctions();
-  } catch (e) { $("#permSt").textContent = $("#llmSt").textContent = "control server unreachable"; }
+  } catch (e) { for (const e2 of ENGINES) $(`#${e2}St`).textContent = "control server unreachable"; }
   polling = false;
 }
 

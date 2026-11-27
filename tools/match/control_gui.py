@@ -4,6 +4,7 @@
 Serves tools/match/gui/index.html at http://localhost:PORT/ and runs, one each at a time:
   * the permuter      tools/match/permute_all.sh QUEUE MIN JOBS [fresh] [stall=M]
   * the LLM loop      tools/match/llm_iterate.py ...
+  * m2c drafting      tools/match/refill_queue.py [FUNC...] (drafts go to permuter/cands + queue.txt)
 Each job gets its own pseudo-terminal, so permwatch.py and the LLM's streamed thinking behave
 exactly as in a console window; the output is kept in memory for the page and appended to
 permuter/gui/<job>.log.
@@ -48,6 +49,7 @@ DEFAULTS = {
     "llm": {"compiles": 40, "minutes": 30, "think": 8000, "think_mode": "budget", "variants": 3,
             "temperature": 0.6, "ctx": 131072, "examples": 2, "skip_done": True, "quiet": False,
             "rounds": 0, "model": "", "base_url": ""},
+    "m2c": {"min_ratio": 0.3, "limit": 0, "nice": 10, "dry_run": False},
 }
 os.makedirs(GUI, exist_ok=True)
 os.makedirs(LISTS, exist_ok=True)
@@ -134,7 +136,7 @@ class Job:
             self.partial = ""
             self.started, self.ended, self.exit = time.time(), None, None
             self.desc, self.cmd, self.current = desc, argv, None
-            self.best, self.order, self.done = {}, list(order), set()
+            self.best, self.order, self.done, self.total = {}, list(order), set(), None
             self.stopping = False
             self._commit(f"\x1b[2m{time.strftime('%H:%M:%S')} $ {' '.join(argv)}\x1b[0m")
         threading.Thread(target=self._reader, args=(master, self.proc), daemon=True).start()
@@ -207,6 +209,7 @@ class Job:
                     "pid": self.proc.pid if self.proc else None, "started": self.started,
                     "ended": self.ended, "exit": self.exit, "desc": self.desc, "current": self.current,
                     "best": self.best, "order": self.order, "done": sorted(self.done),
+                    "total": getattr(self, "total", None),
                     "seq": self.seq, "lines": new, "partial": self.partial, "reset": since == first and since > 0}
 
 
@@ -248,7 +251,21 @@ class LlmJob(Job):
             self.best[f] = f"{max(rs + [float(self.best.get(f) or 0)]):.4f}"
 
 
-JOBS = {"perm": PermJob("perm"), "llm": LlmJob("llm")}
+class DraftJob(Job):
+    STEP = re.compile(r"^\[(\d+)/(\d+)\] (\w+): (.*)")
+
+    def parse(self, line):
+        m = self.STEP.search(line)
+        if m:
+            f, what = m.group(3), m.group(4)
+            self.total = int(m.group(2))
+            self.done.add(f)
+            self.current = f
+            self.best[f] = ("MATCH" if "MATCHES" in what else
+                            re.sub(r" \(\d+s\)$", "", what))
+
+
+JOBS = {"perm": PermJob("perm"), "llm": LlmJob("llm"), "m2c": DraftJob("m2c")}
 
 
 # ---------------------------------------------------------------- project data
@@ -562,6 +579,25 @@ def start_llm(src, s):
     return {"skipped": [], "count": len(funcs)}
 
 
+def start_m2c(src, s):
+    kind, funcs, lst = resolve_source(src)
+    p = s["m2c"]
+    argv = ["nice", "-n", str(int(p["nice"])), PY, "tools/match/refill_queue.py",
+            "--min-ratio", str(p["min_ratio"]), "--limit", str(int(p["limit"]))]
+    if p["dry_run"]:
+        argv.append("--dry-run")
+    if kind.startswith("parked:"):
+        argv += ["--ov", kind[7:]]
+    else:
+        argv += list(dict.fromkeys(funcs))
+    name = lst["name"] if lst else f"{len(funcs)} picked"
+    JOBS["m2c"].start(argv, {}, name, list(dict.fromkeys(funcs)))
+    return {"skipped": [], "count": len(set(funcs))}
+
+
+STARTERS = {"perm": start_perm, "llm": start_llm, "m2c": start_m2c}
+
+
 # ---------------------------------------------------------------- code viewer
 
 def code_for(func, kind):
@@ -613,9 +649,8 @@ class H(BaseHTTPRequestHandler):
             if u.path in ("/", "/index.html"):
                 return self.send(open(os.path.join(HERE, "gui", "index.html"), "rb").read(), ctype="text/html; charset=utf-8")
             if u.path == "/api/state":
-                return self.send({"perm": JOBS["perm"].state(int(q.get("perm", 0))),
-                                  "llm": JOBS["llm"].state(int(q.get("llm", 0))),
-                                  "key": bool(llm_key()), "now": time.time()})
+                out = {k: j.state(int(q.get(k, 0))) for k, j in JOBS.items()}
+                return self.send(dict(out, key=bool(llm_key()), now=time.time()))
             if u.path == "/api/functions":
                 return self.send(functions())
             if u.path == "/api/lists":
@@ -644,16 +679,17 @@ class H(BaseHTTPRequestHandler):
                     s[k].update({kk: vv for kk, vv in b.get(k, {}).items() if kk in s[k]})
                 save_settings(s)
                 return self.send(s)
-            if u.path in ("/api/perm/start", "/api/llm/start"):
+            m = re.fullmatch(r"/api/(\w+)/(start|stop)", u.path)
+            if m and m.group(1) in JOBS:
+                job = m.group(1)
+                if m.group(2) == "stop":
+                    return self.send({"ok": JOBS[job].stop()})
                 s = load_settings()
-                job = u.path.split("/")[2]
                 if "settings" in b:
                     s[job].update({k: v for k, v in b["settings"].items() if k in s[job]})
                     save_settings(s)
-                r = (start_perm if job == "perm" else start_llm)(b.get("source", {}), s)
+                r = STARTERS[job](b.get("source", {}), s)
                 return self.send(dict(r, ok=True))
-            if u.path in ("/api/perm/stop", "/api/llm/stop"):
-                return self.send({"ok": JOBS[u.path.split("/")[2]].stop()})
             if u.path == "/api/lists/save":
                 name = safe_name(b.get("name", ""))
                 funcs = [f for f in b.get("funcs", []) if FUNC_RE.fullmatch(f)]

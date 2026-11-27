@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""refill_queue.py [--ov ov_battle] [--limit N] [--min-ratio R] [--dry-run] -- keep the permuter queue fed.
+"""refill_queue.py [--ov ov_battle] [--limit N] [--min-ratio R] [--dry-run] [FUNC...] -- keep the permuter queue fed.
+
+With FUNC names it drafts exactly those (in that order, any module) instead of the parked list;
+the same skip rules apply (already matched, queued or in the permuter).
 
 Goes through the overlay's parked list (tools/match/parked_OV.txt) and picks the functions that
 neither loop can work on yet: still asm (INCLUDE_ASM), not in permuter/queue.txt and without a
@@ -35,6 +38,7 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="draft at most N functions this run (0 = all)")
     ap.add_argument("--min-ratio", type=float, default=0.3, help="lowest score ratio worth queueing (default 0.3)")
     ap.add_argument("--dry-run", action="store_true", help="draft and score, but don't change the queue")
+    ap.add_argument("funcs", nargs="*", help="draft these functions (in this order) instead of the parked list")
     a = ap.parse_args()
 
     queue = f"{MAIN}/permuter/queue.txt"
@@ -44,14 +48,24 @@ def main():
             p = l.split("#")[0].split()
             if len(p) >= 2:
                 queued.add(p[1])
-    parked = [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.ov}.txt") if l.strip()]
     pending = set()
     for src in glob.glob(f"{MAIN}/src/**/*.c", recursive=True):
-        pending |= set(re.findall(r"^INCLUDE_ASM\([^,]+, (func_\w+)\);", open(src).read(), re.M))
+        pending |= set(re.findall(r"^INCLUDE_ASM\([^,]+, (\w+)\);", open(src).read(), re.M))
+    if a.funcs:
+        parked, label = a.funcs, "picked"
+        for f in dict.fromkeys(a.funcs):
+            why = ("already matched (no INCLUDE_ASM)" if f not in pending else
+                   "already in permuter/queue.txt" if f in queued else
+                   "already has a permuter folder" if os.path.isdir(f"{MAIN}/permuter/nonmatchings/{f}") else None)
+            if why:
+                print(f"{f}: skipped, {why}")
+    else:
+        parked = [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.ov}.txt") if l.strip()]
+        label = f"{a.ov}: {len(set(parked))} parked"
     todo = [f for f in dict.fromkeys(parked)
             if f in pending and f not in queued and not os.path.isdir(f"{MAIN}/permuter/nonmatchings/{f}")]
     skipped = len(set(parked)) - len(todo)
-    print(f"{a.ov}: {len(set(parked))} parked, {skipped} already queued, matched or in the permuter; "
+    print(f"{label}, {skipped} already queued, matched or in the permuter; "
           f"{len(todo)} to draft" + (f" (first {a.limit})" if a.limit and a.limit < len(todo) else ""))
     if a.limit:
         todo = todo[: a.limit]
@@ -98,7 +112,7 @@ def main():
                 q.write(f"{name} {func} 0 # refill {day}: m2c draft, ratio {ratio:.4f}\n")
                 added.append(func)
 
-    lines = [f"=== {time.strftime('%Y-%m-%d %H:%M')} refill {a.ov}"
+    lines = [f"=== {time.strftime('%Y-%m-%d %H:%M')} refill {'picked' if a.funcs else a.ov}"
              + (" (dry run)" if a.dry_run else "")]
     lines += [f"queued {f} ratio {r:.4f}" for f, r, _ in good]
     lines += [f"MATCH {f} (m2c draft; lock it)" for f, _ in matched]
