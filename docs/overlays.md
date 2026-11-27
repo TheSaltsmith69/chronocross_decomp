@@ -41,7 +41,12 @@ it (60% of words identical). #2054 is unrelated and not seen yet. Both call
 only field-engine (and main-EXE) functions and are built for 0x801EE000, inside
 the menu's code range, so they run from the field rather than the menu. The
 in-field item menu, chest dialogue and the start-menu screen load no extra code
-(field engine, plus the menu for the latter). The
+(field engine, plus the menu for the latter). The status screen and the
+insert-disc prompt are both the menu overlay (#39); dumped from DuckStation with
+`tools/ds_dump.py`, since the status screen crashes PCSX-Redux.
+
+Still unplaced: #2054, #2057 (party-screen variant) and the battle-effect code at
+0x801C5E00, which needs a trace of the game's file loader. The
 battle-start dump confirms #7 (`ov_enct`) is the transition into battle.
 
 Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
