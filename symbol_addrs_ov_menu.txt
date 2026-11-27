@@ -1,0 +1,1 @@
+// Menu overlay (disc file #39, loaded at 0x801D2800) symbols.

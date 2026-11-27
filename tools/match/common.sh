@@ -14,6 +14,8 @@ OV_FILE=$(awk -v k="${OV}_FILE" '$1 == k {print $3}' "$ROOT/Makefile")
 OV_BIN="build/files/$OV_FILE.bin"
 OV_ISO="iso/files/$OV_FILE.bin"
 OV_ELF="build/$OV.elf"
+# load address from the overlay's splat config (field/battle 0x800A3308, menu 0x801D2800)
+OV_VRAM=${OV_VRAM:-$(awk '$1 == "vram:" {print $2; exit}' "$ROOT/$OV.yaml" 2>/dev/null)}
 OV_VRAM=${OV_VRAM:-0x800A3308}
 
 # build_ov: full make (-k, so the overlay is built even if another check fails). Returns 1 when the overlay

@@ -3,8 +3,22 @@
 Derived from PCSX-Redux RAM dumps (title, menu, field, battle), the
 retail SLUS_010.41 and the Disc 1 .bin.
 
-**Status:** `ov_field` (file #3) is split (`ov_field.yaml`) and rebuilds
-byte-for-byte. Extract disc files with `tools/extract_files.py`.
+**Status:** `ov_field` (file #3), `ov_battle` (file #5) and `ov_menu` (file #39)
+are split and rebuild byte-for-byte. Extract disc files with
+`tools/extract_files.py`.
+
+`tools/find_overlays.py --scan <disc.bin>` lists every file in the disc's file
+table that contains code (77 on Disc 1, 92 on Disc 2), with the load address its
+own `jal` targets point to. `tools/find_overlays.py <disc.bin> <dump_ram.bin>...`
+says which of them are in a RAM dump and where. That run on the battle dump found
+file #7 (28 KB, 36 functions) at 0x801EE000 next to the battle engine. Not split yet.
+Other code files not yet seen in a dump: #8 (~0x801EA000), #37 and #225 (both
+built for 0x801D2800, the menu's slot), #2053-2057 (~0x801EE000), and about 60
+small modules at ~0x801C5E00 (#4338-#5946).
+
+The menu overlay's layout differs from field/battle: one data word, code from
+0x801D2804, then its rodata (strings + jump tables, 0x801F1B7C-0x801F317C), then
+data. It calls field functions (0x800DCxxx), so it runs on top of the field engine.
 
 ## Memory layout at a glance
 

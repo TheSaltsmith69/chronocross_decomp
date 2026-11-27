@@ -1,0 +1,66 @@
+name: OV_MENU
+# Disc file #39 (LBA 929, 69 sectors): the menu overlay.
+# It is loaded at 0x801D2800 (overlay slot B), on top of the field overlay
+# (file #3, slot A at 0x800A3308): it calls field functions at 0x800DCxxx.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 39
+sha1: 0c8bf75bab12d78b468027142453fe4311acbc72
+options:
+  basename: ov_menu
+  target_path: iso/files/0039.bin
+  elf_path: build/ov_menu.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_menu
+  src_path: src/ov_menu
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_menu.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # Unlike field and battle: one data word, then code, then rodata (strings + jump
+  # tables), then data.
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_menu.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_menu_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_menu_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_menu
+    type: code
+    start: 0x0
+    vram: 0x801D2800
+    subsegments:
+      # an unreferenced word (0x0000000A) before the first function
+      - [0x0, textbin, header_801D2800]
+      - [0x4, c, menu_801D2804]
+      # Strings and jump tables of the code. splat flags misaligned jump tables at
+      # 0x20338 and 0x208AC, i.e. the menu was probably three objects: rodata
+      # 0x801F1B7C-, 0x801F2B38- (used by func_801EB1B8..func_801EC2D0) and
+      # 0x801F30AC- (func_801EEC58 on). The code boundaries aren't pinned down yet,
+      # so it is one C file for now.
+      - [0x1F37C, .rodata, menu_801D2804]
+      # data starts with a zero word that func_801D4460 uses
+      - [0x2097C, data, data_801F317C]
+  - [0x22800]

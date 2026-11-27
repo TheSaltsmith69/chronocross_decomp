@@ -84,9 +84,10 @@ O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES
 # ---- Overlays (disc files loaded at runtime; see overlay_map.md) ----
 # Each one is split from iso/files/NNNN.bin (tools/extract_files.py), linked on
 # its own against the main EXE's symbols, and compared with the disc file.
-OVERLAYS      := ov_field ov_battle
+OVERLAYS      := ov_field ov_battle ov_menu
 ov_battle_FILE := 0005
 ov_field_FILE := 0003
+ov_menu_FILE  := 0039
 
 # splat writes .align 3 on jump tables that happen to sit on an 8-byte boundary.
 # They only need word alignment, and since the battle overlay was split into

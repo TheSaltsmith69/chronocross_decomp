@@ -276,6 +276,18 @@ def repair(func, block, passes=8):
             return head + "\n" + body, []
         L = body.split("\n")
         changed = False
+        # m2c's names for a stack area it couldn't type (byte offsets, so u8) and for a
+        # callee-saved register read before it is set: declare them as locals, all at once
+        und = sorted({m.group(1) for _, msg in errs for m in [re.search(r"`(sp|saved_reg_\w+)' undeclared", msg)] if m})
+        k = next((k for k, l in enumerate(L) if re.match(r"^\S.*\b" + func + r"(_m)?\(.*\) \{$", l)), None)
+        if und and k is not None:
+            for var in und:
+                if not any(re.match(r"^\s+(?:s32|u8) " + var + r"(\[\w+\])?;", l) for l in L):
+                    L.insert(k + 1, (f"    u8 {var}[0x100];" if var == "sp" else f"    s32 {var};") + " /* m2c-fix */")
+                    changed = True
+            if changed:
+                body = "\n".join(L)
+                continue                          # line numbers moved: recompile first
         for n, msg in errs:
             fn = re.search(r"arguments to function `(\w+)'", msg)
             if fn and n is None:
@@ -296,8 +308,20 @@ def repair(func, block, passes=8):
                 if cnt is not None:
                     new = fix_calls(l, fn.group(1), cnt)
             elif "unary *" in msg or "incompatible type for argument" in msg:
-                # *(expr) with no cast right after the '*' (binary * is written "a * b")
+                # *(expr) or *name with no cast right after the '*' (binary * is written "a * b")
                 new = re.sub(r"(?<![\w)\]])\*\((?![\w ]+\*+\))", "*(s32 *)(", l)
+                new = re.sub(r"(?<![\w)\]])\*(?=[A-Za-z_]\w*\b(?!\s*\*\)))", "*(s32 *)", new)
+            elif "called object is not a function" in msg:
+                # a call through a pointer m2c typed as an integer: *fp(args) / *(expr)(args)
+                new = re.sub(r"(?<![\w)\]])\*([A-Za-z_]\w*)\(", r"((s32 (*)())\1)(", l)
+                i = new.find("*(")
+                while i >= 0 and new == l:
+                    if i == 0 or not re.match(r"[\w)\]]", new[i - 1]):
+                        _, j = split_args(new, i + 2)
+                        if j < len(new) and new[j] == "(":
+                            new = new[:i] + "((s32 (*)())*(s32 *)" + new[i + 1: j] + ")" + new[j:]
+                            break
+                    i = new.find("*(", i + 1)
             elif "M2C_UNALIGNED32" in l:
                 new = l.replace("M2C_UNALIGNED32(", "(")
             elif "incompatible types in assignment" in msg:
