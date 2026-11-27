@@ -28,8 +28,14 @@ Dumps from more game states (2026-11-27) placed three more:
 | #37 → `ov_name` | 0x4000 | 0x801D2800 (slot B) | name-entry screen |
 | #225 → `ov_shop` | 0xE000 | 0x801D2800 (slot B) | Element shop and smith |
 
-Save/load screens are the menu overlay. Both world maps, cutscenes and the game
-over screen are plain field engine. Not seen yet: #2053-2057 (~0x801EE000).
+Save/load screens are the menu overlay. Both world maps, cutscenes, the game
+over screen, sailing and the mini-game dumped are plain field engine. Disc 2's
+field, battle and menu use the same files as Disc 1.
+
+A second batch placed #2053 at 0x801EE000: the party swap screen (its code
+0x0-0x4204, 16 functions, matches the dump 100%). #2057 is a close variant of
+it (60% of words identical). #2054 is unrelated and not seen yet. The
+battle-start dump confirms #7 (`ov_enct`) is the transition into battle.
 
 Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
 that matches no single disc file, even with j/jal/lui words ignored. About 500
