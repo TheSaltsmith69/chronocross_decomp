@@ -138,12 +138,16 @@ class Hardware:
             k, _, v = str(item).rpartition("=")
             lhm[k] = v
         cpu_temp = cpu_power = None
+        temps = {}
         for k, v in lhm.items():
             kl = k.lower()
-            if "/temperatures/" in kl and cpu_temp is None and re.search(r"cpu package$|core average$|core max$", kl):
-                cpu_temp = num(v)
+            for want in ("cpu package", "core max", "core average"):
+                if "/temperatures/" in kl and kl.endswith(want):
+                    temps.setdefault(want, num(v))
             if "/powers/" in kl and re.search(r"(cpu )?package$", kl) and cpu_power is None:
                 cpu_power = num(v)
+        # the package sensor first (it covers the whole chip), then the hottest core, then the average
+        cpu_temp = next((temps[w] for w in ("cpu package", "core max", "core average") if temps.get(w) is not None), None)
         estimated = cpu_power is None
         if estimated:
             cpu_power = s["cpu_idle_w"] + cpu_load / 100.0 * (s["cpu_max_w"] - s["cpu_idle_w"])
