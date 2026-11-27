@@ -173,6 +173,12 @@ def ask(model, system, user, temperature):
 
 
 NO_THINK = {"chat_template_kwargs": {"enable_thinking": False}}   # Qwen3-style templates; others ignore it
+KWARGS_OK = True        # cleared once the server rejects chat_template_kwargs
+KWARGS_REFUSED = re.compile(r"chat_template|kwargs|unknown (field|param)|unrecognized|not (supported|allowed)|"
+                            r"extra (fields|inputs)|invalid_request", re.I)
+# the engine behind the server died or isn't up (yet); the server restarts it on the next request
+ENGINE_DOWN = re.compile(r"engine stopped|exit code|restarts it|server_error|loading|connection refused|"
+                         r"curl\.exe failed \((7|52|56)\)", re.I)
 
 
 def ask_messages(model, messages, temperature, think_budget=0, extra=None):
@@ -844,17 +850,34 @@ def get_reply(model, msgs, temperature, think_tokens, no_think, func):
     budget = think_tokens * 4                   # ~4 characters per token
 
     def call(m, extra):
-        try:
-            return ask_messages(model, m, temperature, budget, extra)
-        except RuntimeError:
-            if not extra:
+        global KWARGS_OK
+        if not KWARGS_OK:
+            extra = None
+        for attempt in range(1, 4):
+            try:
+                return ask_messages(model, m, temperature, budget, extra)
+            except RuntimeError as e:
+                msg = str(e)
+                if extra and KWARGS_REFUSED.search(msg) and not ENGINE_DOWN.search(msg):
+                    log(f"the server refused chat_template_kwargs ({msg[:160]}); not sending it again")
+                    KWARGS_OK, extra = False, None
+                    continue
+                if ENGINE_DOWN.search(msg) and attempt < 3:
+                    # Strata restarts its engine on the next request (the model reloads, which
+                    # can take a minute), so send the same request again rather than lose the turn
+                    log(f"the server's engine stopped ({msg[:160]}); retrying (attempt {attempt + 1}/3, "
+                        "the first one reloads the model)")
+                    time.sleep(5)
+                    continue
                 raise
-            log("the server refused chat_template_kwargs; retrying without it")
-            return ask_messages(model, m, temperature, budget, None)
+        return ask_messages(model, m, temperature, budget, None)
 
     answer, thinking = call(msgs, NO_THINK if no_think else None)
     if answer.strip() or not budget:
         return answer, thinking, False
+    # we hung up mid-generation: give the server a moment to cancel it before the next request
+    # (sending at once is the likeliest trigger for an engine crash)
+    time.sleep(3)
     nudge = ("Your thinking budget for this turn ran out before you answered. The end of your "
              "reasoning was:\n\"\"\"\n" + thinking[-2000:].strip() + "\n\"\"\"\n"
              f"Stop reasoning and reply now with up to the allowed number of ```c variants of `{func}` "
