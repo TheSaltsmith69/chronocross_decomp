@@ -18,7 +18,8 @@
 # permuter/FUNC.log.
 #
 # Starting point: each visit starts from the function's best output so far (copied over base.c;
-# the original draft stays in base.orig.c). Pass "draft" to start from the original draft again.
+# the original draft stays in base.orig.c), or from the LLM loop's best.c when that scores better
+# (perm_llm_start.py). Pass "draft" to start from the original draft again.
 #
 # Randomization weights: tools/match/permuter_weights.toml is copied into each function's
 # settings.toml before every visit (it turns off the changes that make wrong C).
@@ -177,6 +178,8 @@ while [ ${#LINE[@]} -gt 0 ]; do
   apply_weights "$dir"
   if [ -z "$FROM_DRAFT" ]; then
     start_from_best "$dir" "$func"
+    # the LLM loop's best, when it beats that (scored the permuter's way; once per best.c)
+    nice -n 10 "$PY" tools/match/perm_llm_start.py "$dir"
   elif [ -f "$dir/base.orig.c" ]; then
     cp "$dir/base.orig.c" "$dir/base.c"; rm -f "$dir/base.from"
     echo "$func: starting from the original draft (draft option)"
