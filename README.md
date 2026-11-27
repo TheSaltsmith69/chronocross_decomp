@@ -72,6 +72,11 @@ Override with `make CC_VERSION=2.8.0`.
 - `tools/ds_trace.py` connects to DuckStation's GDB server (enable it, and
   StartPaused, in DuckStation's settings), breaks on every main-EXE function and
   logs the first time each one runs. `tools/trace_funcs.py` makes its function list.
+- `tools/ds_dump.py NAME` (Windows python, while DuckStation runs with its GDB
+  server on) saves main RAM and the scratchpad as `dumps/NAME_ram.bin` /
+  `NAME_scratch.bin` in a few seconds and lets the game continue. Nothing needs to
+  run while you play to the screen you want. `tools/find_overlays.py` then says
+  which code files the dump has loaded.
 - `tools/quest.py <trace>` turns `progress/traces/<trace>.csv` into
   `progress/quest_<trace>.csv` with each function's file, size and matched status.
 
