@@ -142,3 +142,5 @@ ResetEntryInt  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can'
 HookEntryInt  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
 DisableEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
 WaitEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+setjmp  # PsyQ hand-written asm: saves $ra/$sp/$fp/$gp/$s0-$s7 into the jmp_buf, not expressible in C
+func_800107F0  # longjmp, PsyQ hand-written asm: restores $ra/$sp/$fp/$gp/$s0-$s7 from the jmp_buf

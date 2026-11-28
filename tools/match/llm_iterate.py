@@ -61,7 +61,8 @@ OUT = os.path.join(MAIN, "permuter", "llm")
 BASE = (os.environ.get("LLM_BASE_URL") or "http://127.0.0.1:47831/v1").rstrip("/")
 KEY = os.environ.get("LLM_API_KEY") or os.environ.get("STRATA_API_KEY") or ""
 CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
-SYNC = ["src", "include", "tools/match", "Makefile", "asm", "linker_scripts", "undefined_funcs.txt"]
+SYNC = ["src", "include", "tools/match", "Makefile", "effects", "local.mk", "asm", "linker_scripts",
+        "undefined_funcs.txt"]
 
 
 def log(*a):
@@ -282,6 +283,10 @@ def score(func, code, tag):
     r = wrun(["bash", "tools/match/adv.sh", path, func]).stdout
     m = re.search(r"ratio ([0-9.]+) match=(\d)", r)
     show = wrun([".venv/bin/python3", "tools/match/trycc.py", path, "--show"]).stdout
+    # trycc must have actually compiled and compared it ("N/M match"): a crash before that (make
+    # can't even parse the Makefile, say) leaves adv.sh with nothing to diff, which reads as ratio 1.0
+    if not re.search(r"\d+/\d+ match", show) or "Traceback" in show:
+        return 0.0, False, "COMPILE FAILED:\n" + show[-1500:]
     if "COMPILE FAILED" in show or not m:
         err = "\n".join(l for l in show.splitlines()
                         if ("error" in l or "parse" in l or "undeclared" in l) and "Each undeclared" not in l

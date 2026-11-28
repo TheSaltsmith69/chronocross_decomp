@@ -36,6 +36,12 @@ li.STREAM = False
 GTE = re.compile(r"\b(cfc2|ctc2|mfc2|mtc2|lwc2|swc2|cop2)\b")
 
 
+
+def cand_stem(func):
+    """permuter/cands file stem: 801ee000_ov_party2 for func_801EE000@ov_party2, setjmp for setjmp."""
+    name = func[5:] if re.fullmatch(r"func_[0-9A-Fa-f]{8}(@\w+)?", func) else func
+    return name.lower().replace("@", "_")
+
 def uses_gte(func):
     """GTE (coprocessor 2) instructions only come from inline asm: no C draft can match them,
     and m2c leaves M2C_ERROR() in their place."""
@@ -137,7 +143,7 @@ def main():
         os.makedirs(f"{MAIN}/permuter/cands", exist_ok=True)
         with open(queue, "a") as q:
             for func, ratio, code in good + [(f, 1.0, c) for f, c in matched]:
-                stem = func[5:].lower().replace("@", "_")       # 801ee000_ov_party2 for a shared name
+                stem = cand_stem(func)
                 name = f"permuter/cands/{stem}.c"
                 if os.path.exists(f"{MAIN}/{name}"):
                     name = f"permuter/cands/{stem}_refill.c"
@@ -162,7 +168,7 @@ def main():
     if matched:
         print("Already matching as drafted (ask Claude to lock):")
         for f, _ in matched:
-            print(f"  * {f}  permuter/cands/{f[5:].lower().replace('@', '_')}.c")
+            print(f"  * {f}  permuter/cands/{cand_stem(f)}.c")
     if failed:
         print("Not queued (fix and rerun):")
         for f, e in failed:
