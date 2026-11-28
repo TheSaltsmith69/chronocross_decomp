@@ -52,9 +52,17 @@ def disasm(obj):
         m = re.match(r'^\s+([0-9a-f]+):\s+([0-9a-f]{8})\s+(.*)$', l)
         if m and cur:
             funcs[cur].append([int(m.group(2), 16), False, re.sub(r'\s+', ' ', m.group(3)).split(' <')[0]]); continue
-        if re.match(r'^\s+[0-9a-f]+: R_MIPS_', l) and cur and funcs[cur]:
-            funcs[cur][-1][1] = True
+        m = re.match(r'^\s+[0-9a-f]+: (R_MIPS_\w+)\s+(\S+)', l)
+        if m and cur and funcs[cur]:
+            funcs[cur][-1][1] = (m.group(1), m.group(2))     # (type, symbol)
     return funcs
+
+
+def call_target(rel):
+    """The function a jal/j relocation points at, or None (section-relative, local label...)."""
+    if rel and rel[0] == "R_MIPS_26" and not rel[1].startswith("."):
+        return rel[1].split("+")[0]
+    return None
 
 
 def norm(ins):
@@ -67,10 +75,15 @@ def norm(ins):
 
 
 def eq(g, e):
-    """g = our insn, e = original; a relocated insn of ours matches any immediate."""
+    """g = our insn, e = original; a relocated insn of ours matches any immediate, except that a
+    call (jal/j) must go to the same function: masking that let a call to the wrong function
+    (e.g. a soft-float helper) pass as a match."""
     if g[1]:
         m = 0xFC000000 if (g[0] >> 26) in (2, 3) else 0xFFFF0000
-        return g[0] & m == e[0] & m
+        if g[0] & m != e[0] & m:
+            return False
+        tg, te = call_target(g[1]), call_target(e[1])
+        return tg is None or te is None or tg == te
     return norm([g]) == norm([e])
 
 
@@ -121,6 +134,10 @@ try:
                 for i in range(max(len(g), len(e))):
                     a = g[i][2] if i < len(g) else ""
                     b = e[i][2] if i < len(e) else ""
+                    if i < len(g) and call_target(g[i][1]):
+                        a = f"{a.split()[0]} {call_target(g[i][1])}"
+                    if i < len(e) and call_target(e[i][1]):
+                        b = f"{b.split()[0]} {call_target(e[i][1])}"
                     same = i < len(g) and i < len(e) and eq(g[i], e[i])
                     nd += not same
                     lines.append(("  " if same else "* ") + f"{a:<40} | {b}")
