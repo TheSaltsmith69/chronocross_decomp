@@ -25,7 +25,7 @@ lib/libc2/strtok,lib,80010A94,1,0,288,0
 lib/libc2/strtoul,lib,80010BB4,1,0,336,0
 lib/libc2/todigit,lib,80010D04,1,1,112,112
 lib/libgpu/break,lib,80010D74,3,1,544,96
-lib/libgpu/e00,lib,80010F94,1,1,240,240
+lib/libgpu/e00,lib,80010F94,1,0,240,0
 lib/libgpu/e01,lib,80011084,1,1,112,112
 lib/libgpu/e02,lib,800110F4,1,1,112,112
 lib/libgpu/e03,lib,80011164,1,1,192,192
@@ -72,7 +72,7 @@ lib/libgpu/p39,lib,80011944,1,1,48,48
 lib/libgpu/p40,lib,80011974,1,1,48,48
 lib/libgpu/p41,lib,800119A4,1,1,160,160
 lib/libgpu/param,lib,80011A44,6,6,496,496
-lib/libgpu/sys,lib,80011C34,54,32,12080,3500
+lib/libgpu/sys,lib,80011C34,56,34,12080,3500
 lib/libpad/padcmd,lib,80014B64,20,14,3072,784
 lib/libpad/padentry,lib,80015764,11,0,1216,0
 lib/libpad/padif,lib,80015C24,5,2,1584,244
@@ -145,7 +145,7 @@ lib/libgte/fog_02,lib,80025584,2,0,280,0
 lib/libgte/msc00,lib,8002569C,1,0,136,0
 lib/libgte/msc01,lib,80025724,1,0,144,0
 lib/libgte/msc02,lib,800257B4,6,0,688,0
-lib/libgte/msc06,lib,80025A64,1,1,656,656
+lib/libgte/msc06,lib,80025A64,6,0,656,0
 lib/libgte/mtx_000,lib,80025CF4,1,0,272,0
 lib/libgte/mtx_003,lib,80025E04,1,0,352,0
 lib/libgte/mtx_005,lib,80025F64,1,0,48,0
@@ -167,8 +167,8 @@ lib/libgte/reg10,lib,80026744,1,0,32,0
 lib/libgte/reg11,lib,80026764,1,0,32,0
 lib/libgte/reg12,lib,80026784,1,0,32,0
 lib/libgte/reg13,lib,800267A4,1,0,16,0
-lib/libgte/smp,lib,800267B4,12,1,480,36
-lib/libgte/smp_00,lib,80026994,11,1,528,40
+lib/libgte/smp,lib,800267B4,12,0,480,0
+lib/libgte/smp_00,lib,80026994,11,0,528,0
 lib/libgte/smp_02,lib,80026BA4,1,0,48,0
 lib/libgte/smp_03,lib,80026BD4,1,0,96,0
 lib/libgte/smp_04,lib,80026C34,1,0,48,0

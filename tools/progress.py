@@ -62,7 +62,10 @@ def elf_functions(elf):
             addr, name = int(parts[0], 16), parts[2]
             if name in ("__gnu_compiled_c", "gcc2_compiled."):
                 continue  # gcc marker labels, not functions
-            if not name.startswith((".", "L")) and "_TEXT_" not in name and "_ROM_" not in name:
+            # skip local labels (.L8002E204, L8002E204), not real names that start with L
+            # (LoadImage, LoadTPage, LightColor...)
+            if (not name.startswith(".") and not re.fullmatch(r"L[0-9A-Fa-f]{8}", name)
+                    and "_TEXT_" not in name and "_ROM_" not in name):
                 funcs.setdefault(addr, name)
     return funcs
 

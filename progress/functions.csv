@@ -35,9 +35,9 @@ func_80010D04,80010D04,lib/libc2/todigit,lib,112,1
 BreakDraw,80010D74,lib/libgpu/break,lib,148,0
 IsIdleGPU,80010E08,lib/libgpu/break,lib,96,1
 ContinueDraw,80010E68,lib/libgpu/break,lib,300,0
-func_80010F94,80010F94,lib/libgpu/e00,lib,240,1
-func_80011084,80011084,lib/libgpu/e01,lib,112,1
-func_800110F4,800110F4,lib/libgpu/e02,lib,112,1
+LoadTPage,80010F94,lib/libgpu/e00,lib,240,0
+LoadClut,80011084,lib/libgpu/e01,lib,112,1
+LoadClut2,800110F4,lib/libgpu/e02,lib,112,1
 SetDefDrawEnv,80011164,lib/libgpu/e03,lib,192,1
 SetDefDispEnv,80011224,lib/libgpu/e04,lib,64,1
 GetTPage,80011264,lib/libgpu/p00,lib,64,1
@@ -96,7 +96,8 @@ SetDispMask,80011F18,lib/libgpu/sys,lib,152,1
 DrawSync,80011FB0,lib/libgpu/sys,lib,104,1
 func_80012018,80012018,lib/libgpu/sys,lib,284,0
 ClearImage,80012134,lib/libgpu/sys,lib,144,1
-ClearImage2,800121C4,lib/libgpu/sys,lib,248,1
+ClearImage2,800121C4,lib/libgpu/sys,lib,152,1
+LoadImage,8001225C,lib/libgpu/sys,lib,96,1
 StoreImage,800122BC,lib/libgpu/sys,lib,96,1
 MoveImage,8001231C,lib/libgpu/sys,lib,184,0
 ClearOTag,800123D4,lib/libgpu/sys,lib,200,1
@@ -135,7 +136,8 @@ func_80014258,80014258,lib/libgpu/sys,lib,336,0
 func_800143A8,800143A8,lib/libgpu/sys,lib,316,0
 func_800144E4,800144E4,lib/libgpu/sys,lib,52,1
 func_80014518,80014518,lib/libgpu/sys,lib,324,0
-func_8001465C,8001465C,lib/libgpu/sys,lib,396,1
+func_8001465C,8001465C,lib/libgpu/sys,lib,160,1
+LoadImage2,800146FC,lib/libgpu/sys,lib,236,1
 StoreImage2,800147E8,lib/libgpu/sys,lib,236,1
 MoveImage2,800148D4,lib/libgpu/sys,lib,324,0
 DrawOTag2,80014A18,lib/libgpu/sys,lib,252,0
@@ -425,7 +427,12 @@ VectorNormal,80025854,lib/libgte/msc02,lib,48,0
 VectorNormalSS,80025884,lib/libgte/msc02,lib,48,0
 func_800258B4,800258B4,lib/libgte/msc02,lib,192,0
 MatrixNormal,80025974,lib/libgte/msc02,lib,240,0
-func_80025A64,80025A64,lib/libgte/msc06,lib,656,1
+LoadAverage12,80025A64,lib/libgte/msc06,lib,80,0
+LoadAverage0,80025AB4,lib/libgte/msc06,lib,80,0
+LoadAverageShort12,80025B04,lib/libgte/msc06,lib,136,0
+LoadAverageShort0,80025B8C,lib/libgte/msc06,lib,136,0
+LoadAverageByte,80025C14,lib/libgte/msc06,lib,96,0
+LoadAverageCol,80025C74,lib/libgte/msc06,lib,128,0
 MulMatrix0,80025CF4,lib/libgte/mtx_000,lib,272,0
 CompMatrix,80025E04,lib/libgte/mtx_003,lib,352,0
 ApplyRotMatrix,80025F64,lib/libgte/mtx_005,lib,48,0
@@ -462,7 +469,7 @@ SetBackColor,80026744,lib/libgte/reg10,lib,32,0
 SetFarColor,80026764,lib/libgte/reg11,lib,32,0
 func_80026784,80026784,lib/libgte/reg12,lib,32,0
 func_800267A4,800267A4,lib/libgte/reg13,lib,16,0
-func_800267B4,800267B4,lib/libgte/smp,lib,36,1
+LocalLight,800267B4,lib/libgte/smp,lib,36,0
 DpqColor,800267D8,lib/libgte/smp,lib,28,0
 NormalColor,800267F4,lib/libgte/smp,lib,28,0
 NormalColor3,80026810,lib/libgte/smp,lib,60,0
@@ -474,7 +481,7 @@ ColorDpq,8002691C,lib/libgte/smp,lib,40,0
 ColorCol,80026944,lib/libgte/smp,lib,36,0
 AverageSZ3,80026968,lib/libgte/smp,lib,16,0
 AverageSZ4,80026978,lib/libgte/smp,lib,28,0
-func_80026994,80026994,lib/libgte/smp_00,lib,40,1
+LightColor,80026994,lib/libgte/smp_00,lib,40,0
 DpqColorLight,800269BC,lib/libgte/smp_00,lib,40,0
 DpqColor3,800269E4,lib/libgte/smp_00,lib,60,0
 Intpl,80026A20,lib/libgte/smp_00,lib,36,0
