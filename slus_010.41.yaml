@@ -327,13 +327,20 @@ segments:
       - [0x544A0, data, main_data]
       - { start: 0x5D628, type: bss, vram: 0x8006CE28, name: main_bss }
 
-  # Second module baked into the EXE right after main's BSS.
-  # Has its own code + data and references addresses up to ~0x800B5450
-  # (its own BSS). Kept as a binary blob until we understand it.
+  # Second resident module baked into the EXE right after main's BSS: battle
+  # model / effect-actor code (OBJHEAD, VERTEX BUF, GET_CASTER... strings).
+  # Laid out rodata, text, data like the overlays. Its command table at
+  # 0x800A0F00 points both into this code and into the battle overlay
+  # (0x800AC2F4-0x800B5450), so it only runs with ov_battle loaded.
+  # The zero tail runs to 0x800A3800, past the start of overlay slot A.
   - name: blob_8008E488
     type: code
     start: 0x7EC88
     vram: 0x8008E488
+    section_order: [".rodata", ".text", ".data", ".bss"]
     subsegments:
-      - [0x7EC88, bin, blob_8008E488]
+      - [0x7EC88, rodata, blob_rodata_8008E488]  # header word 2 + a Shift-JIS message
+      - [0x7ECB8, .rodata, blob_8008EBEC]  # jump tables + debug strings
+      - [0x7F3EC, c, blob_8008EBEC]
+      - [0x91650, data, blob_data_800A0E50]
   - [0x94000]

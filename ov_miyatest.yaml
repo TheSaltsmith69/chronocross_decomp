@@ -1,0 +1,59 @@
+name: OV_MIYATEST
+# Disc file #4 (miyatest.prg in the Radical Dreamers Edition): a standalone graphics test
+# for slot A (0x800A3308): double-buffered 320x224 screen with a perspective wireframe floor
+# grid. Nothing in the retail game loads it. Load address from its own references.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 4
+sha1: ac1fca5eb994544bed6aa801e80bd09ef3463157
+options:
+  basename: ov_miyatest
+  target_path: iso/files/0004.bin
+  elf_path: build/ov_miyatest.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_miyatest
+  src_path: src/ov_miyatest
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_miyatest.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # strings first, then code, then padding
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_miyatest.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_miyatest_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_miyatest_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_miyatest
+    type: code
+    start: 0x0
+    vram: 0x800A3308
+    subsegments:
+      # header word (7)
+      - [0x0, rodata, rodata_800A3308]
+      - [0x4, c, miyatest_800A330C]
+      # zero padding to the end of the last sector
+      - [0x820, data, data_800A3B28]
+  - [0x1000]

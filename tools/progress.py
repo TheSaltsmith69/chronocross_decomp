@@ -20,6 +20,8 @@ NM = "mips-linux-gnu-nm"
 # gets the overlay's name as its category.
 MODULES = [
     (None, ROOT / "slus_010.41.yaml", "main", ROOT / "build" / "slus_010.41.elf", ROOT / "src"),
+    # second resident module in the EXE (battle model/effect code), counted as game code
+    (None, ROOT / "slus_010.41.yaml", "blob_8008E488", ROOT / "build" / "slus_010.41.elf", ROOT / "src"),
     ("ov_field", ROOT / "ov_field.yaml", "ov_field", ROOT / "build" / "ov_field.elf", ROOT / "src" / "ov_field"),
     ("ov_battle", ROOT / "ov_battle.yaml", "ov_battle", ROOT / "build" / "ov_battle.elf", ROOT / "src" / "ov_battle"),
     ("ov_menu", ROOT / "ov_menu.yaml", "ov_menu", ROOT / "build" / "ov_menu.elf", ROOT / "src" / "ov_menu"),
@@ -31,8 +33,13 @@ MODULES = [
     ("ov_monmenu", ROOT / "ov_monmenu.yaml", "ov_monmenu", ROOT / "build" / "ov_monmenu.elf", ROOT / "src" / "ov_monmenu"),
     ("ov_party2", ROOT / "ov_party2.yaml", "ov_party2", ROOT / "build" / "ov_party2.elf", ROOT / "src" / "ov_party2"),
     ("ov_playinit", ROOT / "ov_playinit.yaml", "ov_playinit", ROOT / "build" / "ov_playinit.elf", ROOT / "src" / "ov_playinit"),
+    ("ov_miyatest", ROOT / "ov_miyatest.yaml", "ov_miyatest", ROOT / "build" / "ov_miyatest.elf", ROOT / "src" / "ov_miyatest"),
 ]
-OVERLAYS = [m[0] for m in MODULES if m[0]]
+# Battle effect programs (effects/ov_eff_*.yaml): 93 small overlays, reported together
+# under one "effects" category.
+EFFECTS = [(p.stem, p, p.stem, ROOT / "build" / f"{p.stem}.elf", ROOT / "src" / p.stem)
+           for p in sorted((ROOT / "effects").glob("ov_eff_*.yaml"))]
+OVERLAYS = [m[0] for m in MODULES if m[0]] + ["effects"]
 
 
 def load_text_files(config, segment):
@@ -91,7 +98,7 @@ def category(name):
     return "game"
 
 
-def module_files(ov, config, segment, elf, src_dir):
+def module_files(ov, config, segment, elf, src_dir, cat=None):
     """Report rows for every code file of one module (main EXE or an overlay)."""
     files = load_text_files(config, segment)
     funcs = elf_functions(elf)
@@ -110,7 +117,7 @@ def module_files(ov, config, segment, elf, src_dir):
             entries.append((fname, size, matched, a))
         report_files.append({
             "file": f"{ov}/{name}" if ov else name,
-            "category": ov or category(name),
+            "category": cat or ov or category(name),
             "start": f"{start:08X}",
             "funcs": len(entries),
             "funcs_matched": sum(1 for e in entries if e[2]),
@@ -137,6 +144,9 @@ def main():
             print(f"skipping {segment}: {elf.relative_to(ROOT)} not built")
             continue
         report_files += module_files(ov, config, segment, elf, src_dir)
+    for ov, config, segment, elf, src_dir in EFFECTS:
+        if elf.exists():
+            report_files += module_files(ov, config, segment, elf, src_dir, cat="effects")
 
     def total(cat=None):
         fs = [f for f in report_files if cat is None or f["category"] == cat]
@@ -157,7 +167,6 @@ def main():
         "game": total("game"),
         "lib": total("lib"),
         **{ov: total(ov) for ov in OVERLAYS},
-        "blob_8008E488_bytes": 0x15378,  # second module, not disassembled yet
         "files": report_files,
     }
 

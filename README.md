@@ -50,11 +50,20 @@ its own:
 | `ov_monmenu` (dev name `monmenu.prg`, on top of the field engine) | #2054 | `0x801EE000` | `39abc84252a02379bb3c1b54a1cc8b60fd9cfa2a` |
 | `ov_party2` (dev name `memmenu2.prg`, second party screen) | #2057 | `0x801EE000` | `dfc5af5060135012e2a01709f8548aae63cdc7a2` |
 | `ov_playinit` (dev name `playinit.prg`, run once by the field, likely at a new game) | #2056 | `0x801EE000` | `2b5dd06535be420ba6f9d4c149188a6180388403` |
+| `ov_miyatest` (dev name `miyatest.prg`, a graphics test the retail game never loads) | #4 | `0x800A3308` | `ac1fca5eb994544bed6aa801e80bd09ef3463157` |
 
 ```bash
-python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225 2053 2054 2057 2056   # extract the overlays
-for o in field battle menu enct result name shop party monmenu party2 playinit; do make split-ov_$o; done  # disassemble them
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225 2053 2054 2057 2056 4   # extract the overlays
+for o in field battle menu enct result name shop party monmenu party2 playinit miyatest; do make split-ov_$o; done  # disassemble them
 make                                                              # now also checks the overlays
+```
+
+The 93 battle effect programs (`effects/`, loaded at `0x801C5E00`) have their own helper:
+
+```bash
+python3 tools/mkeffects.py extract "<disc 1>.bin" "<disc 2>.bin"   # Disc 2 is only needed for 6 of them
+python3 tools/mkeffects.py split                                  # disassemble them all
+make
 ```
 
 `tools/find_overlays.py` finds the disc's other code files and tells which of
@@ -95,7 +104,8 @@ from power-on to the title screen (opening movie skipped with START).
 ## Layout
 
 - `slus_010.41.yaml` – splat config describing how the EXE is split
-- `ov_*.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7, #8, #37, #225, #2053, #2054, #2057)
+- `ov_*.yaml` – splat configs for the overlays (disc files #3, #5, #39, #7, #8, #37, #225, #2053, #2054, #2057, #2056, #4)
+- `effects/` – splat configs for the battle effect programs (`effects.tsv` lists them)
 - `symbol_addrs.txt` – known function/data names
 - `undefined_funcs.txt` – hand-maintained external symbols
 - `asm/`, `assets/`, `build/` – generated, not committed
@@ -105,4 +115,4 @@ from power-on to the title screen (opening movie skipped with START).
 - Main executable round-trips byte-for-byte.
 - Main text is split into one file per PsyQ library object; `src/game/main.c` is compiled C.
 - 5 functions decompiled to matching C.
-- The module at `0x8008E488` is still an undisassembled binary blob.
+- The second module at `0x8008E488` is split too (`src/blob_8008EBEC.c`, 284 functions).
