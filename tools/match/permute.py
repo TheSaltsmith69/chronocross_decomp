@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""permute.py CANDS.c FUNC [IDX] -- import a trycc candidate block into decomp-permuter.
+"""permute.py CANDS.c FUNC[@MODULE] [IDX] -- import a trycc candidate block into decomp-permuter.
+
+For a name several overlays share, give FUNC@MODULE (funcref.py); the folder is then
+permuter/nonmatchings/FUNC@MODULE.
 
 Puts variant IDX (default 0) of FUNC's "// @@FUNC" block from CANDS.c in place of
 the function's INCLUDE_ASM line, runs tools/decomp-permuter/import.py on that
@@ -8,25 +11,28 @@ directory is created under permuter/ (gitignored):
 
     .venv/bin/python3 tools/decomp-permuter/permuter.py permuter/nonmatchings/FUNC -j8
 """
-import glob, os, re, subprocess, sys
+import glob, os, re, shutil, subprocess, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import funcref
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-cands, func = sys.argv[1], sys.argv[2]
+cands, ref = sys.argv[1], sys.argv[2]
 idx = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+func = funcref.name_of(ref)                    # plain C name
+# folder name: NAME@MODULE for a shared name or a qualified REF (the queue line's name, which
+# permute_all.sh looks for)
+key = funcref.result_key(ref)
 text = open(cands).read()
-blocks = text.split("// @@" + func + "\n")[1:]
+# (blocks headed with the plain name count too: candidate files from before NAME@MODULE)
+blocks = next((v for v in (text.split(f"// @@{h}\n")[1:] for h in dict.fromkeys((ref, key, func))) if v), [])
 if idx >= len(blocks):
-    sys.exit(f"{cands}: no variant {idx} of {func}")
+    sys.exit(f"{cands}: no variant {idx} of {ref}")
 block = blocks[idx].split("\n// @@")[0].rstrip() + "\n"
 
-pat = re.compile(r'^INCLUDE_ASM\("([^"]+)", ' + re.escape(func) + r'\);$', re.M)
-for src in glob.glob(f"{ROOT}/src/**/*.c", recursive=True):
-    orig = open(src).read()
-    m = pat.search(orig)
-    if m:
-        break
-else:
-    sys.exit(f"no INCLUDE_ASM for {func} under src/")
+src = funcref.find(ref)
+orig = open(src).read()
+m = re.compile(r'^INCLUDE_ASM\("([^"]+)", ' + re.escape(func) + r'\);$', re.M).search(orig)
 asm = os.path.join(ROOT, m.group(1), func + ".s")
 os.makedirs(f"{ROOT}/permuter", exist_ok=True)
 try:
@@ -48,6 +54,14 @@ line = line.replace(rel, '"$INPUT"', 1)
 line = line[: line.rindex(" -o ")] + ' -o "$OUTPUT"'
 jobs = sorted(glob.glob(f"{ROOT}/permuter/nonmatchings/{func}*"), key=os.path.getmtime)
 job = jobs[-1]
+if key != func and os.path.basename(job) != key:
+    # import.py names the folder after the plain function; a shared name gets NAME@MODULE
+    # so its twins' results never mix (the control panel and permute_all.sh look there)
+    dest = f"{ROOT}/permuter/nonmatchings/{key}"
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    os.rename(job, dest)
+    job = dest
 
 # Top-level __asm__("...") statements (e.g. the ".section .rodata / .align 3" jump-table
 # alignment lines in the field overlay) are not C the permuter's parser can read; they only

@@ -39,6 +39,7 @@ def best_output(d):
 
 def find_def(text, func):
     """(start, end) of the definition of func (or an asm-alias definition named func_X...)."""
+    func = func.partition("@")[0]          # FUNC@MODULE (a name several overlays share)
     for name in (re.escape(func), re.escape(func) + r"\w*"):
         m = re.search(r"^[^\n;#{}]*\b" + name + r"\s*\([^;{}]*\)\s*(?:asm\s*\([^)]*\)\s*)?\{", text, re.M)
         if m:
@@ -101,7 +102,7 @@ def declared(st):
 
 
 def splice(base, block, func):
-    block = re.sub(r"^// @@\w+.*\n?", "", block, flags=re.M)
+    block = re.sub(r"^// @@\S+.*\n?", "", block, flags=re.M)
     nd = find_def(block, func)
     bd = find_def(base, func)
     if not nd or not bd:
@@ -126,7 +127,7 @@ def cand_block(func):
             p = l.split("#")[0].split()
             if len(p) >= 2 and p[1] == func:
                 text = open(os.path.join(ROOT, p[0])).read()
-                blocks = text.split("// @@" + func + "\n")[1:]
+                blocks = text.split("// @@" + func + "\n")[1:] or text.split("// @@" + func.partition("@")[0] + "\n")[1:]
                 idx = int(p[2]) if len(p) > 2 else 0
                 return blocks[idx].split("\n// @@")[0] if idx < len(blocks) else None
     except OSError:
@@ -169,7 +170,7 @@ RELOC = re.compile(r"^\s*([0-9a-f]+):\s+(R_MIPS_\w+)\s+(\S+)")
 
 
 def disasm(obj, func):
-    r = subprocess.run([OBJDUMP, "-drz", "--no-show-raw-insn", f"--disassemble={func}", obj],
+    r = subprocess.run([OBJDUMP, "-drz", "--no-show-raw-insn", f"--disassemble={func.partition('@')[0]}", obj],
                        capture_output=True, text=True)
     insns, start = [], None
     for l in r.stdout.splitlines():

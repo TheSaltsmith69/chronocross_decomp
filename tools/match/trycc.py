@@ -3,12 +3,16 @@ instructions against the original asm (relocated fields masked).
 
 Candidate file: blocks headed `// @@func_name`; the same name may appear several
 times (variants), tried in rounds. The src file holding that function's
-INCLUDE_ASM is found automatically.
+INCLUDE_ASM is found automatically. A name that several overlays share needs the
+overlay: `// @@func_801EE000@ov_party2` (see funcref.py).
 
 usage: trycc.py CANDS.c [VERSION] [--keep] [--show]
 """
 import glob, os, re, subprocess, sys
 from pathlib import Path
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import funcref
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 args = sys.argv[1:]
@@ -24,14 +28,10 @@ for name, code in zip(blocks[0::2], blocks[1::2]):
     variants.setdefault(name, []).append(code)
 
 srcs = {p: open(p).read() for p in glob.glob(f"{ROOT}/src/**/*.c", recursive=True)}
-unit_of = {}
+unit_of = {}            # block name (plain or NAME@MODULE) -> its source file
 for name in variants:
-    for p, t in srcs.items():
-        if re.search(r'INCLUDE_ASM\("[^"]+",\s*' + re.escape(name) + r'\);', t):
-            unit_of[name] = p
-            break
-    else:
-        raise SystemExit(f"{name}: no INCLUDE_ASM found")
+    unit_of[name] = funcref.find(name, srcs)
+bare = funcref.name_of
 
 
 def make(target):
@@ -80,7 +80,7 @@ def same_func(g, e):
 
 def subst(t, chosen):
     for name, code in chosen.items():
-        t = re.sub(r'INCLUDE_ASM\("[^"]+",\s*' + re.escape(name) + r'\);', lambda m: code.strip(), t)
+        t = re.sub(r'INCLUDE_ASM\("[^"]+",\s*' + re.escape(bare(name)) + r'\);', lambda m: code.strip(), t)
     return t
 
 
@@ -109,7 +109,7 @@ try:
                 continue
             got = disasm(obj_of(u))
             for name in chosen:
-                g, e = got.get(name), refs[u].get(name)
+                g, e = got.get(bare(name)), refs[u].get(bare(name))
                 if g is not None and same_func(g, e):
                     matched[name] = chosen[name]
                     print(f"[v{k}] {name}: OK")

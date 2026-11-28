@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""m2ctx.py FUNC [-o OUT] -- m2c context for one function.
+"""m2ctx.py FUNC[@MODULE] [-o OUT] -- m2c context for one function.
 
 The context is what FUNC can see where it sits in its source file: the file up to
 FUNC's INCLUDE_ASM line (or its C definition), with its includes, preprocessed
@@ -15,16 +15,32 @@ CPP = [f"{ROOT}/tools/gcc-2.8.1-psx/cpp", "-undef", "-lang-c", "-nostdinc",
        f"-I{ROOT}/include", f"-I{ROOT}/src", "-D_LANGUAGE_C", "-DM2CTX"]
 
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import funcref
+
+# plain name -> module, for names several overlays share: set from a NAME@MODULE argument
+# (see funcref.py) so the rest of the code can keep working with plain C names
+HINT = {}
+
+
+def use_ref(ref):
+    """Accept FUNC or FUNC@MODULE; returns the plain name and remembers the module."""
+    name, mod = funcref.split(ref)
+    if mod:
+        HINT[name] = mod
+    return name
+
+
 def find_source(func):
     """(source path, text before FUNC) for the file that holds FUNC."""
-    inc = re.compile(r'^INCLUDE_ASM\("[^"]+", ' + re.escape(func) + r'\);', re.M)
-    dfn = re.compile(r'^[A-Za-z_][\w \t\*]*\b' + re.escape(func) + r'\s*\([^;]*$', re.M)
-    for src in sorted(glob.glob(f"{ROOT}/src/**/*.c", recursive=True)):
-        text = open(src).read()
-        m = inc.search(text) or dfn.search(text)
-        if m:
-            return src, text[: m.start()]
-    sys.exit(f"{func}: not found under src/")
+    name, mod = funcref.split(func)
+    ref = f"{name}@{mod or HINT[name]}" if (mod or name in HINT) else name
+    src = funcref.find(ref, defs=True)
+    text = open(src).read()
+    inc = re.compile(r'^INCLUDE_ASM\("[^"]+",\s*' + re.escape(name) + r'\);', re.M)
+    dfn = re.compile(r'^[A-Za-z_][\w \t\*]*\b' + re.escape(name) + r'\s*\([^;]*$', re.M)
+    m = inc.search(text) or dfn.search(text)
+    return src, text[: m.start()]
 
 
 def toplevel(text):
@@ -147,7 +163,7 @@ if __name__ == "__main__":
     ap.add_argument("func")
     ap.add_argument("-o", "--output")
     a = ap.parse_args()
-    ctx = context(a.func)
+    ctx = context(use_ref(a.func))
     if a.output:
         open(a.output, "w").write(ctx)
     else:

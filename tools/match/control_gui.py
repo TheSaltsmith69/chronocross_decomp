@@ -46,7 +46,8 @@ TIPS = os.path.join(HERE, "llm_tips.md")
 SETTINGS = os.path.join(GUI, "settings.json")
 CURL_EXE = "/mnt/c/Windows/System32/curl.exe"
 DRAFT_MATCH = re.compile(r"\bratio 1\.0+\b")     # refill_queue.py's note on a draft that matches
-FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)\b")
+# FUNC, or FUNC@MODULE for a name several overlays share (funcref.py)
+FUNC_RE = re.compile(r"\b(func_[0-9A-Fa-f]{8}|[A-Za-z_]\w*)(@\w+)?\b")
 
 DEFAULTS = {
     "perm": {"minutes": 20, "threads": 8, "stall": 5, "nice": 19, "fresh": False, "every": False,
@@ -389,11 +390,15 @@ _cache_lock = threading.Lock()
 
 
 def asm_funcs():
-    """Functions still INCLUDE_ASM in src/ (live, unlike functions.csv)."""
+    """Functions still INCLUDE_ASM in src/ (live, unlike functions.csv), as plain names and
+    as NAME@MODULE (MODULE = the folder under src/)."""
     out = set()
     pat = re.compile(r'INCLUDE_ASM\(\s*"[^"]*"\s*,\s*(\w+)\s*\)')
-    for p in glob.glob(os.path.join(ROOT, "src", "**", "*.c"), recursive=True):
-        out.update(pat.findall(read(p)))
+    src = os.path.join(ROOT, "src")
+    for p in glob.glob(os.path.join(src, "**", "*.c"), recursive=True):
+        mod = os.path.relpath(p, src).split(os.sep)[0]
+        for n in pat.findall(read(p)):
+            out.update((n, f"{n}@{mod}"))
     return out
 
 
@@ -437,7 +442,7 @@ def perm_info():
 def llm_info():
     info = {}
     for l in read(os.path.join(ROOT, "permuter", "llm", "summary.txt")).splitlines():
-        m = re.search(r"(func_\w+): (MATCH|best ([0-9.]+))", l)
+        m = re.search(r"(func_\w+(?:@\w+)?): (MATCH|best ([0-9.]+))", l)
         if m:
             r = 1.0 if m.group(2) == "MATCH" else float(m.group(3))
             prev = info.get(m.group(1))
@@ -468,14 +473,23 @@ def functions():
         pi, li, pk, nt = perm_info(), llm_info(), parked(), fnotes.listing()
         rows = []
         with open(os.path.join(ROOT, "progress", "functions.csv"), newline="") as f:
-            for r in csv.DictReader(f):
-                n = r["function"]
-                src = os.path.exists(os.path.join(ROOT, "src", r["file"] + ".c"))
-                matched = (n not in asm) if src else r["matched"] == "1"
-                rows.append({"n": n, "a": r["addr"], "f": r["file"], "c": r["category"], "b": int(r["bytes"]),
-                             "m": matched, "pk": n in pk, "q": q.get(n), "p": pi.get(n), "l": li.get(n),
-                             "i": INSNS.get(n),       # [matched insns, total, source, diffs] or None
-                             "nt": nt.get(n)})        # notes/FUNC.md mtime, if it has notes
+            csv_rows = list(csv.DictReader(f))
+        count = {}
+        for r in csv_rows:
+            count[r["function"]] = count.get(r["function"], 0) + 1
+        for r in csv_rows:
+            n = r["function"]
+            mod = r["file"].split("/")[0]
+            # a name several overlays share is shown (and picked, queued, permuted...) as
+            # NAME@MODULE, so each twin has its own square, results and notes (funcref.py)
+            k = f"{n}@{mod}" if count[n] > 1 else n
+            src = os.path.exists(os.path.join(ROOT, "src", r["file"] + ".c"))
+            matched = (k not in asm) if src else r["matched"] == "1"
+            rows.append({"n": k, "a": r["addr"], "f": r["file"], "c": r["category"], "b": int(r["bytes"]),
+                         "m": matched, "pk": k in pk or pk.get(n) == mod, "q": q.get(k), "p": pi.get(k),
+                         "l": li.get(k),
+                         "i": INSNS.get(k),       # [matched insns, total, source, diffs] or None
+                         "nt": nt.get(k)})        # notes/FUNC.md mtime, if it has notes
         _cache.update(t=time.time(), data=rows)
         return rows
 
@@ -1118,7 +1132,8 @@ def code_for(func, kind):
                         "text": read(os.path.join(d, "base.c"))}
         return {"path": "", "text": "(no permuter output yet)"}
     if kind == "asm":
-        for p in glob.glob(os.path.join(ROOT, "asm", "**", f"{func}.s"), recursive=True):
+        name, _, mod = func.partition("@")
+        for p in glob.glob(os.path.join(ROOT, "asm", mod or "**", "**", f"{name}.s"), recursive=True):
             return {"path": os.path.relpath(p, ROOT), "text": read(p)}
         return {"path": "", "text": "(no .s file: already matched or not split)"}
     raise ValueError("kind must be perm, llm or asm")

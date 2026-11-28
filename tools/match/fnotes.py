@@ -11,7 +11,7 @@ import time
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DIR = os.path.join(ROOT, "notes")
-NAME = re.compile(r"[A-Za-z_]\w{0,80}")
+NAME = re.compile(r"[A-Za-z_]\w{0,80}(@\w{1,40})?")      # FUNC or FUNC@MODULE (funcref.py)
 MAX = 200_000
 
 

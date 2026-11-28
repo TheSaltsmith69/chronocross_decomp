@@ -1,6 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/ov_enct/nonmatchings/enct_801EE000", func_801EE000);
+extern s32 D_8007ED6C;
+void func_800C3D98(void);
+void func_800C3E60(void);
+void SetRotMatrix(s32);
+void SetTransMatrix(s32);
+
+void func_801EE000(void) {
+    while (1) {
+        func_800C3D98();
+        SetRotMatrix(D_8007ED6C);
+        SetTransMatrix(D_8007ED6C);
+        func_800C3E60();
+    }
+}
 
 INCLUDE_ASM("asm/ov_enct/nonmatchings/enct_801EE000", func_801EE040);
 

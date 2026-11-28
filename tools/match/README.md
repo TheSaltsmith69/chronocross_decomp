@@ -17,6 +17,25 @@ s32 func_800B5C1C(s32 a) { ... }   /* a second variant, tried in the next round 
 
 The source file that holds the function's `INCLUDE_ASM` is found automatically.
 
+### Names several overlays share
+
+Overlays that load at the same address get the same splat names: `ov_enct`, `ov_party`,
+`ov_party2` and `ov_monmenu` each have a `func_801EE000`. Name those as `NAME@MODULE`, where
+MODULE is the folder under `src/`:
+
+```c
+// @@func_801EE000@ov_monmenu
+void func_801EE000(s16 x, s32 y, s32 *ot, s32 i, s32 n) { ... }
+```
+
+Every tool takes that form (candidate headers, `trycc.py`, `subst.py`, `m2ctx.py`, `decomp.py`,
+`permute.py`, `llm_iterate.py`, `refill_queue.py`, queue lines). A plain name that is still
+`INCLUDE_ASM` in more than one file stops with the qualified names to choose from rather than
+guessing. The permuter and LLM folders, `notes/` files and control-panel squares of such a name
+are `NAME@MODULE` too (as soon as more than one overlay has asm for it, even if only one is
+still unmatched), so twins never share results. The C code itself always uses the plain name.
+`funcref.py` holds the rules.
+
 ## Everyday loop
 
 | Step | Command |

@@ -47,6 +47,12 @@ import argparse, glob, json, os, re, shutil, subprocess, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pauseclock import active_time      # time.time() minus time paused from the control panel
 import fnotes                             # notes/FUNC.md, shared with the control panel
+import funcref                            # FUNC@MODULE for names several overlays share
+
+# A function is handled by its result key (funcref.result_key): the plain name, or NAME@MODULE
+# for a name several overlays share. That key names its folders, notes and // @@ headers;
+# C(func) is the plain C identifier, for the code and the prompts.
+C = funcref.name_of
 
 MAIN = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 WORK = os.path.expanduser(os.environ.get("LLM_WORKDIR", "~/chronocross-llm"))
@@ -291,8 +297,9 @@ def score(func, code, tag):
 # ---------------------------------------------------------------- prompt
 
 def compiler_setup(func):
-    src = wrun(["grep", "-rl", f"INCLUDE_ASM(.*, {func});", "src"]).stdout.split()
-    if not src:
+    try:
+        src = [os.path.relpath(funcref.find(func), MAIN)]
+    except SystemExit:
         return None, None
     obj = "build/" + src[0][:-2] + ".o"
     dry = wrun(["make", "--always-make", "--dry-run", obj]).stdout
@@ -304,7 +311,7 @@ def compiler_setup(func):
 
 
 def target_asm(func):
-    path = wrun(["bash", "-c", f"ls asm/*/nonmatchings/*/{func}.s"]).stdout.split()[0]
+    path = os.path.relpath(funcref.asm_path(func), MAIN)
     out = []
     for l in open(f"{WORK}/{path}"):
         l = re.sub(r"^\s*/\* [0-9A-F]+ [0-9A-F]+ [0-9A-F]+ \*/\s*", "    ", l.rstrip())
@@ -493,7 +500,7 @@ def similar_examples(func):
     import difflib
     out = []
     try:
-        tpath = glob.glob(f"{WORK}/asm/*/nonmatchings/*/{func}.s")[0]
+        tpath = f"{WORK}/{os.path.relpath(funcref.asm_path(func), MAIN)}"
         module = tpath[len(WORK) + 5:].split("/")[0]            # e.g. ov_battle, or game for main
         srcs = sorted(glob.glob(f"{WORK}/src/{module}/**/*.c", recursive=True)) or \
             sorted(glob.glob(f"{WORK}/src/**/*.c", recursive=True))
@@ -505,7 +512,7 @@ def similar_examples(func):
         scored = []
         for path in glob.glob(f"{WORK}/asm/{module}/nonmatchings/*/func_*.s"):
             name = os.path.basename(path)[:-2]
-            if name == func or name in pending or name in seen:
+            if name == C(func) or name in pending or name in seen:
                 continue
             seen.add(name)
             ops = asm_ops(path)
@@ -544,7 +551,7 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), 
     comp = (f"Compiler: PsyQ GCC {setup['gcc']} cc1 with `{setup['cc1']}`, output through maspsx "
             f"(ASPSX 2.79 emulation{', --expand-div: divides get the break 6/7 divide-by-zero and overflow checks' if setup['expand_div'] else ', no divide checks'}), "
             "then GNU as. MIPS R3000, little endian; load delay slots are filled with nop where needed.")
-    parts = [f"Match `{func}`.", comp,
+    parts = [f"Match `{C(func)}`.", comp,
              "Declarations visible to the function in its source file (relevant ones):\n```c\n" + ctx + "\n```",
              "Target assembly:\n```\n" + asm + "\n```"]
     ex = similar_examples(func)
@@ -570,7 +577,7 @@ def build_prompt(func, setup, asm, ctx, best, best_fb, last, last_fb, notes=(), 
         parts.append("Handoffs from earlier rounds (oldest first; the result is that round's score):\n"
                      + notes_text(notes))
     if session:
-        parts.append(session + f"\nReply with up to the allowed number of variants of `{func}`, then the HANDOFF.")
+        parts.append(session + f"\nReply with up to the allowed number of variants of `{C(func)}`, then the HANDOFF.")
     else:
         parts.append("Write an improved version of the function, then the HANDOFF.")
     return "\n\n".join(parts)
@@ -591,7 +598,7 @@ def split_handoff(text):
 def extract_codes(text, func):
     """Every ```c block that holds the function, in order, without duplicates."""
     blocks = re.findall(r"```(?:c|C)?\s*\n(.*?)```", text, flags=re.S)
-    return list(dict.fromkeys(b.strip() + "\n" for b in blocks if func in b))
+    return list(dict.fromkeys(b.strip() + "\n" for b in blocks if C(func) in b))
 
 
 def extract_code(text, func):
@@ -608,7 +615,7 @@ ALT_STARTS = {}     # func -> other start code to score alongside the usual cand
 
 def func_span(text, func):
     """(start, end) of FUNC's definition in TEXT (start of its line .. its closing brace), or None."""
-    m = re.search(r"^[^\n;{}#]*\b" + func + r"\s*\([^;{]*\)\s*\{", text, re.M)
+    m = re.search(r"^[^\n;{}#]*\b" + re.escape(C(func)) + r"\s*\([^;{]*\)\s*\{", text, re.M)
     if not m:
         return None
     depth, i = 0, m.end() - 1
@@ -624,6 +631,15 @@ def func_span(text, func):
     return None
 
 
+def cand_blocks(text, func):
+    """The texts after each `// @@FUNC` header in a candidates file; for NAME@MODULE, blocks
+    headed with the plain name count too (candidate files written before qualified names)."""
+    vs = text.split(f"// @@{func}\n")[1:]
+    if not vs and C(func) != func:
+        vs = text.split(f"// @@{C(func)}\n")[1:]
+    return vs
+
+
 def cand_prelude(func, cands, idx):
     """The declarations (typedefs, externs, prototypes) in front of FUNC in its queue candidate."""
     if not cands:
@@ -632,7 +648,7 @@ def cand_prelude(func, cands, idx):
         t = open(cands if os.path.isabs(cands) else f"{MAIN}/{cands}").read()
     except OSError:
         return ""
-    vs = t.split(f"// @@{func}\n")[1:]
+    vs = cand_blocks(t, func)
     if len(vs) <= idx:
         return ""
     block = vs[idx].split("\n// @@")[0]
@@ -689,7 +705,7 @@ def permuted_jobs(starts):
     out = []
     for d in sorted(glob.glob(f"{PERMUTER_DIR}/func_*")):
         func = os.path.basename(d)
-        if not re.fullmatch(r"func_[0-9A-Fa-f]+", func):      # e.g. func_800C598C.matched
+        if not re.fullmatch(r"func_[0-9A-Fa-f]+(@\w+)?", func):      # e.g. func_800C598C.matched
             continue
         pb = permuted_best(func)
         if not pb:
@@ -707,7 +723,7 @@ def permuted_jobs(starts):
 def start_code(func, cands=None, idx=0):
     if cands:
         t = open(cands if os.path.isabs(cands) else f"{MAIN}/{cands}").read()
-        vs = t.split(f"// @@{func}\n")[1:]
+        vs = cand_blocks(t, func)
         if len(vs) > idx:
             return vs[idx].split("\n// @@")[0].strip() + "\n"
     r = wrun([".venv/bin/python3", "tools/match/decomp.py", func])
@@ -818,7 +834,7 @@ def iterate(model, func, cands, idx, rounds, temperature):
         body, handoff = split_handoff(save_notes(func, answer, f"round {i}"))
         new = extract_code(body, func) or extract_code(answer, func)
         if new is None:
-            log(f"{func} round {i}: no C block with {func} in the answer")
+            log(f"{func} round {i}: no C block with {C(func)} in the answer")
             notes.append((i, "no code block found", handoff))
             last, last_fb = None, None
             continue
@@ -885,7 +901,7 @@ def get_reply(model, msgs, temperature, think_tokens, no_think, func):
     time.sleep(3)
     nudge = ("Your thinking budget for this turn ran out before you answered. The end of your "
              "reasoning was:\n\"\"\"\n" + thinking[-2000:].strip() + "\n\"\"\"\n"
-             f"Stop reasoning and reply now with up to the allowed number of ```c variants of `{func}` "
+             f"Stop reasoning and reply now with up to the allowed number of ```c variants of `{C(func)}` "
              "built on that, then the HANDOFF. The compiler will check them. /no_think")
     answer, more = call(msgs + [{"role": "user", "content": nudge}], NO_THINK)
     return answer, thinking + "\n[thinking cut off; asked for code]\n" + more, True
@@ -960,9 +976,9 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
         body, handoff = split_handoff(save_notes(func, answer, f"turn {turn}"))
         blocks =(extract_codes(body, func) or extract_codes(answer, func))[:variants]
         if not blocks:
-            log(f"{func} turn {turn}: no C block with {func} in the answer")
+            log(f"{func} turn {turn}: no C block with {C(func)} in the answer")
             notes.append((turn, "no code block found", handoff))
-            msgs.append({"role": "user", "content": f"No ```c block containing `{func}` was found in your "
+            msgs.append({"role": "user", "content": f"No ```c block containing `{C(func)}` was found in your "
                          f"reply, so nothing was compiled. {budget()}"})
             continue
         results, tags = [], []
@@ -994,6 +1010,20 @@ def iterate_session(model, func, cands, idx, compiles, minutes, temperature, var
            f" ({used} compiles, {turns} turns, {int((active_time() - t0) / 60)} min"
            + (f", {restarts} restarts" if restarts else "") + (f", thinking cut {cuts}x" if cuts else "")
            + (f"; {why}" if why else "") + ")")
+
+
+def key_of(ref, quiet=False):
+    """REF's result key (NAME@MODULE for a shared name); REF itself once it is matched or
+    unknown, so the usual "already matched" path reports it. None for a plain name that
+    several overlays still share (it can't be told which one is meant)."""
+    try:
+        return funcref.result_key(ref)
+    except funcref.Ambiguous as e:
+        if not quiet:
+            log(f"skipped: {e}")
+        return None
+    except SystemExit:
+        return ref
 
 
 def main():
@@ -1034,11 +1064,16 @@ def main():
         for l in open(q):
             p = l.split("#")[0].split()
             if len(p) >= 2:
-                starts[p[1]] = (p[0], int(p[2]) if len(p) > 2 else 0)
+                k = key_of(p[1], quiet=True)
+                if k:
+                    starts[k] = (p[0], int(p[2]) if len(p) > 2 else 0)
     if a.queue:
         jobs = list(starts)
     if a.parked:
-        jobs += [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.parked}.txt") if l.strip()]
+        # (a parked list holds its own overlay's functions, so a shared name is that overlay's)
+        shared = funcref.ambiguous_names()
+        jobs += [n if "@" in n or n not in shared else f"{n}@{a.parked}"
+                 for n in (l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.parked}.txt")) if n]
         jobs.sort(key=lambda f: f not in starts)      # ones with a saved candidate first
     permuted_from = {}
 
@@ -1064,6 +1099,7 @@ def main():
         jobs += [f for f, *_ in pj]
         log(f"permuter outputs: " + ", ".join(f"{f} ({sc})" for f, sc, *_ in pj) if pj else "no permuter outputs")
     jobs += a.funcs
+    jobs = [k for k in (key_of(j) for j in jobs) if k]
     # every other function with a permuter output gets it as a starting point too (selection,
     # lists, --queue, --parked), not only --permuted runs
     for f in dict.fromkeys(jobs):
@@ -1076,7 +1112,7 @@ def main():
             if code is not None:
                 use_permuter(f, pb[0], pb[1], code)
     if a.skip_done and os.path.exists(f"{OUT}/summary.txt"):
-        done = set(re.findall(r" (func_\w+): ", open(f"{OUT}/summary.txt").read()))
+        done = set(re.findall(r" (func_\w+(?:@\w+)?): ", open(f"{OUT}/summary.txt").read()))
 
         def already(j):
             if j not in done:

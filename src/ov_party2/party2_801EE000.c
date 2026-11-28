@@ -62,7 +62,21 @@ INCLUDE_ASM("asm/ov_party2/nonmatchings/party2_801EE000", func_801EEB1C);
 
 INCLUDE_ASM("asm/ov_party2/nonmatchings/party2_801EE000", func_801EED54);
 
-INCLUDE_ASM("asm/ov_party2/nonmatchings/party2_801EE000", func_801EF31C);
+typedef struct {
+    u8 pad[0x2DE4];
+    u8 b[4];
+} S8006EBC8;
+
+s32 func_801EF31C(s32 arg0) {
+    s32 i;
+
+    for (i = 3; i < 4; i++) {
+        if (((S8006EBC8 *)&D_8006EBC8)->b[i] == arg0) {
+            return -1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ov_party2/nonmatchings/party2_801EE000", func_801EF358);
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""decomp.py FUNC... [-a CANDS.c] [--raw] -- first-draft C from m2c.
+"""decomp.py FUNC[@MODULE]... [-a CANDS.c] [--raw] -- first-draft C from m2c.
+
+A name several overlays share (func_801EE000 in four of them) needs @MODULE
+(funcref.py); its block is then headed `// @@NAME@MODULE`.
 
 For each function: builds its context with m2ctx.py (plus tools/match/m2c_extra.h
 for prototypes the sources don't declare yet), runs tools/m2c on its .s, and prints
@@ -17,10 +20,10 @@ EXTRA = os.path.join(ROOT, "tools", "match", "m2c_extra.h")
 
 
 def asm_path(func):
-    hits = glob.glob(f"{ROOT}/asm/**/nonmatchings/**/{func}.s", recursive=True)
-    if not hits:
-        sys.exit(f"{func}: no .s under asm/*/nonmatchings")
-    return hits[0]
+    """FUNC's .s, from the INCLUDE_ASM folder of its own source file (twins in other
+    overlays share the name; m2ctx.HINT says which one a NAME@MODULE argument meant)."""
+    mod = m2ctx.HINT.get(func)
+    return m2ctx.funcref.asm_path(f"{func}@{mod}" if mod else func)
 
 
 def table_files(path):
@@ -447,8 +450,12 @@ if __name__ == "__main__":
     ap.add_argument("--no-repair", action="store_true",
                     help="skip the compile-and-patch pass (it compiles the draft in its file)")
     a = ap.parse_args()
-    for f in a.funcs:
+    for ref in a.funcs:
+        f = m2ctx.use_ref(ref)                       # plain C name from here on
+        key = m2ctx.funcref.result_key(ref)          # exits listing NAME@MODULE choices for a plain twin
         block, err = draft(f, a.raw)
+        if block is not None and key != f:           # a shared name: head the block with NAME@MODULE
+            block = block.replace(f"// @@{f}\n", f"// @@{key}\n", 1)
         if block is None:
             print(f"{f}: m2c failed: {err}", file=sys.stderr)
             continue

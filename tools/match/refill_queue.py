@@ -2,7 +2,8 @@
 """refill_queue.py [--ov ov_battle] [--limit N] [--min-ratio R] [--dry-run] [FUNC...] -- keep the permuter queue fed.
 
 With FUNC names it drafts exactly those (in that order, any module) instead of the parked list;
-the same skip rules apply (already matched, queued or in the permuter).
+the same skip rules apply (already matched, queued or in the permuter). A name several overlays
+share is given as FUNC@MODULE (funcref.py); from a parked list it is taken as that overlay's.
 
 Goes through the overlay's parked list (tools/match/parked_OV.txt) and picks the functions that
 neither loop can work on yet: still asm (INCLUDE_ASM), not in permuter/queue.txt and without a
@@ -38,7 +39,11 @@ GTE = re.compile(r"\b(cfc2|ctc2|mfc2|mtc2|lwc2|swc2|cop2)\b")
 def uses_gte(func):
     """GTE (coprocessor 2) instructions only come from inline asm: no C draft can match them,
     and m2c leaves M2C_ERROR() in their place."""
-    for p in glob.glob(f"{MAIN}/asm/**/nonmatchings/**/{func}.s", recursive=True):
+    try:
+        paths = [li.funcref.asm_path(func)]
+    except SystemExit:
+        paths = glob.glob(f"{MAIN}/asm/**/nonmatchings/**/{li.C(func)}.s", recursive=True)
+    for p in paths:
         if GTE.search(re.sub(r"/\*.*?\*/", "", open(p, errors="replace").read())):
             return True
     return False
@@ -60,10 +65,15 @@ def main():
             p = l.split("#")[0].split()
             if len(p) >= 2:
                 queued.add(p[1])
-    pending = set()
+    pending = set()             # plain names and NAME@MODULE
     for src in glob.glob(f"{MAIN}/src/**/*.c", recursive=True):
-        pending |= set(re.findall(r"^INCLUDE_ASM\([^,]+, (\w+)\);", open(src).read(), re.M))
+        mod = li.funcref.module_of_src(src)
+        for n in re.findall(r"^INCLUDE_ASM\([^,]+, (\w+)\);", open(src).read(), re.M):
+            pending |= {n, f"{n}@{mod}"}
+    shared = li.funcref.ambiguous_names()
     if a.funcs:
+        # a qualified name stays qualified; a plain shared one is skipped with the choices
+        a.funcs = [k for k in (f if "@" in f else li.key_of(f) for f in a.funcs) if k]
         parked, label = a.funcs, "picked"
         for f in dict.fromkeys(a.funcs):
             why = ("already matched (no INCLUDE_ASM)" if f not in pending else
@@ -72,7 +82,8 @@ def main():
             if why:
                 print(f"{f}: skipped, {why}")
     else:
-        parked = [l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.ov}.txt") if l.strip()]
+        parked = [n if "@" in n or n not in shared else f"{n}@{a.ov}"
+                  for n in (l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.ov}.txt")) if n]
         label = f"{a.ov}: {len(set(parked))} parked"
     todo = [f for f in dict.fromkeys(parked)
             if f in pending and f not in queued and not os.path.isdir(f"{MAIN}/permuter/nonmatchings/{f}")]
@@ -121,9 +132,10 @@ def main():
         os.makedirs(f"{MAIN}/permuter/cands", exist_ok=True)
         with open(queue, "a") as q:
             for func, ratio, code in good + [(f, 1.0, c) for f, c in matched]:
-                name = f"permuter/cands/{func[5:].lower()}.c"
+                stem = func[5:].lower().replace("@", "_")       # 801ee000_ov_party2 for a shared name
+                name = f"permuter/cands/{stem}.c"
                 if os.path.exists(f"{MAIN}/{name}"):
-                    name = f"permuter/cands/{func[5:].lower()}_refill.c"
+                    name = f"permuter/cands/{stem}_refill.c"
                 open(f"{MAIN}/{name}", "w").write(f"// @@{func}\n{code.rstrip()}\n")
                 q.write(f"{name} {func} 0 # refill {day}: m2c draft, ratio {ratio:.4f}\n")
                 added.append(func)
@@ -145,7 +157,7 @@ def main():
     if matched:
         print("Already matching as drafted (ask Claude to lock):")
         for f, _ in matched:
-            print(f"  * {f}  permuter/cands/{f[5:].lower()}.c")
+            print(f"  * {f}  permuter/cands/{f[5:].lower().replace('@', '_')}.c")
     if failed:
         print("Not queued (fix and rerun):")
         for f, e in failed:
