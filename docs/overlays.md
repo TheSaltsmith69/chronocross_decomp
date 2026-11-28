@@ -5,8 +5,8 @@ retail SLUS_010.41 and the Disc 1 .bin.
 
 **Status:** `ov_field` (file #3), `ov_battle` (file #5), `ov_menu` (file #39),
 `ov_enct` (file #7), `ov_result` (file #8), `ov_name` (file #37), `ov_shop`
-(file #225), `ov_party` (file #2053), `ov_monmenu` (file #2054) and `ov_party2`
-(file #2057) are split and rebuild byte-for-byte.
+(file #225), `ov_party` (file #2053), `ov_monmenu` (file #2054), `ov_party2`
+(file #2057) and `ov_playinit` (file #2056) are split and rebuild byte-for-byte.
 Both discs carry byte-identical copies of every code file under the same file
 numbers, so Disc 1 is the extraction source for all of them.
 

@@ -30,6 +30,7 @@ MODULES = [
     ("ov_party", ROOT / "ov_party.yaml", "ov_party", ROOT / "build" / "ov_party.elf", ROOT / "src" / "ov_party"),
     ("ov_monmenu", ROOT / "ov_monmenu.yaml", "ov_monmenu", ROOT / "build" / "ov_monmenu.elf", ROOT / "src" / "ov_monmenu"),
     ("ov_party2", ROOT / "ov_party2.yaml", "ov_party2", ROOT / "build" / "ov_party2.elf", ROOT / "src" / "ov_party2"),
+    ("ov_playinit", ROOT / "ov_playinit.yaml", "ov_playinit", ROOT / "build" / "ov_playinit.elf", ROOT / "src" / "ov_playinit"),
 ]
 OVERLAYS = [m[0] for m in MODULES if m[0]]
 

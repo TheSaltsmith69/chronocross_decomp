@@ -1,0 +1,55 @@
+name: OV_PLAYINIT
+# Disc file #2056 (playinit.prg in the Radical Dreamers Edition): loaded at 0x801EE000 by the
+# field (func_800A8EA0 -> func_800A8DF4(3)), which runs func_801EE0B0 once and frees it.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 2056
+sha1: 2b5dd06535be420ba6f9d4c149188a6180388403
+options:
+  basename: ov_playinit
+  target_path: iso/files/2056.bin
+  elf_path: build/ov_playinit.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_playinit
+  src_path: src/ov_playinit
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_playinit.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code, then data
+  section_order: [".text", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_playinit.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_playinit_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_playinit_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_playinit
+    type: code
+    start: 0x0
+    vram: 0x801EE000
+    subsegments:
+      - [0x0, c, playinit_801EE000]
+      - [0x4F8, data, data_801EE4F8]
+  - [0x800]

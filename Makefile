@@ -85,7 +85,7 @@ O_FILES   := $(S_FILES:%.s=$(BUILD)/%.o) $(C_FILES:%.c=$(BUILD)/%.o) $(BIN_FILES
 # Each one is split from iso/files/NNNN.bin (tools/extract_files.py), linked on
 # its own against the main EXE's symbols, and compared with the disc file.
 OVERLAYS      := ov_field ov_battle ov_menu ov_enct ov_result ov_name ov_shop ov_party \
-                 ov_monmenu ov_party2
+                 ov_monmenu ov_party2 ov_playinit
 ov_battle_FILE := 0005
 ov_field_FILE := 0003
 ov_menu_FILE  := 0039
@@ -96,6 +96,11 @@ ov_shop_FILE  := 0225
 ov_party_FILE := 2053
 ov_monmenu_FILE := 2054
 ov_party2_FILE := 2057
+ov_playinit_FILE := 2056
+
+# Overlays kept out of the repo (e.g. developer-only files the retail game never loads):
+# list them in an untracked local.mk as `OVERLAYS += ov_x` and `ov_x_FILE := NNNN`.
+-include local.mk
 
 # splat writes .align 3 on jump tables that happen to sit on an 8-byte boundary.
 # They only need word alignment, and since the battle overlay was split into

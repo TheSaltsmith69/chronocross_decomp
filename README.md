@@ -49,10 +49,11 @@ its own:
 | `ov_party` (party swap screen, on top of the field engine) | #2053 | `0x801EE000` | `b956e8b3eae311ddd1b083797b6a6d406f6480a1` |
 | `ov_monmenu` (dev name `monmenu.prg`, on top of the field engine) | #2054 | `0x801EE000` | `39abc84252a02379bb3c1b54a1cc8b60fd9cfa2a` |
 | `ov_party2` (dev name `memmenu2.prg`, second party screen) | #2057 | `0x801EE000` | `dfc5af5060135012e2a01709f8548aae63cdc7a2` |
+| `ov_playinit` (dev name `playinit.prg`, run once by the field, likely at a new game) | #2056 | `0x801EE000` | `2b5dd06535be420ba6f9d4c149188a6180388403` |
 
 ```bash
-python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225 2053 2054 2057   # extract the overlays
-for o in field battle menu enct result name shop party monmenu party2; do make split-ov_$o; done  # disassemble them
+python3 tools/extract_files.py "<disc 1>.bin" iso/files 3 5 39 7 8 37 225 2053 2054 2057 2056   # extract the overlays
+for o in field battle menu enct result name shop party monmenu party2 playinit; do make split-ov_$o; done  # disassemble them
 make                                                              # now also checks the overlays
 ```
 
