@@ -75,11 +75,32 @@ reference, not as matching targets. The effect code is 93-100% identical to the 
 Six effects exist only on Disc 2: lasdes1 #5862, darkfeit #5868, dorured #5880,
 dorublue #5883, lasbos #5913, bgchng #5916.
 
+The last two code files' load addresses come from the code itself, so no dump is needed (or
+possible: neither stays in RAM):
+
+- **#6 title.prg loads at 0x800A3308** (slot A). Its `lui`/`addiu` pairs point at
+  0x800A330C and up, and its first string sits at file offset 4. It is the developers' boot
+  selector ("cd mode / pc mode / emulator mode", disk 1/2, loading `c:\work\cdrom\title.prd`
+  and `.ltd` from a PC), which the retail game never loads.
+- **#2056 playinit.prg loads at 0x801EE000.** The field overlay's `func_800A8EA0` loads it with
+  `func_800A8DF4(3)`, calls its main function `func_801EE0B0` (file offset 0xB0) and frees it;
+  it reads and writes field globals (0x800E39E1, 0x800E4184) and its own data at 0x801EE4F8.
+
+File ids in the code are relative to a directory: `func_8004582C(dir)` sets the base
+(`D_8008787C = D_80087954[dir]`, a u16 table read from disc at boot, at 0x801F8EEC in RAM),
+and `func_80044924(id)` etc. use `base + id`. The game numbers files one higher than
+`tools/extract_files.py` (like `cdrom.fnd`). Directory 5's base is 0xED, so
+`func_800A8DF4(n)` loads disc file 2053 + n: 0 memmenu (`ov_party`), 1 monmenu, 3 playinit,
+4 memmenu2 (`ov_party2`). The RDE's `cdrom.fid` is this same directory table.
+
 `Chronodata\debug.prg` (3.2 MB, not on the retail discs) is the dev-kit debug module
 for 0x80300000. All 19 calls the main EXE makes above 2 MB (`undefined_funcs.txt`,
 0x8031A7C8-0x8033D044) land on function starts in it. It was linked against the
 Japanese EXE, though (140 of its 205 call targets into the EXE are function starts
-in `slps_023.64`, only 23 in SLUS_010.41).
+in `slps_023.64`, only 23 in SLUS_010.41). Its data is still useful: the effect editor's
+command and particle-code tables name the battle effect script (`effect_commands.md`), and the
+field debug screens print labelled game state (map, scenario flag, party/member masks, and an
+actor's position, angle, animation numbers and status flags).
 
 Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
 that matches no single disc file, even with j/jal/lui words ignored. About 500
