@@ -292,7 +292,9 @@ void func_80013C34(u32 x) {
     D_8006CEB8[x >> 24] = x;
 }
 
-INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013C58);
+u8 func_80013C58(s32 arg0) {
+    return D_8006CEB8[arg0];
+}
 
 INCLUDE_ASM("asm/nonmatchings/lib/libgpu/sys", func_80013C6C);
 

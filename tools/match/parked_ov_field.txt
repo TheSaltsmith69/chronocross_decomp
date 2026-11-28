@@ -1,5 +1,3 @@
-func_800B5B98
-func_800DA6C4
 func_800AB584
 func_800B5AD0
 func_800BD8AC

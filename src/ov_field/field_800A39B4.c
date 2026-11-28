@@ -2380,7 +2380,22 @@ s32 func_800B5B34(s32 arg0) {
     return (u16)D_800E57A0_a[arg0 >> 1];
 }
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800B5B98);
+extern s16 D_800E57A0_m2c[] asm("D_800E57A0");
+void func_800B5B98(s32 arg0, s32 arg1) {
+    s32 new_var;
+    s32 new_var3;
+    s16 new_var2;
+    new_var3 = arg0 >> 1;
+    if (new_var2 || arg0) {
+        new_var2 = (s16) arg1;
+        new_var = arg0 >> 1;
+        D_800E57A0_m2c[new_var] = new_var2;
+    } else {
+        new_var2 = (s16) arg1;
+        new_var = new_var3;
+        D_800E57A0_m2c[new_var] = new_var2;
+    }
+}
 
 s16 func_800B5BB4(s32 arg0) {
     u8 *p = D_800E14B8 + (*(s32 *)(D_1F800004 + 0x228) + arg0);
@@ -9134,7 +9149,24 @@ INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800DA208);
 
 INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800DA288);
 
-INCLUDE_ASM("asm/ov_field/nonmatchings/field_800A39B4", func_800DA6C4);
+extern s32 D_800E6798_m2c asm("D_800E6798");
+s32 func_800DA6C4(void) {
+    s32 *new_var2;
+    int new_var3;
+    u8 *new_var;
+    if (1) {
+        if (new_var) {
+            new_var2 = &D_800E6798_m2c;
+            new_var2 = (u8 *) new_var2;
+        } else {
+            new_var2 = &D_800E6798_m2c;
+            new_var2 = (u8 *) new_var2;
+        }
+    }
+    new_var = new_var2;
+    new_var3 = -0x34;
+    return (*((u16 *) (new_var - new_var3))) == 2;
+}
 
 void CdSyncCallback(void *);
 void CdReadyCallback(void *);

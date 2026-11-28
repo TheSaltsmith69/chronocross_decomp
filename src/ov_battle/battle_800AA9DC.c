@@ -1300,7 +1300,19 @@ s32 func_800B0ABC(s32 a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800B0B10);
+extern char D_800A3364[];
+extern s32 D_800A0F04;
+s32 func_800B0B10(void) {
+    register u8 *p asm("v0"); /* the caller leaves the target record in $v0 */
+    u8 *t;
+
+    t = func_800309D0(*(s16 *)(p + 2));
+    if (t == 0) {
+        func_80029DD8(D_800A3364, "kz_CallDamageTarget()", D_800A0F04);
+    }
+    func_800A9A98(t);
+    return 2;
+}
 
 void *func_800B54D0(u8 *);
 s32 func_800B0B68(u8 *a0) {
@@ -1492,7 +1504,28 @@ s32 func_800B2548(u8 *a0) {
     return 8;
 }
 
-INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800B26A4);
+extern s32 D_800A32FC;
+s32 func_800B26A4(void) {
+    u8 *p = (u8 *)&D_800A32FC;
+
+    if (p[3] == 0) {
+        /* pack three GTE control registers (cfc2 13-15) into one word */
+        asm("cfc2 $12, $13\n"
+            "cfc2 $13, $14\n"
+            "cfc2 $14, $15\n"
+            "srl $12, $12, 4\n"
+            "sll $13, $13, 4\n"
+            "sll $14, $14, 12\n"
+            "or $12, $12, $13\n"
+            "or $12, $12, $14\n"
+            "sw $12, 0(%0)"
+            :
+            : "r"(p)
+            : "$12", "$13", "$14");
+        p[3] = 1;
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/ov_battle/nonmatchings/battle_800AA9DC", func_800B26F0);
 

@@ -306,4 +306,8 @@ void func_8003DD14(void) {
     f_3D504_t();
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/unk_8003CB78", func_8003DD34);
+extern u8 *D_8006AE10;
+s32 func_8003DD34(void) {
+    s32 mask = 0x80;
+    return (*(u16 *)(D_8006AE10 + 0x1AA) & mask) != 0;
+}
