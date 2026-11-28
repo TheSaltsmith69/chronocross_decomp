@@ -89,13 +89,24 @@ def disasm():
         m = re.match(r'^\s+([0-9a-f]+):\s+([0-9a-f]{8})\s+(.*)$', l)
         if m and cur:
             funcs[cur].append([int(m.group(2), 16), False, re.sub(r'\s+', ' ', m.group(3)).split(' <')[0]]); continue
-        if re.match(r'^\s+[0-9a-f]+: R_MIPS_', l) and cur and funcs[cur]:
-            funcs[cur][-1][1] = True
+        m = re.match(r'^\s+[0-9a-f]+: (R_MIPS_\w+)\s+(\S+)', l)
+        if m and cur and funcs[cur]:
+            funcs[cur][-1][1] = (m.group(1), m.group(2))
     return funcs
 
 
 def norm(ins):
-    return [(w & (0xFC000000 if (w >> 26) in (2, 3) else 0xFFFF0000)) if rel else w for w, rel, _ in ins]
+    """Relocated fields masked, but a call (jal/j) keeps the name of the function it calls, so a
+    call to the wrong function is not a match."""
+    out = []
+    for w, rel, _ in ins:
+        if not rel:
+            out.append(w)
+        elif rel[0] == "R_MIPS_26" and not rel[1].startswith("."):
+            out.append((w & 0xFC000000, rel[1].split("+")[0]))
+        else:
+            out.append(w & (0xFC000000 if (w >> 26) in (2, 3) else 0xFFFF0000))
+    return out
 
 
 r = make(); assert r.returncode == 0, r.stderr
