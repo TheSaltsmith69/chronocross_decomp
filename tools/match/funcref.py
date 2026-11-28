@@ -95,6 +95,29 @@ def ambiguous_names(texts=None):
     return {n: sorted(m) for n, m in seen.items() if len(m) > 1}
 
 
+SPECIAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "special.txt")
+
+
+def special():
+    """{ref: reason} from tools/match/special.txt: functions that need special work (inline asm,
+    a compiler quirk...) that the permuter, m2c and the LLM loop can't do, so batch runs skip them
+    and the control panel shows them red. Lines: `FUNC[@MODULE]  # why`."""
+    out = {}
+    try:
+        for l in open(SPECIAL):
+            body, _, why = l.partition("#")
+            if body.strip():
+                out[body.split()[0]] = why.strip()
+    except OSError:
+        pass
+    return out
+
+
+def is_special(ref, sp=None):
+    sp = special() if sp is None else sp
+    return ref in sp or name_of(ref) in sp
+
+
 _ASM_MODS = None
 
 

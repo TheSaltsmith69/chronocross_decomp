@@ -84,6 +84,11 @@ def main():
     else:
         parked = [n if "@" in n or n not in shared else f"{n}@{a.ov}"
                   for n in (l.strip() for l in open(f"{MAIN}/tools/match/parked_{a.ov}.txt")) if n]
+        sp = li.funcref.special()           # needs special work: no point drafting it
+        held = [n for n in parked if li.funcref.is_special(n, sp)]
+        if held:
+            print("skipped (tools/match/special.txt): " + ", ".join(held))
+        parked = [n for n in parked if n not in held]
         label = f"{a.ov}: {len(set(parked))} parked"
     todo = [f for f in dict.fromkeys(parked)
             if f in pending and f not in queued and not os.path.isdir(f"{MAIN}/permuter/nonmatchings/{f}")]

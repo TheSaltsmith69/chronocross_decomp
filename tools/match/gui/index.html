@@ -745,10 +745,11 @@ const saveSel = () => localStorage.sel = JSON.stringify(S.sel);
 /* ---------------------------------------------------------------- status of a function */
 // a draft that matches as it is: the instruction check compiled one of its sources with no
 // differences at all, or refill_queue.py queued it with ratio 1.0
-function draftMatch(f) { return !!((f.i && f.i[3] === 0 && f.i[0] === f.i[1]) || (f.q && /\bratio 1\.0+\b/.test(f.q.note || ""))); }
-function ready(f) { return !f.m && ((f.p && f.p.best === 0) || (f.l && f.l.match) || draftMatch(f)); }
+function draftMatch(f) { return !!((f.i && f.i[1] > 0 && f.i[3] === 0 && f.i[0] === f.i[1]) || (f.q && /\bratio 1\.0+\b/.test(f.q.note || ""))); }
+function ready(f) { return !f.m && !f.sp && ((f.p && f.p.best === 0) || (f.l && f.l.match) || draftMatch(f)); }
 function status(f) {
   if (f.m) return "matched";
+  if (f.sp != null) return "special";
   if (ready(f)) return "ready";
   if (f.p && f.p.outputs) return "permuted";
   if (f.l) return "llm";
@@ -757,7 +758,7 @@ function status(f) {
   return "todo";
 }
 const STATUS = {
-  ready: ["Ready to lock", "#b6ff4d"], permuted: ["Permuter improved", "#2ee6ff"], llm: ["LLM tried", "#c77dff"],
+  ready: ["Ready to lock", "#b6ff4d"], special: ["Needs special work", "#ff3b4e"], permuted: ["Permuter improved", "#2ee6ff"], llm: ["LLM tried", "#c77dff"],
   queued: ["Has candidate", "#6d7dff"], parked: ["Parked", "#ffb020"], todo: ["Unmatched", "#2b3145"], matched: ["Matched", "#183029"],
 };
 const mix = (a, b, t) => { // hex mix
@@ -775,7 +776,7 @@ function insText(f) {
   const m = insMatched(f), t = insTotal(f);
   return m == null ? `–/${t}` : `${m}/${t}`;
 }
-const STATUS_ORDER = ["ready", "permuted", "llm", "queued", "parked", "todo", "matched"];
+const STATUS_ORDER = ["ready", "special", "permuted", "llm", "queued", "parked", "todo", "matched"];
 /* sort keys; dir 1 = natural order (best first for scores), nulls always last */
 const SORTS = {
   addr: [f => parseInt(f.a, 16), 1], name: [f => f.n, 1], insns: [f => insTotal(f), 1],
@@ -930,6 +931,7 @@ $("#map").addEventListener("mousemove", e => {
   if (f.q) rows.push(["cand", f.q.cands.replace("permuter/cands/", "") + " #" + f.q.idx]);
   if (f.p) rows.push(["permuter", f.p.matched ? "matched" : `best ${f.p.best ?? "–"} / base ${f.p.base ?? "?"}` + (gain(f) != null ? ` (−${(gain(f) * 100).toFixed(0)}%)` : "")]);
   if (f.l) rows.push(["llm", f.l.match ? "MATCH" : f.l.ratio != null ? "best " + f.l.ratio.toFixed(4) : "started"]);
+  if (f.sp != null) rows.push(["special", f.sp || "needs special work"]);
   if (f.nt) rows.push(["notes", "yes, " + ago(f.nt)]);
   if (o >= 0) rows.push(["picked", "#" + (o + 1)]);
   const [label, c] = STATUS[st];
@@ -1314,6 +1316,10 @@ async function inspect(n) {
         <div class="box"><div class="k">Candidate</div><div class="v" style="font-size:12px">${f.q ? esc(f.q.cands.replace("permuter/cands/", "")) + " <small>#" + f.q.idx + "</small>" : f.p ? "<small>permuter dir</small>" : "<small>none (LLM will m2c)</small>"}</div></div>
       </div>
       ${f.q && f.q.note ? `<div class="note">${esc(f.q.note)}</div>` : ""}
+      <div class="note" style="display:flex;gap:10px;align-items:center">
+        <span style="flex:1;${f.sp != null ? "color:#ff3b4e" : "color:var(--faint)"}">${f.sp != null ? "Needs special work" + (f.sp ? ": " + esc(f.sp) : "") + " (tools/match/special.txt; batch runs skip it)" : "Not marked as needing special work"}</span>
+        <button class="btn sm" id="spBtn">${f.sp != null ? "Unmark" : "Mark special work"}</button>
+      </div>
       <div class="note" style="margin-top:14px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-size:10.5px">Overall best <span id="ovNote" style="text-transform:none;letter-spacing:0;color:var(--faint)">· compiling every version to compare instruction by instruction…</span></div>
       <div class="overall" id="overall">${Object.keys(SRC).map(k => `<div class="osrc" data-d="${k}"><div class="k">${SRC[k][0]}</div><div class="v" style="color:var(--faint)">…</div></div>`).join("")}</div>
       <div class="trend" id="trend"><div class="empty2">loading history…</div></div>
@@ -1351,6 +1357,19 @@ async function inspect(n) {
     catch (e) { $("#codebox").innerHTML = `<div class="p">${esc(e.message)}</div>`; }
   };
   notesBox(n, m);
+  const spBtn = m.querySelector("#spBtn");
+  if (spBtn) spBtn.onclick = async () => {
+    let reason = null;
+    if (f.sp == null) {
+      reason = prompt(`Why does ${f.n} need special work? (inline asm, compiler quirk...)`, "");
+      if (reason === null) return;
+    }
+    try {
+      await api("/api/special", { func: f.n, reason });
+      f.sp = reason === null ? null : reason;
+      renderMap(); closeModal(); inspect(f.n);
+    } catch (e) { alert("couldn't save: " + e.message); }
+  };
   api(`/api/trend?func=${n}`).then(tr => { if ($("#trend")) $("#trend").innerHTML = trendSVG(tr, f.p && f.p.base); }).catch(() => {});
   let picked = false;
   api(`/api/overall?func=${n}`).then(o => {

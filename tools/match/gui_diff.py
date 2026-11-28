@@ -307,7 +307,7 @@ class InsnCounts:
         """[matched insns, total, source, diffs] (diffs 0 = that source matches outright)"""
         with self.lock:
             e = self.data.get(func)
-        return [e["m"], e["t"], e["src"], e.get("d")] if e and "m" in e else None
+        return [e["m"], e["t"], e["src"], e.get("d")] if e and "m" in e and e["t"] else None
 
     def poke(self):
         self.poke_ev.set()
@@ -316,7 +316,8 @@ class InsnCounts:
         sig = self.signature(func)
         with self.lock:
             e = self.data.get(func)
-            if e and e.get("sig") == sig and ("d" in e or "m" not in e):
+            # (an entry of 0 instructions is a failed disassembly, never a result: redo it)
+            if e and e.get("sig") == sig and ("d" in e or "m" not in e) and e.get("t") != 0:
                 return False
         o = overall(func)
         ok = {k: v for k, v in o["sources"].items() if "diffs" in v}
@@ -326,7 +327,8 @@ class InsnCounts:
             m = sum(1 for row in r["rows"] if row[2] == "eq")
             if best is None or (m, -r["diffs"]) > (best[0], -best[3]):
                 best = (m, r["total"], k, r["diffs"])
-        entry = {"sig": sig, "m": best[0], "t": best[1], "src": best[2], "d": best[3]} if best else {"sig": sig}
+        entry = ({"sig": sig, "m": best[0], "t": best[1], "src": best[2], "d": best[3]}
+                 if best and best[1] else {"sig": sig})
         with self.lock:
             self.data[func] = entry
         return True

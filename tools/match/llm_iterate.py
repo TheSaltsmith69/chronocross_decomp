@@ -1098,7 +1098,12 @@ def main():
             use_permuter(*x)
         jobs += [f for f, *_ in pj]
         log(f"permuter outputs: " + ", ".join(f"{f} ({sc})" for f, sc, *_ in pj) if pj else "no permuter outputs")
-    jobs += a.funcs
+    # lists skip what tools/match/special.txt marks as needing special work (named functions don't)
+    sp = funcref.special()
+    held = [j for j in jobs if funcref.is_special(j, sp)]
+    if held:
+        log("skipped (tools/match/special.txt): " + ", ".join(dict.fromkeys(held)))
+    jobs = [j for j in jobs if j not in held] + a.funcs
     jobs = [k for k in (key_of(j) for j in jobs) if k]
     # every other function with a permuter output gets it as a starting point too (selection,
     # lists, --queue, --parked), not only --permuted runs

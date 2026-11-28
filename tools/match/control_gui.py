@@ -31,7 +31,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import fnotes, gui_diff, gui_hw, pauseclock
+import fnotes, funcref, gui_diff, gui_hw, pauseclock
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -471,6 +471,7 @@ def functions():
         asm = asm_funcs()
         q = queue_lines()
         pi, li, pk, nt = perm_info(), llm_info(), parked(), fnotes.listing()
+        sp = funcref.special()
         rows = []
         with open(os.path.join(ROOT, "progress", "functions.csv"), newline="") as f:
             csv_rows = list(csv.DictReader(f))
@@ -489,9 +490,27 @@ def functions():
                          "m": matched, "pk": k in pk or pk.get(n) == mod, "q": q.get(k), "p": pi.get(k),
                          "l": li.get(k),
                          "i": INSNS.get(k),       # [matched insns, total, source, diffs] or None
-                         "nt": nt.get(k)})        # notes/FUNC.md mtime, if it has notes
+                         "nt": nt.get(k),         # notes/FUNC.md mtime, if it has notes
+                         # needs special work (tools/match/special.txt): the reason, or None
+                         "sp": sp.get(k, sp.get(n) if k == n else None)})
         _cache.update(t=time.time(), data=rows)
         return rows
+
+
+def set_special(func, reason):
+    """Mark FUNC as needing special work (REASON a string) or unmark it (REASON None), keeping
+    special.txt's comments and the other lines as they are."""
+    if not FUNC_RE.fullmatch(func or ""):
+        raise ValueError("bad name")
+    lines = [l for l in read(funcref.SPECIAL).splitlines()
+             if l.partition("#")[0].split()[:1] != [func]]
+    if reason is not None:
+        why = " ".join(str(reason).split())[:300]
+        lines.append(f"{func}  # {why}" if why else func)
+    tmp = funcref.SPECIAL + ".tmp"
+    with open(tmp, "w") as f:
+        f.write("".join(l + "\n" for l in lines))
+    os.replace(tmp, funcref.SPECIAL)
 
 
 def builtin_lists():
@@ -502,6 +521,8 @@ def builtin_lists():
         out.append({"id": f"parked:{ov}", "name": f"Parked: {ov}", "kind": "builtin",
                     "funcs": [l.strip() for l in read(p).splitlines() if l.strip()],
                     "path": f"tools/match/parked_{ov}.txt"})
+    out.append({"id": "special", "name": "Needs special work", "kind": "builtin",
+                "funcs": list(funcref.special()), "path": "tools/match/special.txt"})
     pi = perm_info()
     pj = sorted((v["best"], k) for k, v in pi.items() if not v["matched"] and v["best"] is not None)
     out.append({"id": "permuted", "name": "Permuter results (best first)", "kind": "builtin",
@@ -1266,6 +1287,11 @@ class H(BaseHTTPRequestHandler):
                 with _cache_lock:
                     _cache["t"] = 0
                 return self.send({"ok": True, "mtime": fnotes.mtime(f)})
+            if u.path == "/api/special":
+                set_special(b.get("func", ""), b.get("reason"))
+                with _cache_lock:
+                    _cache["t"] = 0
+                return self.send({"ok": True, "special": funcref.special()})
             if u.path == "/api/profiles/apply":
                 return self.send(apply_profile(b.get("id", "")))
             if u.path == "/api/profiles/save":

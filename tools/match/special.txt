@@ -1,0 +1,5 @@
+# Functions that need special work: things the permuter, m2c and the LLM loop can't do (inline
+# asm, a compiler quirk, hand-written code). Batch runs (llm_iterate.py --parked/--queue/--permuted,
+# refill_queue.py from a parked list) skip them, and the control panel shows them red.
+# One per line: FUNC (or FUNC@MODULE for a shared name), then # and why. Details go in notes/FUNC.md.
+func_800C80E8  # frame-only function with the stack restore in the jr delay slot: no gcc version emits it (needs asm)
