@@ -3,3 +3,142 @@
 # refill_queue.py from a parked list) skip them, and the control panel shows them red.
 # One per line: FUNC (or FUNC@MODULE for a shared name), then # and why. Details go in notes/FUNC.md.
 func_800C80E8  # frame-only function with the stack restore in the jr delay slot: no gcc version emits it (needs asm)
+# ---- PsyQ library functions m2c can't draft (marked in bulk) ----
+InitGeom  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SquareRoot0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+InvSquareRoot  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_800258B4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+MatrixNormal  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverage12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverage0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverageShort12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverageShort0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverageByte  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LoadAverageCol  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+MulMatrix0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+CompMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ApplyRotMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+PushMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+PopMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ReadRotMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetMulMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+MulMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ApplyMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ApplyMatrixSV  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetRotMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetLightMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetColorMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetTransMatrix  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetVertex0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetVertex1  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetVertex2  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetVertexTri  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetRGBfifo  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetIR123  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetIR0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetSZfifo3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetSZfifo4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetSXSYfifo  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetRii  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetMAC123  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetData32  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetDQA  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetDQB  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_80026734  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetBackColor  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SetFarColor  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_80026784  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_800267A4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LocalLight  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+DpqColor  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColor  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColor3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColorDpq  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColorDpq3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColorCol  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+NormalColorCol3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ColorDpq  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ColorCol  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+AverageSZ3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+AverageSZ4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+LightColor  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+DpqColorLight  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+DpqColor3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+Intpl  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+Square12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+Square0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+AverageZ3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+AverageZ4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+OuterProduct12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+OuterProduct0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_80026B88  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotTransPers  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotTransPers3  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotTrans  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_80026C64  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+func_80026C78  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotTransPers4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ColorMatCol  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotMatrixZYX_gte  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotMatrix_gte  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ApplyMatrixLV  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+ReadGeomOffset  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+MulMatrix2  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotTransSV  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SquareSS12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SquareSS0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SquareSL12  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+SquareSL0  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+RotAverageNclip4  # libgte: GTE (cop2) instructions, needs inline asm / GTE macros
+start  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+exit  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D34  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D44  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D54  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D64  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+InitCARD2  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D84  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018D94  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+_card_write  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+_card_read  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+_new_card  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018DD4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018DE4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018EA4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80018EE8  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+InitHeap  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+FlushCache  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_800228F4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+DeliverEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+OpenEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+CloseEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+TestEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+EnableEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+UnDeliverEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+open  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+lseek  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+read  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+write  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+close  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+nextfile  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+Krom2RawAdd  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+ChangeClearPAD  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+SysEnqIntRP  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+SysDeqIntRP  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+ChangeClearRCnt  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+firstfile2  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+InitPAD2  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80022FF4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80023004  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+PAD_init2  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+EnablePAD  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+DisablePAD  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_80025694  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+VectorNormalS  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_800281B4  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+func_800281BC  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+ReturnFromException  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+ResetEntryInt  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+HookEntryInt  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+DisableEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it
+WaitEvent  # PsyQ hand-written asm (BIOS call stub / startup code): m2c can't draft it

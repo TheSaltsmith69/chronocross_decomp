@@ -134,7 +134,7 @@ segments:
       - [0x2244, c, lib/libgpu/param]  # 80011A44
       - [0x2434, c, lib/libgpu/sys]  # 80011C34
       - [0x5364, c, lib/libpad/padcmd]  # 80014B64
-      - [0x5F64, asm, lib/libpad/padentry]  # 80015764  owns jump tables in the shared rodata
+      - [0x5F64, c, lib/libpad/padentry]  # 80015764  (its jump tables: own .rodata slice below)
       - [0x6424, c, lib/libpad/padif]  # 80015C24
       - [0x6A54, c, lib/libpad/padmain]  # 80016254
       - [0x7824, c, lib/libpad/padportd]  # 80017024
@@ -195,7 +195,7 @@ segments:
       - [0x13824, c, lib/libapi/patch]  # 80023024
       - [0x138C4, c, lib/libapi/chclrpad]  # 800230C4
       - [0x13934, c, lib/libcd/sys]  # 80023134
-      - [0x13F44, asm, lib/libcd/bios]  # 80023744  owns jump tables in the shared rodata
+      - [0x13F44, c, lib/libcd/bios]  # 80023744  (its jump tables: own .rodata slice below)
       - [0x156B4, c, lib/libcd/s_002]  # 80024EB4
       - [0x15844, c, lib/libgte/geo_00]  # 80025044
       - [0x15914, c, lib/libgte/geo_01]  # 80025114
@@ -263,8 +263,8 @@ segments:
       - [0x19134, c, lib/libspu/spu]  # 80028934
       - [0x19C74, c, lib/libspu/s_dcb]  # 80029474
       - [0x19CA4, c, lib/libspu/s_sr]  # 800294A4
-      - [0x19D74, asm, lib/libspu/s_m_util]  # 80029574  owns jump tables in the shared rodata
-      - [0x1A2A4, asm, lib/unk_80029AA4]  # 80029AA4  owns jump tables in the shared rodata
+      - [0x19D74, c, lib/libspu/s_m_util]  # 80029574  (its jump tables: own .rodata slice below)
+      - [0x1A2A4, c, lib/unk_80029AA4]  # 80029AA4  (its jump tables: own .rodata slice below)
       - [0x1B638, c, lib/libsn/creat]  # 8002AE38
       - [0x1B718, c, lib/libsn/snwrite]  # 8002AF18
       - [0x1B730, c, lib/libgte/mtx_00a]  # 8002AF30
@@ -311,11 +311,18 @@ segments:
       - [0x46C80, c, lib/libgte/cmb_07]  # 80056480
       # ---- rodata (0x80056530-0x80063CA0), same object order as text ----
       # Game C files own their slice (.rodata = pulled from the C object,
-      # rodata migrated into the function .s files); lib slices stay asm.
+      # rodata migrated into the function .s files); lib slices stay asm, except
+      # the four lib files whose jump tables have to sit with their code.
       - [0x46D30, rodata, rodata_80056530]
+      - [0x46FA0, .rodata, lib/libpad/padentry]  # 800567A0 jump table
+      - [0x46FC0, rodata, rodata_800567C0]
       - [0x4803C, .rodata, game/unk_800191D4]  # 8005783C
       - [0x52BAC, .rodata, game/main]  # 800623AC
       - [0x52D1C, rodata, rodata_8006251C]
+      - [0x52E68, .rodata, lib/libcd/bios]  # 80062668
+      - [0x52F8C, rodata, rodata_8006278C]
+      - [0x5308C, .rodata, lib/libspu/s_m_util]  # 8006288C
+      - [0x53188, .rodata, lib/unk_80029AA4]  # 80062988
       - [0x532F0, .rodata, game/unk_8002B070]  # 80062AF0
       - [0x53544, .rodata, game/unk_8002FE30]  # 80062D44
       - [0x53DE4, .rodata, game/unk_8003CB78]  # 800635E4

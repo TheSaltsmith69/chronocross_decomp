@@ -569,7 +569,7 @@ _SpuIsInAllocateArea,80029574,lib/libspu/s_m_util,lib,128,0
 _SpuIsInAllocateArea_,800295F4,lib/libspu/s_m_util,lib,144,0
 func_80029684,80029684,lib/libspu/s_m_util,lib,1056,0
 func_80029AA4,80029AA4,lib/unk_80029AA4,lib,164,0
-func_80029B48,80029B48,lib/unk_80029AA4,lib,8,0
+func_80029B48,80029B48,lib/unk_80029AA4,lib,8,1
 func_80029B50,80029B50,lib/unk_80029AA4,lib,236,0
 func_80029C3C,80029C3C,lib/unk_80029AA4,lib,352,0
 func_80029D9C,80029D9C,lib/unk_80029AA4,lib,60,0

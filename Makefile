@@ -61,7 +61,8 @@ $(BUILD)/src/lib/%.o: ASFLAGS := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -O1
 # libsn and most of libgte are hand-written asm).
 LIB_NOPAD := 2mbyte libgte/fog_02 libgte/msc00 libgte/smp_05 \
              libgte/smp_06 libetc/vmode unk_800285D8 unk_8004B230 libsn/lseek \
-             libsn/fsinit libsn/snread libsn/snwrite libsn/_fixusdf
+             libsn/fsinit libsn/snread libsn/snwrite libsn/_fixusdf \
+             libpad/padentry libcd/bios libspu/s_m_util unk_80029AA4
 $(LIB_NOPAD:%=$(BUILD)/src/lib/%.o): ASFLAGS := -EL -I. -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0
 # The PsyQ libpress object at the start of the field overlay was compiled
 # with gcc 2.7.2 (unfilled jr delay slots), not the game's 2.8.1.
