@@ -249,7 +249,7 @@ lib/libspu/s_grmt,lib,80051F14,1,1,16,16
 game/unk_80051F24,game,80051F24,128,120,17692,12332
 lib/libspu/s_sia,lib,80056440,1,1,64,64
 lib/libgte/cmb_07,lib,80056480,1,0,176,0
-blob_8008EBEC,game,8008EBEC,286,62,74340,1672
+blob_8008EBEC,game,8008EBEC,286,68,74340,1864
 ov_field/libpress,ov_field,800A39B4,19,15,2800,1536
 ov_field/field_800A39B4,ov_field,800A44A4,763,617,245888,99752
 ov_battle/battle_800A3E3C,ov_battle,800A3E3C,40,20,27552,3052
