@@ -1,0 +1,57 @@
+name: OV_PARTY2
+# Disc file #2057 (memmenu2.prg in the Radical Dreamers Edition): a second version of the party
+# screen (ov_party, #2053, is memmenu.prg). Loaded at 0x801EE000 on top of the field engine.
+# Not seen in a RAM dump yet. Extract it with: tools/extract_files.py <disc1.bin> iso/files 2057
+sha1: dfc5af5060135012e2a01709f8548aae63cdc7a2
+options:
+  basename: ov_party2
+  target_path: iso/files/2057.bin
+  elf_path: build/ov_party2.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_party2
+  src_path: src/ov_party2
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_party2.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code first, then rodata (strings + jump tables), then data
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_party2.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_party2_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_party2_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_party2
+    type: code
+    start: 0x0
+    vram: 0x801EE000
+    subsegments:
+      - [0x0, c, party2_801EE000]
+      # jump table of the code
+      - [0x4050, .rodata, party2_801EE000]
+      - [0x4078, data, data_801F2078]
+  - [0x7800]

@@ -1,0 +1,56 @@
+name: OV_MONMENU
+# Disc file #2054 (monmenu.prg in the Radical Dreamers Edition): loaded at 0x801EE000
+# on top of the field engine. Not seen in a RAM dump yet; the load address comes from its own jal targets.
+# Extract it with: tools/extract_files.py <disc1.bin> iso/files 2054
+sha1: 39abc84252a02379bb3c1b54a1cc8b60fd9cfa2a
+options:
+  basename: ov_monmenu
+  target_path: iso/files/2054.bin
+  elf_path: build/ov_monmenu.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/ov_monmenu
+  src_path: src/ov_monmenu
+  build_path: build
+
+  ld_script_path: linker_scripts/ov_monmenu.ld
+  ld_dependencies: True
+  ld_align_segment_vram_end: False
+  ld_align_section_vram_end: False
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  find_file_boundaries: True
+  gp_value: 0x8006CE1C
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  # code first, then rodata (strings + jump tables), then data
+  section_order: [".text", ".rodata", ".data", ".bss"]
+
+  # Main-EXE symbols (so calls into main get the same names), plus our own.
+  symbol_addrs_path:
+    - symbol_addrs.txt
+    - symbol_addrs_ov_monmenu.txt
+
+  undefined_funcs_auto_path: linker_scripts/ov_monmenu_undefined_funcs_auto.txt
+  undefined_syms_auto_path: linker_scripts/ov_monmenu_undefined_syms_auto.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+
+segments:
+  - name: ov_monmenu
+    type: code
+    start: 0x0
+    vram: 0x801EE000
+    subsegments:
+      - [0x0, c, monmenu_801EE000]
+      # (id, value) u16 pairs and other tables
+      - [0x2C94, data, data_801F0C94]
+  - [0x4000]
