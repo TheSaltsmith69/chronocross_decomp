@@ -176,4 +176,4 @@ clean:
 
 # Refresh progress/files.csv and add this commit to progress/history.csv
 progress: check
-	$(PYTHON) tools/progress.py --files-csv progress/files.csv --history progress/history.csv
+	$(PYTHON) tools/progress.py --files-csv progress/files.csv --funcs-csv progress/functions.csv --history progress/history.csv
