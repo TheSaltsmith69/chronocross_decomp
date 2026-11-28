@@ -1368,7 +1368,11 @@ async function inspect(n) {
       await api("/api/special", { func: f.n, reason });
       f.sp = reason === null ? null : reason;
       renderMap(); closeModal(); inspect(f.n);
-    } catch (e) { alert("couldn't save: " + e.message); }
+    } catch (e) {
+      alert(e.message === "not found"
+        ? "couldn't save: the control panel server is older than this page (no /api/special yet). Restart the control panel and try again."
+        : "couldn't save: " + e.message);
+    }
   };
   api(`/api/trend?func=${n}`).then(tr => { if ($("#trend")) $("#trend").innerHTML = trendSVG(tr, f.p && f.p.base); }).catch(() => {});
   let picked = false;
