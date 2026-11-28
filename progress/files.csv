@@ -260,3 +260,5 @@ ov_result/result_801EA000,ov_result,801EA000,80,0,34300,0
 ov_name/name_801D2804,ov_name,801D2804,40,0,13944,0
 ov_shop/shop_801D2804,ov_shop,801D2804,122,0,52236,0
 ov_party/party_801EE000,ov_party,801EE000,14,0,16900,0
+ov_monmenu/monmenu_801EE000,ov_monmenu,801EE000,17,0,11412,0
+ov_party2/party2_801EE000,ov_party2,801EE000,14,0,16464,0

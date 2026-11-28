@@ -5,7 +5,8 @@ retail SLUS_010.41 and the Disc 1 .bin.
 
 **Status:** `ov_field` (file #3), `ov_battle` (file #5), `ov_menu` (file #39),
 `ov_enct` (file #7), `ov_result` (file #8), `ov_name` (file #37), `ov_shop`
-(file #225) and `ov_party` (file #2053) are split and rebuild byte-for-byte.
+(file #225), `ov_party` (file #2053), `ov_monmenu` (file #2054) and `ov_party2`
+(file #2057) are split and rebuild byte-for-byte.
 Both discs carry byte-identical copies of every code file under the same file
 numbers, so Disc 1 is the extraction source for all of them.
 
@@ -45,9 +46,40 @@ in-field item menu, chest dialogue and the start-menu screen load no extra code
 insert-disc prompt are both the menu overlay (#39); dumped from DuckStation with
 `tools/ds_dump.py`, since the status screen crashes PCSX-Redux.
 
-Still unplaced: #2054, #2057 (party-screen variant) and the battle-effect code at
-0x801C5E00, which needs a trace of the game's file loader. The
-battle-start dump confirms #7 (`ov_enct`) is the transition into battle.
+#2054 and #2057 are now set up too, from their own `jal` targets (0x801EE000), without
+a dump: `ov_monmenu` (code to 0x2C94, then data; 17 functions) and `ov_party2` (code to
+0x4050, a 10-entry jump table, then data; 14 functions). The battle-start dump confirms
+#7 (`ov_enct`) is the transition into battle.
+
+## Developer file names (Radical Dreamers Edition)
+
+The 2022 PC release ships the PS1 data as loose files. Its `Chronodata\cdrom.fnd`
+(Disc 1) and `cdrom2.fnd` (Disc 2) hold the original path of every disc file, 64 bytes
+each, e.g. `c:\work\cdrom\prog\field.prg`. **Entry `i + 1` names USA disc file `i`**;
+checked against 106 code files matched by content, and the Japanese and USA tables
+both have 6059 entries. `cdrom.mde` is the Japanese LBA table in the same format as
+ours. The two discs' name tables differ in 581 entries.
+
+Every code file on both discs is a `.prg` (528 table entries on Disc 1, 555 on
+Disc 2, 107 different files), and the PC release has all of them in
+`Chronodata\prog\`, uncompressed. So no code file is still missing. Names for the
+ones above: field.prg #3, miyatest.prg #4 (a 3D grid test program for slot A),
+battle.prg #5, title.prg #6 (a developer boot menu), btlinit.prg #7, btlexit.prg #8,
+namemenu.prg #37, menutest.prg #39, shopmenu.prg #225, memmenu.prg #2053,
+monmenu.prg #2054, playinit.prg #2056, memmenu2.prg #2057.
+
+Battle effects come in pairs: `battle\effects\<kind>\X.prd` (data), then `prog\X.prg`
+(code for 0x801C5E00, header word = effect id). The PC release's big overlays were
+relinked (11-48% byte-identical, same instructions), so they serve as names and
+reference, not as matching targets. The effect code is 93-100% identical to the disc.
+Six effects exist only on Disc 2: lasdes1 #5862, darkfeit #5868, dorured #5880,
+dorublue #5883, lasbos #5913, bgchng #5916.
+
+`Chronodata\debug.prg` (3.2 MB, not on the retail discs) is the dev-kit debug module
+for 0x80300000. All 19 calls the main EXE makes above 2 MB (`undefined_funcs.txt`,
+0x8031A7C8-0x8033D044) land on function starts in it. It was linked against the
+Japanese EXE, though (140 of its 205 call targets into the EXE are function starts
+in `slps_023.64`, only 23 in SLUS_010.41).
 
 Battle effects: during Element/Tech/boss animations there is code at 0x801C5E00
 that matches no single disc file, even with j/jal/lui words ignored. About 500
